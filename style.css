@@ -50,10 +50,29 @@ body.dark-theme::after {
 /* ========== ФОН ========== */
 body.light-theme {
     background-color: #faf9f8;
+    color: #333;
 }
 
 body.dark-theme {
     background-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+/* ========== ТЕКСТ В ТЁМНОЙ ТЕМЕ ========== */
+body.dark-theme p {
+    color: #d0d0d0;
+}
+
+body.dark-theme li {
+    color: #d0d0d0;
+}
+
+body.dark-theme h3 {
+    color: #e0e0e0;
+}
+
+body.dark-theme label {
+    color: #e0e0e0;
 }
 
 /* ========== ПЕРЕКЛЮЧАТЕЛЬ ТЕМ ========== */
@@ -359,16 +378,46 @@ body.dark-theme pre {
 body.light-theme .explanation {
     background: rgba(171, 205, 239, 0.2);
     border-left: 4px solid #abcdef;
+    color: #333;
 }
 
 body.dark-theme .explanation {
-    background: rgba(29, 30, 51, 0.3);
-    border-left: 4px solid #1D1E33;
+    background: rgba(29, 30, 51, 0.4);
+    border-left: 4px solid #667eea;
+}
+
+body.dark-theme .explanation p,
+body.dark-theme .explanation li {
+    color: #d0d0d0;
 }
 
 .explanation p, .explanation li {
     font-weight: 400;
     line-height: 1.6;
+}
+
+/* ========== ПРИМЕРЫ ВВОДА ========== */
+.input-example {
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+body.light-theme .input-example {
+    background: rgba(171, 205, 239, 0.15);
+}
+
+body.dark-theme .input-example {
+    background: rgba(102, 126, 234, 0.15);
+}
+
+body.dark-theme .input-example p {
+    color: #d0d0d0;
+}
+
+body.dark-theme .input-example pre {
+    background: #1a1a2e;
+    color: #e0e0e0;
 }
 
 /* ========== ДЕМО-БЛОК ========== */
@@ -427,6 +476,28 @@ body.light-theme .output {
 
 body.dark-theme .output {
     background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+/* Шаги выполнения */
+.step-by-step {
+    margin-top: 20px;
+}
+
+.step {
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+body.light-theme .step {
+    background: #f0f0f0;
+    color: #333;
+}
+
+body.dark-theme .step {
+    background: #2a2a3a;
     color: #e0e0e0;
 }
 
