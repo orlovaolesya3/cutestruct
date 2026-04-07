@@ -10,12 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
         themeWrapper.className = 'theme-switch-wrapper';
         themeWrapper.innerHTML = `
             <label class="theme-switch">
-                <span>☀️</span>
                 <div class="switch">
                     <input type="checkbox" id="theme-toggle" ${savedTheme === 'dark' ? 'checked' : ''}>
                     <span class="slider"></span>
                 </div>
-                <span>🌙</span>
             </label>
         `;
         document.body.appendChild(themeWrapper);
@@ -35,6 +33,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Функция для вставки лапки вместо смайликов
+function addPawIcons() {
+    // Заменяем смайлики в заголовках карточек
+    const cards = document.querySelectorAll('.category-card h2, .algorithm-card h3');
+    cards.forEach(card => {
+        let text = card.innerHTML;
+        // Убираем старые смайлики и добавляем лапку
+        text = text.replace(/[📊🔄🔍🧮🌊🌳📈➗💫🎯🔢⚡🔎]/g, '');
+        if (!text.includes('paw')) {
+            card.innerHTML = `<span class="paw"></span>${text}`;
+        }
+    });
+    
+    // Заменяем в кнопках
+    const buttons = document.querySelectorAll('.btn, button');
+    buttons.forEach(button => {
+        let text = button.innerHTML;
+        if (text.includes('→') || text.includes('Запустить') || text.includes('Найти') || text.includes('Перейти')) {
+            if (!text.includes('paw')) {
+                button.innerHTML = `<span class="paw"></span>${text}`;
+            }
+        }
+    });
+}
+
+// Запускаем добавление лапок после загрузки страницы
+setTimeout(addPawIcons, 100);
 
 // ============ СОРТИРОВКИ ============
 function bubbleSort(arr) {
