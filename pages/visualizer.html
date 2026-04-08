@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Визуализатор графов</title>
     <link rel="stylesheet" href="../style.css">
     <style>
@@ -42,6 +42,7 @@
             position: absolute;
             top: 15px;
             left: 15px;
+            touch-action: none;
         }
         
         canvas:active {
@@ -138,6 +139,7 @@
             gap: 16px;
             align-items: center;
             margin-top: 12px;
+            flex-wrap: wrap;
         }
         
         .start-end-group label {
@@ -148,10 +150,11 @@
         }
         
         .start-end-group input {
-            width: 65px;
+            width: 100px;
             padding: 6px;
             border-radius: 8px;
             font-size: 14px;
+            font-family: monospace;
         }
         
         .legend {
@@ -214,13 +217,13 @@
         
         <header>
             <h1>Визуализатор графов</h1>
-            <p>Введите ребра графа</p>
+            <p>Введите ребра графа (можно использовать числа, отрицательные числа, буквы)</p>
         </header>
 
         <div class="visualizer-container">
             <div class="graph-canvas">
                 <canvas id="graphCanvas" width="670" height="670"></canvas>
-                <div class="instruction"> Перетаскивайте вершины мышкой</div>
+                <div class="instruction"> Перетаскивайте вершины мышкой или пальцем</div>
             </div>
             
             <div class="controls">
@@ -273,18 +276,21 @@
                         <button onclick="findShortestPath()"> Дейкстра (путь до финиша)</button>
                     </div>
                     <div class="start-end-group">
-                        <label> Старт: <input type="number" id="startNode" value="1"></label>
-                        <label> Финиш: <input type="number" id="endNode" value="2"></label>
+                        <label> Старт: <input type="text" id="startNode" placeholder="наименьшая"></label>
+                        <label> Финиш: <input type="text" id="endNode" placeholder="наибольшая"></label>
+                    </div>
+                    <div style="font-size: 12px; margin-top: 8px; opacity: 0.7;">
+                        По умолчанию: старт = наименьшая вершина, финиш = наибольшая
                     </div>
                 </div>
                 
                 <div class="control-group">
                     <h3> Примеры</h3>
                     <div class="button-group">
-                        <button onclick="loadExample('simple')"> Простой</button>
-                        <button onclick="loadExample('weighted')"> Взвешенный</button>
-                        <button onclick="loadExample('directed')"> Ориентированный</button>
                         <button onclick="loadExample('tree')"> Дерево</button>
+                        <button onclick="loadExample('bamboo')"> Бамбук (линия)</button>
+                        <button onclick="loadExample('cycle')"> Цикл</button>
+                        <button onclick="loadExample('weighted')"> Взвешенный</button>
                     </div>
                 </div>
                 
@@ -298,11 +304,12 @@
             <h3> Как использовать?</h3>
             <ul>
                 <li> <strong>Пишите или вставляйте рёбра</strong> — граф обновляется мгновенно</li>
-                <li> <strong>Перетаскивайте вершины</strong> мышкой</li>
+                <li> <strong>Перетаскивайте вершины</strong> пальцем на телефоне или мышкой</li>
+                <li> Вершины <strong>автоматически плавают</strong> и не залазят друг на друга</li>
+                <li> <strong>Любые имена вершин</strong>: числа, отрицательные числа, буквы (A, B, C...)</li>
                 <li> Включите "Взвешенный граф" для отображения чисел на рёбрах</li>
                 <li> Включите "Ориентированный граф" для стрелок посередине рёбер</li>
-                <li> BFS/DFS показывают обход от стартовой вершины</li>
-                <li> Дейкстра показывает кратчайший путь от старта до финиша</li>
+                <li> Старт и финиш автоматически определяются как мин/макс, но можно изменить</li>
             </ul>
         </div>
     </div>
@@ -313,6 +320,7 @@
         let ctx = canvas.getContext('2d');
         let graph = { nodes: [], edges: [] };
         let nodePositions = {};
+        let nodeVelocities = {};
         let animationSpeed = 500;
         let isRunning = false;
         
@@ -320,12 +328,66 @@
         let dragOffsetX = 0;
         let dragOffsetY = 0;
         
+        let physicsAnimationId = null;
+        const NODE_RADIUS = 32;
+        
+        // Параметры физики — ослабленные, чтобы граф не сжимался обратно
+        const REPULSION_STRENGTH = 1200;  // сильное отталкивание
+        const SPRING_STRENGTH = 0.012;    // очень слабые пружины
+        const SPRING_LENGTH = 220;        // длинные пружины
+        const CENTER_STRENGTH = 0.002;    // слабое притяжение к центру
+        const DAMPING = 0.95;             // затухание
+        const MAX_SPEED = 5;              // максимальная скорость
+        
         const CANVAS_SIZE = 670;
+        const CENTER_X = CANVAS_SIZE / 2;
+        const CENTER_Y = CANVAS_SIZE / 2;
+        
+        // Функция сравнения для любых типов вершин
+        function compareNodes(a, b) {
+            const aIsNum = !isNaN(a) && typeof a !== 'string';
+            const bIsNum = !isNaN(b) && typeof b !== 'string';
+            
+            if (aIsNum && bIsNum) {
+                return parseFloat(a) - parseFloat(b);
+            }
+            if (aIsNum && !bIsNum) return -1;
+            if (!aIsNum && bIsNum) return 1;
+            return String(a).localeCompare(String(b));
+        }
+        
+        function getMinNode() {
+            if (graph.nodes.length === 0) return null;
+            return graph.nodes.reduce((min, node) => compareNodes(node, min) < 0 ? node : min);
+        }
+        
+        function getMaxNode() {
+            if (graph.nodes.length === 0) return null;
+            return graph.nodes.reduce((max, node) => compareNodes(node, max) > 0 ? node : max);
+        }
+        
+        function updateDefaultStartEnd() {
+            const startInput = document.getElementById('startNode');
+            const endInput = document.getElementById('endNode');
+            const minNode = getMinNode();
+            const maxNode = getMaxNode();
+            
+            if (minNode !== null && startInput.value === '') {
+                startInput.value = minNode;
+            }
+            if (maxNode !== null && endInput.value === '') {
+                endInput.value = maxNode;
+            }
+        }
+        
+        function displayVertexLabel(node) {
+            return node.toString();
+        }
         
         function init() {
             canvas.width = CANVAS_SIZE;
             canvas.height = CANVAS_SIZE;
-            loadExample('simple');
+            loadExample('tree');
             
             const textarea = document.getElementById('graphInput');
             textarea.addEventListener('input', () => parseAndUpdateGraph());
@@ -338,13 +400,202 @@
                 drawGraph();
             });
             
+            canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+            canvas.addEventListener('touchend', onTouchEnd);
+            canvas.addEventListener('touchcancel', onTouchEnd);
+            
             canvas.addEventListener('mousedown', onMouseDown);
             canvas.addEventListener('mousemove', onMouseMove);
             canvas.addEventListener('mouseup', onMouseUp);
             canvas.addEventListener('mouseleave', onMouseUp);
+            
+            startPhysics();
         }
         
-        // Получение соседей вершины (учитывает ориентацию графа)
+        function applyForces() {
+            if (isRunning) return;
+            if (draggingNode !== null) return;  // Не применяем силы пока тащим вершину
+            
+            const forces = {};
+            for (let node of graph.nodes) {
+                forces[node] = { x: 0, y: 0 };
+            }
+            
+            // 1. Отталкивание между всеми парами вершин
+            for (let i = 0; i < graph.nodes.length; i++) {
+                for (let j = i + 1; j < graph.nodes.length; j++) {
+                    const nodeA = graph.nodes[i];
+                    const nodeB = graph.nodes[j];
+                    const posA = nodePositions[nodeA];
+                    const posB = nodePositions[nodeB];
+                    
+                    if (!posA || !posB) continue;
+                    
+                    const dx = posA.x - posB.x;
+                    const dy = posA.y - posB.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 0.1) continue;
+                    if (distance > 400) continue;
+                    
+                    const force = REPULSION_STRENGTH / (distance * distance);
+                    const fx = (dx / distance) * force;
+                    const fy = (dy / distance) * force;
+                    
+                    forces[nodeA].x += fx;
+                    forces[nodeA].y += fy;
+                    forces[nodeB].x -= fx;
+                    forces[nodeB].y -= fy;
+                }
+            }
+            
+            // 2. Притяжение по рёбрам (очень слабое, только если далеко)
+            for (let edge of graph.edges) {
+                const from = edge.from;
+                const to = edge.to;
+                const posFrom = nodePositions[from];
+                const posTo = nodePositions[to];
+                
+                if (!posFrom || !posTo) continue;
+                
+                const dx = posFrom.x - posTo.x;
+                const dy = posFrom.y - posTo.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 0.1) continue;
+                
+                if (distance > SPRING_LENGTH) {
+                    const force = SPRING_STRENGTH * (distance - SPRING_LENGTH);
+                    const fx = (dx / distance) * force;
+                    const fy = (dy / distance) * force;
+                    
+                    forces[from].x -= fx;
+                    forces[from].y -= fy;
+                    forces[to].x += fx;
+                    forces[to].y += fy;
+                }
+            }
+            
+            // 3. Слабое притяжение к центру
+            for (let node of graph.nodes) {
+                const pos = nodePositions[node];
+                if (!pos) continue;
+                
+                const dx = CENTER_X - pos.x;
+                const dy = CENTER_Y - pos.y;
+                const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distanceToCenter > 300) {
+                    forces[node].x += dx * CENTER_STRENGTH * 2;
+                    forces[node].y += dy * CENTER_STRENGTH * 2;
+                } else if (distanceToCenter > 200) {
+                    forces[node].x += dx * CENTER_STRENGTH;
+                    forces[node].y += dy * CENTER_STRENGTH;
+                }
+            }
+            
+            // Применяем силы
+            for (let node of graph.nodes) {
+                if (!nodeVelocities[node]) {
+                    nodeVelocities[node] = { x: 0, y: 0 };
+                }
+                
+                nodeVelocities[node].x = (nodeVelocities[node].x + forces[node].x) * DAMPING;
+                nodeVelocities[node].y = (nodeVelocities[node].y + forces[node].y) * DAMPING;
+                
+                let speed = Math.hypot(nodeVelocities[node].x, nodeVelocities[node].y);
+                if (speed > MAX_SPEED) {
+                    nodeVelocities[node].x = (nodeVelocities[node].x / speed) * MAX_SPEED;
+                    nodeVelocities[node].y = (nodeVelocities[node].y / speed) * MAX_SPEED;
+                }
+                
+                let newX = nodePositions[node].x + nodeVelocities[node].x;
+                let newY = nodePositions[node].y + nodeVelocities[node].y;
+                
+                newX = Math.min(Math.max(newX, NODE_RADIUS + 10), CANVAS_SIZE - NODE_RADIUS - 10);
+                newY = Math.min(Math.max(newY, NODE_RADIUS + 10), CANVAS_SIZE - NODE_RADIUS - 10);
+                
+                nodePositions[node] = { x: newX, y: newY };
+            }
+        }
+        
+        function startPhysics() {
+            if (physicsAnimationId) cancelAnimationFrame(physicsAnimationId);
+            
+            function updatePhysics() {
+                if (!isRunning) {
+                    applyForces();
+                    drawGraph();
+                }
+                physicsAnimationId = requestAnimationFrame(updatePhysics);
+            }
+            
+            updatePhysics();
+        }
+        
+        function getTouchPosition(touch) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = CANVAS_SIZE / rect.width;
+            const scaleY = CANVAS_SIZE / rect.height;
+            const canvasX = (touch.clientX - rect.left) * scaleX;
+            const canvasY = (touch.clientY - rect.top) * scaleY;
+            return { x: canvasX, y: canvasY };
+        }
+        
+        function onTouchStart(e) {
+            e.preventDefault();
+            if (isRunning) return;
+            const touch = e.touches[0];
+            const pos = getTouchPosition(touch);
+            
+            for (let node of graph.nodes) {
+                const nodePos = nodePositions[node];
+                if (nodePos) {
+                    const dx = pos.x - nodePos.x;
+                    const dy = pos.y - nodePos.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    if (distance < NODE_RADIUS + 10) {
+                        draggingNode = node;
+                        dragOffsetX = pos.x - nodePos.x;
+                        dragOffsetY = pos.y - nodePos.y;
+                        canvas.style.cursor = 'grabbing';
+                        if (nodeVelocities[node]) {
+                            nodeVelocities[node].x = 0;
+                            nodeVelocities[node].y = 0;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        function onTouchMove(e) {
+            e.preventDefault();
+            if (draggingNode !== null && !isRunning) {
+                const touch = e.touches[0];
+                const pos = getTouchPosition(touch);
+                let canvasX = pos.x - dragOffsetX;
+                let canvasY = pos.y - dragOffsetY;
+                
+                canvasX = Math.min(Math.max(canvasX, NODE_RADIUS + 10), CANVAS_SIZE - NODE_RADIUS - 10);
+                canvasY = Math.min(Math.max(canvasY, NODE_RADIUS + 10), CANVAS_SIZE - NODE_RADIUS - 10);
+                
+                nodePositions[draggingNode] = { x: canvasX, y: canvasY };
+                if (nodeVelocities[draggingNode]) {
+                    nodeVelocities[draggingNode].x = 0;
+                    nodeVelocities[draggingNode].y = 0;
+                }
+                drawGraph();
+            }
+        }
+        
+        function onTouchEnd(e) {
+            e.preventDefault();
+            draggingNode = null;
+            canvas.style.cursor = 'grab';
+        }
+        
         function getNeighbors(node) {
             const isDirected = document.getElementById('directedCheckbox').checked;
             const neighbors = [];
@@ -370,18 +621,30 @@
             for (let line of lines) {
                 const parts = line.trim().split(/\s+/);
                 if (parts.length >= 2) {
-                    const a = parseInt(parts[0]);
-                    const b = parseInt(parts[1]);
-                    const weight = (parts.length >= 3 && isWeighted) ? parseFloat(parts[2]) : 1;
-                    if (!isNaN(a) && !isNaN(b) && !isNaN(weight)) {
-                        edges.push({ from: a, to: b, weight: weight });
-                        nodesSet.add(a);
-                        nodesSet.add(b);
+                    let a = parts[0];
+                    let b = parts[1];
+                    let weight = 1;
+                    
+                    // Пробуем преобразовать в число, если получается — используем число
+                    let aNum = parseFloat(a);
+                    let bNum = parseFloat(b);
+                    let nodeA = !isNaN(aNum) && aNum.toString() === a ? aNum : a;
+                    let nodeB = !isNaN(bNum) && bNum.toString() === b ? bNum : b;
+                    
+                    if (parts.length >= 3 && isWeighted) {
+                        weight = parseFloat(parts[2]);
+                        if (isNaN(weight)) weight = 1;
                     }
+                    
+                    edges.push({ from: nodeA, to: nodeB, weight: weight });
+                    nodesSet.add(nodeA);
+                    nodesSet.add(nodeB);
                 }
             }
             
-            const nodes = Array.from(nodesSet).sort((a,b) => a-b);
+            let nodes = Array.from(nodesSet);
+            nodes.sort((a, b) => compareNodes(a, b));
+            
             const oldPositions = { ...nodePositions };
             graph = { nodes, edges };
             
@@ -389,10 +652,14 @@
                 if (oldPositions[node]) {
                     nodePositions[node] = oldPositions[node];
                 }
+                if (!nodeVelocities[node]) {
+                    nodeVelocities[node] = { x: 0, y: 0 };
+                }
             }
             
             calculateNodePositions();
             drawGraph();
+            updateDefaultStartEnd();
             
             const weightStatus = isWeighted ? 'с весами' : 'без весов';
             document.getElementById('algoStatus').innerHTML = ` Граф обновлён: ${nodes.length} вершин, ${edges.length} рёбер (${weightStatus})`;
@@ -400,9 +667,7 @@
         
         function calculateNodePositions() {
             if (graph.nodes.length === 0) return;
-            const centerX = CANVAS_SIZE / 2;
-            const centerY = CANVAS_SIZE / 2;
-            const radius = Math.min(CANVAS_SIZE, CANVAS_SIZE) * 0.38;
+            const radius = Math.min(CANVAS_SIZE, CANVAS_SIZE) * 0.35;
             
             graph.nodes.forEach((node, i) => {
                 if (nodePositions[node] && 
@@ -412,14 +677,16 @@
                 }
                 const angle = (i * 2 * Math.PI / graph.nodes.length) - Math.PI / 2;
                 nodePositions[node] = {
-                    x: centerX + radius * Math.cos(angle),
-                    y: centerY + radius * Math.sin(angle)
+                    x: CENTER_X + radius * Math.cos(angle),
+                    y: CENTER_Y + radius * Math.sin(angle)
                 };
+                nodeVelocities[node] = { x: 0, y: 0 };
             });
         }
         
         function resetNodePositions() {
             nodePositions = {};
+            nodeVelocities = {};
             calculateNodePositions();
             drawGraph();
             document.getElementById('algoStatus').innerHTML = ' Позиции вершин сброшены';
@@ -429,63 +696,49 @@
             document.getElementById('graphInput').value = '';
             graph = { nodes: [], edges: [] };
             nodePositions = {};
+            nodeVelocities = {};
             drawGraph();
             document.getElementById('algoStatus').innerHTML = ' Граф очищен';
+            document.getElementById('startNode').value = '';
+            document.getElementById('endNode').value = '';
         }
         
         function loadExample(type) {
             let text = '';
+            document.getElementById('weightedCheckbox').checked = false;
+            document.getElementById('directedCheckbox').checked = false;
+            
             switch(type) {
-                case 'simple':
-                    text = `1 2
-2 3
-3 4
-1 4`;
-                    document.getElementById('weightedCheckbox').checked = false;
-                    document.getElementById('directedCheckbox').checked = false;
+                case 'tree':
+                    // Дерево с корнем 1
+                    text = `1 2\n1 3\n1 4\n2 5\n2 6\n3 7\n4 8`;
+                    break;
+                case 'bamboo':
+                    // Бамбук (линия/путь) из 6 вершин
+                    text = `1 2\n2 3\n3 4\n4 5\n5 6`;
+                    break;
+                case 'cycle':
+                    // Цикл из 6 вершин
+                    text = `1 2\n2 3\n3 4\n4 5\n5 6\n6 1`;
                     break;
                 case 'weighted':
-                    text = `1 2 5
-1 3 3
-2 4 2
-3 4 7
-2 5 4
-4 5 1`;
+                    // Взвешенный граф
+                    text = `1 2 5\n1 3 3\n2 4 2\n3 4 7\n2 5 4\n4 5 1`;
                     document.getElementById('weightedCheckbox').checked = true;
-                    document.getElementById('directedCheckbox').checked = false;
-                    break;
-                case 'directed':
-                    text = `1 2 3
-2 3 2
-3 4 4
-4 1 5
-2 4 1`;
-                    document.getElementById('weightedCheckbox').checked = true;
-                    document.getElementById('directedCheckbox').checked = true;
-                    break;
-                case 'tree':
-                    text = `1 2
-1 3
-1 4
-2 5
-2 6
-3 7
-4 8`;
-                    document.getElementById('weightedCheckbox').checked = false;
-                    document.getElementById('directedCheckbox').checked = false;
                     break;
             }
+            
             document.getElementById('graphInput').value = text;
             parseAndUpdateGraph();
-            document.getElementById('algoStatus').innerHTML = ` Загружен пример: ${type}`;
+            document.getElementById('algoStatus').innerHTML = ` Загружен пример: ${type === 'tree' ? 'Дерево' : type === 'bamboo' ? 'Бамбук' : type === 'cycle' ? 'Цикл' : 'Взвешенный'}`;
         }
         
-        function findNodeUnderCursor(mouseX, mouseY) {
+        function findNodeUnderCursor(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = CANVAS_SIZE / rect.width;
             const scaleY = CANVAS_SIZE / rect.height;
-            const canvasX = (mouseX - rect.left) * scaleX;
-            const canvasY = (mouseY - rect.top) * scaleY;
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
             
             for (let node of graph.nodes) {
                 const pos = nodePositions[node];
@@ -493,7 +746,7 @@
                     const dx = canvasX - pos.x;
                     const dy = canvasY - pos.y;
                     const distance = Math.sqrt(dx*dx + dy*dy);
-                    if (distance < 32) {
+                    if (distance < NODE_RADIUS + 10) {
                         return { node, x: canvasX, y: canvasY };
                     }
                 }
@@ -509,6 +762,10 @@
                 dragOffsetX = hit.x - nodePositions[hit.node].x;
                 dragOffsetY = hit.y - nodePositions[hit.node].y;
                 canvas.style.cursor = 'grabbing';
+                if (nodeVelocities[draggingNode]) {
+                    nodeVelocities[draggingNode].x = 0;
+                    nodeVelocities[draggingNode].y = 0;
+                }
                 e.preventDefault();
             }
         }
@@ -521,10 +778,14 @@
                 let canvasX = (e.clientX - rect.left) * scaleX - dragOffsetX;
                 let canvasY = (e.clientY - rect.top) * scaleY - dragOffsetY;
                 
-                canvasX = Math.min(Math.max(canvasX, 32), CANVAS_SIZE - 32);
-                canvasY = Math.min(Math.max(canvasY, 32), CANVAS_SIZE - 32);
+                canvasX = Math.min(Math.max(canvasX, NODE_RADIUS + 10), CANVAS_SIZE - NODE_RADIUS - 10);
+                canvasY = Math.min(Math.max(canvasY, NODE_RADIUS + 10), CANVAS_SIZE - NODE_RADIUS - 10);
                 
                 nodePositions[draggingNode] = { x: canvasX, y: canvasY };
+                if (nodeVelocities[draggingNode]) {
+                    nodeVelocities[draggingNode].x = 0;
+                    nodeVelocities[draggingNode].y = 0;
+                }
                 drawGraph();
             }
         }
@@ -543,7 +804,6 @@
             const isWeighted = document.getElementById('weightedCheckbox').checked;
             const isDirected = document.getElementById('directedCheckbox').checked;
             const isDarkTheme = document.body.classList.contains('dark-theme');
-            // В тёмной теме вес белый, в светлой — тёмно-серый
             const weightColor = isDarkTheme ? '#ffffff' : '#444444';
             
             for (let edge of graph.edges) {
@@ -584,7 +844,7 @@
                         ctx.fill();
                     }
                     
-                    if (isWeighted && edge.weight !== undefined) {
+                    if (isWeighted && edge.weight !== undefined && edge.weight !== 1) {
                         const offset = isDirected ? 18 : 12;
                         const perpX = -dy / length * offset;
                         const perpY = dx / length * offset;
@@ -601,7 +861,7 @@
                 if (!pos) continue;
                 
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 28, 0, 2 * Math.PI);
+                ctx.arc(pos.x, pos.y, NODE_RADIUS - 4, 0, 2 * Math.PI);
                 
                 if (currentNode === node) {
                     ctx.fillStyle = '#e0b0a0';
@@ -620,28 +880,37 @@
                 ctx.shadowBlur = 4;
                 ctx.shadowColor = 'rgba(0,0,0,0.15)';
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 18px "Segoe UI"';
+                ctx.font = 'bold 16px "Segoe UI"';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(node, pos.x, pos.y);
+                let label = displayVertexLabel(node);
+                if (label.length > 4) label = label.slice(0, 4);
+                ctx.fillText(label, pos.x, pos.y);
                 ctx.shadowBlur = 0;
             }
         }
         
-        // BFS от стартовой вершины
         async function runBFSVisual() {
             if (isRunning) return;
-            const start = parseInt(document.getElementById('startNode').value);
-            if (!graph.nodes.includes(start)) {
-                alert('Стартовая вершина не найдена в графе');
+            let start = document.getElementById('startNode').value;
+            if (start === '') {
+                start = getMinNode();
+            }
+            // Сравниваем как строки или числа
+            const startStr = String(start);
+            const foundStart = graph.nodes.some(node => String(node) === startStr || node === start);
+            if (!foundStart) {
+                alert(`Стартовая вершина "${start}" не найдена в графе. Доступные вершины: ${graph.nodes.map(n => displayVertexLabel(n)).join(', ')}`);
                 return;
             }
+            // Находим реальный узел
+            const realStart = graph.nodes.find(node => String(node) === startStr || node === start);
             
             isRunning = true;
-            document.getElementById('algoStatus').innerHTML = ` BFS от вершины ${start}...`;
+            document.getElementById('algoStatus').innerHTML = ` BFS от вершины ${displayVertexLabel(realStart)}...`;
             
             const visited = [];
-            const queue = [start];
+            const queue = [realStart];
             const order = [];
             
             while (queue.length > 0) {
@@ -661,21 +930,27 @@
                 }
             }
             
-            document.getElementById('algoStatus').innerHTML = ` BFS от ${start}: ${order.join(' → ')}`;
+            const orderLabels = order.map(n => displayVertexLabel(n)).join(' → ');
+            document.getElementById('algoStatus').innerHTML = ` BFS от ${displayVertexLabel(realStart)}: ${orderLabels}`;
             isRunning = false;
         }
         
-        // DFS от стартовой вершины
         async function runDFSVisual() {
             if (isRunning) return;
-            const start = parseInt(document.getElementById('startNode').value);
-            if (!graph.nodes.includes(start)) {
-                alert('Стартовая вершина не найдена в графе');
+            let start = document.getElementById('startNode').value;
+            if (start === '') {
+                start = getMinNode();
+            }
+            const startStr = String(start);
+            const foundStart = graph.nodes.some(node => String(node) === startStr || node === start);
+            if (!foundStart) {
+                alert(`Стартовая вершина "${start}" не найдена в графе. Доступные вершины: ${graph.nodes.map(n => displayVertexLabel(n)).join(', ')}`);
                 return;
             }
+            const realStart = graph.nodes.find(node => String(node) === startStr || node === start);
             
             isRunning = true;
-            document.getElementById('algoStatus').innerHTML = ` DFS от вершины ${start}...`;
+            document.getElementById('algoStatus').innerHTML = ` DFS от вершины ${displayVertexLabel(realStart)}...`;
             
             const visited = [];
             const order = [];
@@ -694,20 +969,36 @@
                 }
             }
             
-            await dfs(start);
-            document.getElementById('algoStatus').innerHTML = ` DFS от ${start}: ${order.join(' → ')}`;
+            await dfs(realStart);
+            const orderLabels = order.map(n => displayVertexLabel(n)).join(' → ');
+            document.getElementById('algoStatus').innerHTML = ` DFS от ${displayVertexLabel(realStart)}: ${orderLabels}`;
             isRunning = false;
         }
         
-        // Дейкстра от старта до финиша
         function findShortestPath() {
-            const start = parseInt(document.getElementById('startNode').value);
-            const end = parseInt(document.getElementById('endNode').value);
+            let start = document.getElementById('startNode').value;
+            let end = document.getElementById('endNode').value;
             
-            if (!graph.nodes.includes(start) || !graph.nodes.includes(end)) {
-                alert('Стартовая или конечная вершина не найдена в графе');
+            if (start === '') start = getMinNode();
+            if (end === '') end = getMaxNode();
+            
+            const startStr = String(start);
+            const endStr = String(end);
+            
+            const foundStart = graph.nodes.some(node => String(node) === startStr || node === start);
+            const foundEnd = graph.nodes.some(node => String(node) === endStr || node === end);
+            
+            if (!foundStart) {
+                alert(`Стартовая вершина "${start}" не найдена в графе. Доступные вершины: ${graph.nodes.map(n => displayVertexLabel(n)).join(', ')}`);
                 return;
             }
+            if (!foundEnd) {
+                alert(`Конечная вершина "${end}" не найдена в графе. Доступные вершины: ${graph.nodes.map(n => displayVertexLabel(n)).join(', ')}`);
+                return;
+            }
+            
+            const realStart = graph.nodes.find(node => String(node) === startStr || node === start);
+            const realEnd = graph.nodes.find(node => String(node) === endStr || node === end);
             
             const isDirected = document.getElementById('directedCheckbox').checked;
             const adj = {};
@@ -727,7 +1018,7 @@
                 dist[node] = Infinity;
                 prev[node] = null;
             }
-            dist[start] = 0;
+            dist[realStart] = 0;
             
             while (unvisited.size > 0) {
                 let current = null;
@@ -739,7 +1030,7 @@
                     }
                 }
                 
-                if (current === null || current === end) break;
+                if (current === null || current === realEnd) break;
                 unvisited.delete(current);
                 
                 for (let neighbor of adj[current]) {
@@ -752,14 +1043,15 @@
             }
             
             const path = [];
-            let current = end;
-            while (current !== null && current !== start) {
+            let current = realEnd;
+            while (current !== null && current !== realStart) {
                 path.unshift(current);
                 current = prev[current];
             }
-            if (current === start) {
-                path.unshift(start);
-                document.getElementById('algoStatus').innerHTML = ` Кратчайший путь от ${start} до ${end}: ${path.join(' → ')} (длина: ${dist[end]})`;
+            if (current === realStart) {
+                path.unshift(realStart);
+                const pathLabels = path.map(n => displayVertexLabel(n)).join(' → ');
+                document.getElementById('algoStatus').innerHTML = ` Кратчайший путь от ${displayVertexLabel(realStart)} до ${displayVertexLabel(realEnd)}: ${pathLabels} (длина: ${dist[realEnd]})`;
                 
                 const pathEdges = [];
                 for (let i = 0; i < path.length - 1; i++) {
@@ -767,7 +1059,7 @@
                 }
                 drawGraph([], null, pathEdges);
             } else {
-                document.getElementById('algoStatus').innerHTML = ` Путь от ${start} до ${end} не найден`;
+                document.getElementById('algoStatus').innerHTML = ` Путь от ${displayVertexLabel(realStart)} до ${displayVertexLabel(realEnd)} не найден`;
                 drawGraph();
             }
         }
