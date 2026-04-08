@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>DFS - поиск в глубину</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        /* Дополнительные стили для DFS страницы */
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .try-it textarea {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+        
+        <header>
+            <h1>DFS - поиск в глубину</h1>
+            <p>Рекурсивный обход графа</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n, m = map(int, input().split())
+G = [[] for _ in range(n)]
+
+for _ in range(m):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    G[a].append(b)
+    G[b].append(a)
+
+used = [0] * n
+R = []
+
+def dfs(h):
+    used[h] = 1
+    R.append(h + 1)
+    for a in G[h]:
+        if used[a] == 0:
+            dfs(a)
+
+if n > 0:
+    dfs(0)
+
+print(*R)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, m;
+vector&lt;vector&lt;int&gt;&gt; G;
+vector&lt;int&gt; used;
+vector&lt;int&gt; R;
+
+void dfs(int h) {
+    used[h] = 1;
+    R.push_back(h + 1);
+    for (auto a : G[h]) {
+        if (!used[a]) {
+            dfs(a);
+        }
+    }
+}
+
+int main() {
+    cin >> n >> m;
+    G.resize(n);
+    used.assign(n, 0);
+    
+    for (int i = 0; i &lt; m; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        G[a].push_back(b);
+        G[b].push_back(a);
+    }
+    
+    if (n > 0) {
+        dfs(0);
+    }
+    
+    for (int i = 0; i &lt; R.size(); i++) {
+        cout << R[i] << " ";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает DFS?</h3>
+            <p><strong>DFS (Depth-First Search / поиск в глубину)</strong> — алгоритм обхода графа, который идёт "вглубь" от стартовой вершины, пока не упрётся в тупик, затем возвращается назад и продолжает с непосещёнными соседями.</p>
+            
+            <p>Алгоритм использует стек (явный или рекурсию):</p>
+            <ul>
+                <li>Стартовая вершина помечается посещённой и кладётся в стек</li>
+                <li>Пока стек не пуст, из него извлекается вершина</li>
+                <li>Для текущей вершины выбирается любой непосещённый сосед, помечается и кладётся в стек</li>
+                <li>Если у вершины нет непосещённых соседей, происходит возврат (backtrack)</li>
+            </ul>
+            
+            <p>Рекурсивная реализация естественно выражает этот процесс: сначала рекурсивно обрабатываем первого соседа, затем следующего и т.д.</p>
+            
+            <p><strong>Важные особенности:</strong></p>
+            <ul>
+                <li>DFS не ищет кратчайший путь, он просто находит какой-то путь или обходит все вершины</li>
+                <li>Память в рекурсивной версии: O(n) для стека вызовов (может быть проблема при глубоких графах)</li>
+                <li>Каждая вершина и каждое ребро обрабатываются один раз</li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(n + m)</strong>, где n — количество вершин, m — количество рёбер.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n m</code> — количество вершин и количество рёбер</li>
+                <li><code>a b</code> — ребро между вершинами a и b (повторяется m раз)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Порядок обхода вершин в DFS, начиная с вершины 1</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>4 4
+1 2
+2 3
+3 4
+1 4</code></pre>
+                <p>Здесь:<br>
+                n=4 (вершины 1,2,3,4)<br>
+                m=4 (4 ребра)<br>
+                Ребра: 1-2, 2-3, 3-4, 1-4</p>
+                <p><strong>Вывод (порядок обхода из 1):</strong><br>
+                1 → 2 → 3 → 4 (или 1 → 4 → ... в зависимости от порядка соседей)</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <button onclick="openVisualizer()"> Визуализировать на графе</button>
+
+            <script>
+                function openVisualizer() {
+                    // Сохраняем текущий граф в localStorage
+                    const graphData = {
+                        nodes: [1, 2, 3, 4],
+                        edges: [[1, 2], [2, 3], [3, 4], [1, 4]]
+                    };
+                    localStorage.setItem('visualizerGraph', JSON.stringify(graphData));
+                    window.open('../pages/visualizer.html', '_blank');
+                }
+            </script>
+            
+            <h3>Попробовать DFS онлайн</h3>
+            <p>Введите граф в формате, описанном выше:</p>
+            
+            <label>Ввод:</label>
+            <textarea id="dfs-input" rows="10">4 4
+1 2
+2 3
+3 4
+1 4</textarea>
+            
+            <div class="try-it">
+                <button onclick="runDFSFromInput()">Запустить DFS</button>
+                <button onclick="loadExample1()">Пример 1 (линия)</button>
+                <button onclick="loadExample2()">Пример 2 (дерево)</button>
+                <button onclick="loadExample3()">Пример 3 (цикл)</button>
+            </div>
+            
+            <div class="output" id="dfs-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        // Функция для запуска DFS из текстового ввода
+        function runDFSFromInput() {
+            const inputText = document.getElementById('dfs-input').value;
+            const lines = inputText.trim().split('\n');
+            
+            try {
+                // Читаем n и m
+                const firstLine = lines[0].trim().split(/\s+/);
+                const n = parseInt(firstLine[0]);
+                const m = parseInt(firstLine[1]);
+                
+                // Создаём граф
+                const G = Array(n).fill().map(() => []);
+                
+                // Читаем рёбра
+                for (let i = 1; i <= m; i++) {
+                    const edge = lines[i].trim().split(/\s+/);
+                    let u = parseInt(edge[0]) - 1;
+                    let v = parseInt(edge[1]) - 1;
+                    
+                    if (u >= 0 && u < n && v >= 0 && v < n) {
+                        G[u].push(v);
+                        G[v].push(u);
+                    }
+                }
+                
+                // DFS алгоритм
+                const used = Array(n).fill(false);
+                const order = [];
+                const steps = [];
+                
+                function dfs(h, depth = 0) {
+                    used[h] = true;
+                    order.push(h + 1);
+                    steps.push(`${'  '.repeat(depth)}→ Посещаем вершину ${h + 1}`);
+                    
+                    for (const a of G[h]) {
+                        if (!used[a]) {
+                            steps.push(`${'  '.repeat(depth)}  Переходим к соседу ${a + 1}`);
+                            dfs(a, depth + 1);
+                        } else {
+                            steps.push(`${'  '.repeat(depth)}  Вершина ${a + 1} уже посещена, пропускаем`);
+                        }
+                    }
+                }
+                
+                if (n > 0) {
+                    steps.push(`Начинаем обход с вершины 1`);
+                    dfs(0);
+                }
+                
+                const outputDiv = document.getElementById('dfs-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                
+                if (order.length === 0) {
+                    outputDiv.innerHTML = ` Граф не содержит вершин`;
+                } else {
+                    outputDiv.innerHTML = ` Порядок обхода DFS: ${order.join(' → ')}`;
+                    
+                    // Показываем пошаговое объяснение
+                    stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                    stepsDiv.style.display = 'block';
+                }
+                
+            } catch(e) {
+                document.getElementById('dfs-output').innerHTML = ' Ошибка при разборе ввода: ' + e.message;
+            }
+        }
+        
+        // Пример 1: линия (путь)
+        function loadExample1() {
+            document.getElementById('dfs-input').value = `4 3
+1 2
+2 3
+3 4`;
+            runDFSFromInput();
+        }
+        
+        // Пример 2: дерево
+        function loadExample2() {
+            document.getElementById('dfs-input').value = `7 6
+1 2
+1 3
+1 4
+2 5
+2 6
+3 7`;
+            runDFSFromInput();
+        }
+        
+        // Пример 3: цикл
+        function loadExample3() {
+            document.getElementById('dfs-input').value = `5 5
+1 2
+2 3
+3 4
+4 5
+5 1`;
+            runDFSFromInput();
+        }
+        
+        // Автоматически запускаем пример при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>
