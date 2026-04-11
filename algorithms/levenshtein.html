@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Расстояние Левенштейна - редакционное расстояние</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Расстояние Левенштейна</h1>
+            <p>Минимальное количество операций для преобразования одной строки в другую</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>s1 = input()
+s2 = input()
+n, m = len(s1), len(s2)
+
+# Оптимизация: делаем s1 короче
+if n > m:
+    s1, s2 = s2, s1
+    n, m = m, n
+
+c = list(range(n + 1))
+
+for i in range(1, m + 1):
+    p, c = c, [i] + [0] * n
+    for j in range(1, n + 1):
+        a = p[j] + 1           # удаление
+        d = c[j - 1] + 1       # вставка
+        ch = p[j - 1]          # замена
+        if s1[j - 1] != s2[i - 1]:
+            ch += 1
+        c[j] = min(a, d, ch)
+
+print(c[-1])</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    string s1, s2;
+    cin >> s1 >> s2;
+    
+    int n = s1.length(), m = s2.length();
+    
+    // Оптимизация: делаем s1 короче
+    if (n > m) {
+        swap(s1, s2);
+        swap(n, m);
+    }
+    
+    vector&lt;int&gt; c(n + 1);
+    for (int j = 0; j <= n; j++) {
+        c[j] = j;
+    }
+    
+    for (int i = 1; i <= m; i++) {
+        vector&lt;int&gt; p = c;
+        c[0] = i;
+        for (int j = 1; j <= n; j++) {
+            int a = p[j] + 1;           // удаление
+            int d = c[j - 1] + 1;       // вставка
+            int ch = p[j - 1];          // замена
+            if (s1[j - 1] != s2[i - 1]) {
+                ch++;
+            }
+            c[j] = min({a, d, ch});
+        }
+    }
+    
+    cout << c[n] << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает расстояние Левенштейна?</h3>
+            <p><strong>Расстояние Левенштейна (редакционное расстояние)</strong> — это минимальное количество операций (вставки, удаления, замены), необходимых для преобразования одной строки в другую.</p>
+            
+            <h4>Основная идея динамического программирования</h4>
+            <p>Пусть <code>dp[i][j]</code> — минимальное расстояние между первыми <code>i</code> символами строки <code>s1</code> и первыми <code>j</code> символами строки <code>s2</code>.</p>
+            
+            <p><strong>Рекуррентная формула:</strong></p>
+            <ul>
+                <li><code>a = dp[i-1][j] + 1</code> — удаление символа из первой строки</li>
+                <li><code>d = dp[i][j-1] + 1</code> — вставка символа во вторую строку</li>
+                <li><code>ch = dp[i-1][j-1] + (s1[i-1] != s2[j-1])</code> — замена символа</li>
+                <li><code>dp[i][j] = min(a, d, ch)</code></li>
+            </ul>
+            
+            <p><strong>Базовые случаи:</strong></p>
+            <ul>
+                <li><code>dp[0][j] = j</code> — нужно вставить j символов</li>
+                <li><code>dp[i][0] = i</code> — нужно удалить i символов</li>
+            </ul>
+            
+            <h4>Оптимизация по памяти</h4>
+            <p>Для вычисления текущей строки <code>dp[i]</code> нужны только предыдущая строка <code>dp[i-1]</code> и текущая <code>dp[i]</code>. Поэтому можно хранить всего два одномерных массива вместо полной матрицы <code>n × m</code>.</p>
+            
+            <p><strong>Временная сложность: O(n × m)</strong> — два вложенных цикла.</p>
+            <p><strong>Пространственная сложность: O(min(n, m))</strong> — оптимизированная версия с двумя массивами.</p>
+        </div>
+
+        <!-- Пример -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим строки:</p>
+            <p><code>s1 = "кот"</code></p>
+            <p><code>s2 = "кит"</code></p>
+            
+            <div class="input-example">
+                <h4>Матрица dp (полная версия):</h4>
+                <pre><code>      ∅   к   и   т
+   ∅  0   1   2   3
+   к  1   0   1   2
+   о  2   1   1   2
+   т  3   2   2   1
+
+Ответ: dp[3][3] = 1</code></pre>
+                <p><strong>Расстояние Левенштейна: 1</strong> (замена 'о' на 'и')</p>
+            </div>
+            
+            <h4>Пошаговое объяснение</h4>
+            <ul>
+                <li><strong>Замена:</strong> символ 'о' в s1 заменяется на 'и' (стоимость 1)</li>
+                <li><strong>Вставка/удаление:</strong> не требуется</li>
+            </ul>
+            <p>В более сложных примерах алгоритм может использовать комбинацию всех трёх операций для минимизации расстояния.</p>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать алгоритм онлайн</h3>
+            <p>Введите две строки и найдите расстояние Левенштейна:</p>
+            
+            <label>Первая строка (s1):</label>
+            <input type="text" id="str1" value="кот">
+            
+            <label>Вторая строка (s2):</label>
+            <input type="text" id="str2" value="кит">
+            
+            <div class="try-it">
+                <button onclick="runLevenshtein()"> Найти расстояние</button>
+                <button onclick="loadExample1()">Пример: кот → кит</button>
+                <button onclick="loadExample2()">Пример: алгоритм → алгортм</button>
+                <button onclick="loadExample3()">Пример: abc → abcd</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runLevenshtein() {
+            let s1 = document.getElementById('str1').value;
+            let s2 = document.getElementById('str2').value;
+            
+            let n = s1.length;
+            let m = s2.length;
+            
+            // Оптимизация: делаем s1 короче
+            let swapped = false;
+            if (n > m) {
+                [s1, s2] = [s2, s1];
+                [n, m] = [m, n];
+                swapped = true;
+            }
+            
+            let c = Array(n + 1).fill(0);
+            for (let j = 0; j <= n; j++) {
+                c[j] = j;
+            }
+            
+            const steps = [];
+            steps.push(`Строка 1: "${s1}"`);
+            steps.push(`Строка 2: "${s2}"`);
+            steps.push(`Длины: n = ${n}, m = ${m}`);
+            steps.push(`Начальная строка c: [${c.join(', ')}]\n`);
+            
+            for (let i = 1; i <= m; i++) {
+                const p = [...c];
+                c[0] = i;
+                steps.push(`Шаг ${i}: обрабатываем символ s2[${i-1}] = "${s2[i-1]}"`);
+                steps.push(`  Предыдущая строка p: [${p.join(', ')}]`);
+                
+                for (let j = 1; j <= n; j++) {
+                    const a = p[j] + 1;           // удаление
+                    const d = c[j - 1] + 1;       // вставка
+                    let ch = p[j - 1];             // замена
+                    if (s1[j - 1] !== s2[i - 1]) {
+                        ch++;
+                    }
+                    c[j] = Math.min(a, d, ch);
+                    steps.push(`  j=${j}, s1[${j-1}]="${s1[j-1]}" → min(удаление=${a}, вставка=${d}, замена=${ch}) = ${c[j]}`);
+                }
+                steps.push(`  Новая строка c: [${c.join(', ')}]\n`);
+            }
+            
+            const answer = c[n];
+            steps.push(`Результат: расстояние Левенштейна = ${answer}`);
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = ` Расстояние Левенштейна между строками: <strong>${answer}</strong><br> ${swapped ? `(строки были поменяны местами для оптимизации)` : ''}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('str1').value = 'кот';
+            document.getElementById('str2').value = 'кит';
+            runLevenshtein();
+        }
+        
+        function loadExample2() {
+            document.getElementById('str1').value = 'алгоритм';
+            document.getElementById('str2').value = 'алгортм';
+            runLevenshtein();
+        }
+        
+        function loadExample3() {
+            document.getElementById('str1').value = 'abc';
+            document.getElementById('str2').value = 'abcd';
+            runLevenshtein();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

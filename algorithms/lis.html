@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>НВП - наибольшая возрастающая подпоследовательность (O(n²))</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Наибольшая возрастающая подпоследовательность (НВП)</h1>
+            <p>Поиск самой длинной возрастающей подпоследовательности за O(n²)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n = int(input())
+A = list(map(int, input().split()))
+dp = [1] * n
+
+for i in range(n):
+    for j in range(i):
+        if A[j] < A[i]:
+            dp[i] = max(dp[i], dp[j] + 1)
+
+print(max(dp))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using T = long long;
+
+int main() {
+    T n, i, j;
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+    cin >> n;
+    vector&lt;T&gt; dp(n, 1);
+    vector&lt;T&gt; A(n);
+    
+    for (i = 0; i < n; i++) {
+        cin >> A[i];
+        for (j = 0; j < i; j++) {
+            if (A[i] > A[j]) {
+                dp[i] = max(dp[i], dp[j] + 1);
+            }
+        }
+    }
+    
+    cout << *max_element(dp.begin(), dp.end());
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм НВП?</h3>
+            <p><strong>НВП (Longest Increasing Subsequence)</strong> — это задача поиска самой длинной подпоследовательности, в которой элементы идут в строго возрастающем порядке.</p>
+            
+            <p>Подпоследовательность не обязана быть непрерывной — элементы могут быть не подряд, но их порядок в массиве должен сохраняться.</p>
+            
+            <h4>Основная идея динамического программирования</h4>
+            <ul>
+                <li><code>dp[i]</code> — длина наибольшей возрастающей подпоследовательности, которая <strong>заканчивается</strong> в элементе <code>A[i]</code></li>
+                <li>Изначально каждая подпоследовательность состоит из одного элемента: <code>dp[i] = 1</code></li>
+                <li>Для каждого <code>i</code> перебираем все предыдущие элементы <code>j</code> от <code>0</code> до <code>i-1</code></li>
+                <li>Если <code>A[j] < A[i]</code>, то можем продлить подпоследовательность, заканчивающуюся в <code>j</code>, добавив <code>A[i]</code>: <code>dp[i] = max(dp[i], dp[j] + 1)</code></li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(n²)</strong> — два вложенных цикла по n элементов.</p>
+            <p><strong>Пространственная сложность: O(n)</strong> — массив dp длины n.</p>
+        </div>
+
+        <!-- Пример -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим массив: <code>A = [3, 1, 4, 2, 5]</code></p>
+            
+            <div class="input-example">
+                <h4>Пошаговый расчёт dp:</h4>
+                <pre><code>Инициализация: dp = [1, 1, 1, 1, 1]
+
+i=0, A[0]=3: нет предыдущих элементов → dp[0]=1
+
+i=1, A[1]=1: сравниваем с j=0 (A[0]=3)
+       3 < 1? нет → dp[1]=1
+
+i=2, A[2]=4: сравниваем с j=0 (3<4? да) → dp[2]=max(1,1+1)=2
+               с j=1 (1<4? да) → dp[2]=max(2,1+1)=2
+
+i=3, A[3]=2: сравниваем с j=0 (3<2? нет)
+               с j=1 (1<2? да) → dp[3]=max(1,1+1)=2
+               с j=2 (4<2? нет)
+
+i=4, A[4]=5: сравниваем с j=0 (3<5? да) → dp[4]=max(1,1+1)=2
+               с j=1 (1<5? да) → dp[4]=max(2,1+1)=2
+               с j=2 (4<5? да) → dp[4]=max(2,2+1)=3
+               с j=3 (2<5? да) → dp[4]=max(3,2+1)=3
+
+Результат: dp = [1, 1, 2, 2, 3]
+Ответ: max(dp) = 3 (подпоследовательности: 1→4→5 или 1→2→5 или 3→4→5)</code></pre>
+                <p><strong>Длина наибольшей возрастающей подпоследовательности: 3</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать алгоритм онлайн</h3>
+            <p>Введите массив чисел и найдите длину наибольшей возрастающей подпоследовательности:</p>
+            
+            <label>Массив (числа через пробел):</label>
+            <input type="text" id="array-input" value="3 1 4 2 5">
+            
+            <div class="try-it">
+                <button onclick="runLIS()"> Найти НВП</button>
+                <button onclick="loadExample1()">Пример: 3 1 4 2 5</button>
+                <button onclick="loadExample2()">Пример: 10 9 2 5 3 7 101 18</button>
+                <button onclick="loadExample3()">Пример: 7 7 7 7 (нестрого)</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runLIS() {
+            const arrayStr = document.getElementById('array-input').value;
+            const A = arrayStr.trim().split(/\s+/).map(Number);
+            const n = A.length;
+            
+            if (n === 0) {
+                document.getElementById('demo-output').innerHTML = ' Введите массив чисел';
+                return;
+            }
+            
+            const dp = Array(n).fill(1);
+            const steps = [];
+            
+            steps.push(`Массив: [${A.join(', ')}]`);
+            steps.push(`Начальные значения dp = [${dp.join(', ')}]\n`);
+            
+            for (let i = 0; i < n; i++) {
+                steps.push(`Обрабатываем A[${i}] = ${A[i]}:`);
+                let updates = false;
+                for (let j = 0; j < i; j++) {
+                    if (A[j] < A[i]) {
+                        const newVal = dp[j] + 1;
+                        steps.push(`  A[${j}] = ${A[j]} < ${A[i]} → dp[${i}] = max(${dp[i]}, dp[${j}]+1 = ${newVal}) = ${Math.max(dp[i], newVal)}`);
+                        dp[i] = Math.max(dp[i], newVal);
+                        updates = true;
+                    } else {
+                        steps.push(`  A[${j}] = ${A[j]} < ${A[i]}? нет → пропускаем`);
+                    }
+                }
+                if (!updates && i > 0) {
+                    steps.push(`  Нет подходящих предыдущих элементов`);
+                }
+                steps.push(`  dp[${i}] = ${dp[i]}`);
+                steps.push(`  Текущий dp: [${dp.join(', ')}]\n`);
+            }
+            
+            const answer = Math.max(...dp);
+            steps.push(`Результат: max(dp) = ${answer}`);
+            
+            // Находим саму подпоследовательность (для красоты)
+            let lis = [];
+            let currentLen = answer;
+            for (let i = n - 1; i >= 0 && currentLen > 0; i--) {
+                if (dp[i] === currentLen) {
+                    lis.unshift(A[i]);
+                    currentLen--;
+                }
+            }
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = ` Длина наибольшей возрастающей подпоследовательности: <strong>${answer}</strong><br> Пример одной из подпоследовательностей: [${lis.join(', ')}]`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('array-input').value = '3 1 4 2 5';
+            runLIS();
+        }
+        
+        function loadExample2() {
+            document.getElementById('array-input').value = '10 9 2 5 3 7 101 18';
+            runLIS();
+        }
+        
+        function loadExample3() {
+            document.getElementById('array-input').value = '7 7 7 7';
+            runLIS();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Задача о рюкзаке (0/1) - динамическое программирование</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Задача о рюкзаке (0/1)</h1>
+            <p>Выбор предметов с максимальной стоимостью при ограничении по весу</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python (максимальная стоимость)</div>
+                <pre><code>W = int(input())  # вместимость рюкзака
+n = int(input())  # количество предметов
+w = [0] * (n + 1)
+c = [0] * (n + 1)
+
+for i in range(1, n + 1):
+    w[i] = int(input())
+for i in range(1, n + 1):
+    c[i] = int(input())
+
+dp = [[0] * (W + 1) for _ in range(n + 1)]
+
+for i in range(1, n + 1):
+    for j in range(1, W + 1):
+        if j < w[i]:
+            dp[i][j] = dp[i - 1][j]
+        else:
+            dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - w[i]] + c[i])
+
+print(dp[n][W])</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++ (максимальная стоимость)</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n, W;
+    cin >> n >> W;
+    
+    vector&lt;int&gt; w(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> w[i];
+    }
+    
+    vector&lt;int&gt; c(n + 1);
+    for (int i = 1; i <= n; i++) {
+        cin >> c[i];
+    }
+    
+    vector&lt;vector&lt;int&gt;&gt; dp(n + 1, vector&lt;int&gt;(W + 1, 0));
+    
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= W; j++) {
+            if (j < w[i]) {
+                dp[i][j] = dp[i - 1][j];
+            } else {
+                dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - w[i]] + c[i]);
+            }
+        }
+    }
+    
+    cout << dp[n][W];
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Второй блок кода для восстановления ответа -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python (восстановление ответа)</div>
+                <pre><code>W = int(input())  # вместимость рюкзака
+n = int(input())  # количество предметов
+A = [int(input()) for _ in range(n)]  # веса предметов
+
+dp = [[0] * (W + 1) for _ in range(n + 1)]
+dp[0][0] = 1
+
+for i in range(1, n + 1):
+    for j in range(W + 1):
+        if A[i - 1] <= j:
+            dp[i][j] = dp[i - 1][j] or dp[i - 1][j - A[i - 1]]
+        else:
+            dp[i][j] = dp[i - 1][j]
+
+if dp[n][W] == 0:
+    print(0)
+    exit()
+
+Z = []
+i, j = n, W
+while i != 0 or j != 0:
+    if dp[i - 1][j] == 1 and (j >= A[i - 1] and dp[i - 1][j - A[i - 1]] == 1):
+        print(-1)
+        exit()
+    else:
+        if dp[i - 1][j] == 1:
+            i -= 1
+        else:
+            i -= 1
+            j -= A[i]
+            Z.append(i + 1)
+
+if len(Z) == 0:
+    print(0)
+else:
+    print(*list(reversed(Z)))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++ (восстановление ответа)</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int W, n;
+    cin >> W >> n;
+    
+    vector&lt;int&gt; A(n);
+    for (int i = 0; i < n; i++) {
+        cin >> A[i];
+    }
+    
+    vector&lt;vector&lt;bool&gt;&gt; dp(n + 1, vector&lt;bool&gt;(W + 1, false));
+    dp[0][0] = true;
+    
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j <= W; j++) {
+            if (A[i - 1] <= j) {
+                dp[i][j] = dp[i - 1][j] || dp[i - 1][j - A[i - 1]];
+            } else {
+                dp[i][j] = dp[i - 1][j];
+            }
+        }
+    }
+    
+    if (!dp[n][W]) {
+        cout << 0;
+        return 0;
+    }
+    
+    vector&lt;int&gt; Z;
+    int i = n, j = W;
+    while (i != 0 || j != 0) {
+        if (dp[i - 1][j] && (j >= A[i - 1] && dp[i - 1][j - A[i - 1]])) {
+            cout << -1;
+            return 0;
+        } else {
+            if (dp[i - 1][j]) {
+                i--;
+            } else {
+                i--;
+                j -= A[i];
+                Z.push_back(i + 1);
+            }
+        }
+    }
+    
+    reverse(Z.begin(), Z.end());
+    for (int x : Z) {
+        cout << x << " ";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает задача о рюкзаке (0/1)?</h3>
+            <p><strong>Задача о рюкзаке (Knapsack problem)</strong> — это классическая задача ДП, в которой нужно выбрать предметы с максимальной суммарной стоимостью, не превышая заданную вместимость рюкзака.</p>
+            
+            <p>Название "0/1" означает, что каждый предмет можно либо взять (1), либо не брать (0) — дробные части не допускаются.</p>
+            
+            <h4>Основная идея динамического программирования</h4>
+            <p>Пусть <code>dp[i][j]</code> — максимальная стоимость, которую можно получить, используя первые <code>i</code> предметов и вместимость <code>j</code>.</p>
+            
+            <p><strong>Рекуррентная формула:</strong></p>
+            <ul>
+                <li>Если <code>j < w[i]</code> (текущий предмет не влезает), то <code>dp[i][j] = dp[i-1][j]</code></li>
+                <li>Иначе <code>dp[i][j] = max(dp[i-1][j], dp[i-1][j - w[i]] + c[i])</code></li>
+            </ul>
+            <p>где <code>w[i]</code> — вес i-го предмета, <code>c[i]</code> — его стоимость.</p>
+            
+            <p><strong>Базовый случай:</strong> <code>dp[0][j] = 0</code> (без предметов стоимость 0).</p>
+            
+            <p><strong>Временная сложность: O(n × W)</strong> — два вложенных цикла.</p>
+            <p><strong>Пространственная сложность: O(n × W)</strong> — матрица dp.</p>
+            
+            <h4>Восстановление ответа</h4>
+            <p>Для нахождения набора предметов, дающих максимальную стоимость, используется обратный проход по таблице dp:</p>
+            <ul>
+                <li>Начинаем с <code>i = n, j = W</code></li>
+                <li>Если <code>dp[i-1][j] == dp[i][j]</code>, то предмет i не взят → переходим к <code>i-1</code></li>
+                <li>Иначе предмет i взят → добавляем его в ответ, переходим к <code>i-1, j - w[i]</code></li>
+            </ul>
+        </div>
+
+        <!-- Пример -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим рюкзак вместимостью <code>W = 10</code> и 4 предмета:</p>
+            
+            <div class="input-example">
+                <pre><code>Предмет 1: вес = 6, стоимость = 30
+Предмет 2: вес = 3, стоимость = 14
+Предмет 3: вес = 4, стоимость = 16
+Предмет 4: вес = 2, стоимость = 9</code></pre>
+                
+                <h4>Заполнение таблицы dp:</h4>
+                <pre><code>     0   1   2   3   4   5   6   7   8   9   10
+0    0   0   0   0   0   0   0   0   0   0   0
+1    0   0   0   0   0   0  30  30  30  30  30
+2    0   0   0  14  14  14  30  30  30  44  44
+3    0   0   0  14  16  16  30  30  30  44  46
+4    0   0   9  14  16  25  30  30  39  44  46
+
+Ответ: dp[4][10] = 46</code></pre>
+                <p><strong>Максимальная стоимость: 46</strong><br>
+                Набор предметов: 2 + 3 + 4 = 14 + 16 + 9 = 39? нет, 2+4 = 14+9=23...<br>
+                Оптимальный набор: предметы 1 и 4 (вес 6+2=8, стоимость 30+9=39) или предметы 2,3,4 (вес 3+4+2=9, стоимость 14+16+9=39) — но в таблице 46?<br>
+                Проверим: предметы 1 и 3? вес 6+4=10, стоимость 30+16=46! Да, это оптимально.</p>
+                <p><strong>Оптимальный набор: предметы 1 и 3 (вес 10, стоимость 46)</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать алгоритм онлайн</h3>
+            <p>Введите параметры задачи и найдите максимальную стоимость:</p>
+            
+            <label>Вместимость рюкзака (W):</label>
+            <input type="number" id="capacity" value="10">
+            
+            <label>Количество предметов (n):</label>
+            <input type="number" id="items-count" value="4">
+            
+            <label>Веса предметов (через пробел):</label>
+            <input type="text" id="weights" value="6 3 4 2">
+            
+            <label>Стоимости предметов (через пробел):</label>
+            <input type="text" id="values" value="30 14 16 9">
+            
+            <div class="try-it">
+                <button onclick="runKnapsack()"> Найти максимальную стоимость</button>
+                <button onclick="loadExample1()">Пример: W=10, предметы (6,30),(3,14),(4,16),(2,9)</button>
+                <button onclick="loadExample2()">Пример: W=15, предметы (5,10),(4,8),(3,6),(7,12)</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runKnapsack() {
+            const W = parseInt(document.getElementById('capacity').value);
+            const n = parseInt(document.getElementById('items-count').value);
+            const weightsStr = document.getElementById('weights').value;
+            const valuesStr = document.getElementById('values').value;
+            
+            const w = weightsStr.trim().split(/\s+/).map(Number);
+            const c = valuesStr.trim().split(/\s+/).map(Number);
+            
+            if (w.length !== n || c.length !== n) {
+                document.getElementById('demo-output').innerHTML = ' Количество весов и стоимостей должно совпадать с n';
+                return;
+            }
+            
+            if (isNaN(W) || isNaN(n) || n <= 0) {
+                document.getElementById('demo-output').innerHTML = ' Введите корректные значения';
+                return;
+            }
+            
+            const dp = Array(n + 1).fill().map(() => Array(W + 1).fill(0));
+            const steps = [];
+            
+            steps.push(`Вместимость рюкзака: W = ${W}`);
+            steps.push(`Количество предметов: n = ${n}`);
+            steps.push(`Веса: [${w.join(', ')}]`);
+            steps.push(`Стоимости: [${c.join(', ')}]\n`);
+            
+            for (let i = 1; i <= n; i++) {
+                for (let j = 1; j <= W; j++) {
+                    if (j < w[i - 1]) {
+                        dp[i][j] = dp[i - 1][j];
+                    } else {
+                        dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - w[i - 1]] + c[i - 1]);
+                    }
+                }
+                steps.push(`После обработки предмета ${i} (вес=${w[i-1]}, стоимость=${c[i-1]}):`);
+                steps.push(`  dp[${i}][*] = [${dp[i].slice(0, W+1).join(', ')}]`);
+            }
+            
+            const answer = dp[n][W];
+            
+            // Восстановление ответа
+            let i = n, j = W;
+            const selected = [];
+            while (i > 0 && j > 0) {
+                if (dp[i][j] !== dp[i - 1][j]) {
+                    selected.unshift(i);
+                    j -= w[i - 1];
+                }
+                i--;
+            }
+            
+            steps.push(`\nВосстановление набора предметов:`);
+            steps.push(`  Выбраны предметы: ${selected.join(', ')}`);
+            steps.push(`  Суммарный вес: ${selected.reduce((sum, idx) => sum + w[idx - 1], 0)}`);
+            steps.push(`  Суммарная стоимость: ${answer}`);
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Максимальная стоимость: <strong>${answer}</strong><br> Выбранные предметы: ${selected.length > 0 ? selected.join(', ') : 'нет'}<br> Суммарный вес: ${selected.reduce((sum, idx) => sum + w[idx - 1], 0)} / ${W}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('capacity').value = '10';
+            document.getElementById('items-count').value = '4';
+            document.getElementById('weights').value = '6 3 4 2';
+            document.getElementById('values').value = '30 14 16 9';
+            runKnapsack();
+        }
+        
+        function loadExample2() {
+            document.getElementById('capacity').value = '15';
+            document.getElementById('items-count').value = '4';
+            document.getElementById('weights').value = '5 4 3 7';
+            document.getElementById('values').value = '10 8 6 12';
+            runKnapsack();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

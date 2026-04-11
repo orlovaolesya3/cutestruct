@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>НОП - наибольшая общая подпоследовательность</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .matrix-viz {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .matrix-viz table {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        
+        .matrix-viz td {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            border: 1px solid #ccc;
+            font-family: monospace;
+        }
+        
+        body.dark-theme .matrix-viz td {
+            border-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Наибольшая общая подпоследовательность (НОП)</h1>
+            <p>Поиск самой длинной последовательности, общей для двух массивов</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n = int(input())
+A = list(map(int, input().split()))
+m = int(input())
+B = list(map(int, input().split()))
+
+dp = [[0] * (m + 1) for _ in range(n + 1)]
+
+for i in range(1, n + 1):
+    for j in range(1, m + 1):
+        if A[i - 1] == B[j - 1]:
+            dp[i][j] = dp[i - 1][j - 1] + 1
+        else:
+            dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+print(dp[n][m])</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using T = long long;
+
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+    T n, m;
+    cin >> n;
+    vector&lt;T&gt; A(n);
+    for (T i = 0; i < n; i++)
+        cin >> A[i];
+    
+    cin >> m;
+    vector&lt;T&gt; B(m);
+    for (T i = 0; i < m; i++)
+        cin >> B[i];
+    
+    vector&lt;vector&lt;T&gt;&gt; dp(n + 1, vector&lt;T&gt;(m + 1, 0));
+    
+    for (T i = 1; i <= n; i++) {
+        for (T j = 1; j <= m; j++) {
+            if (A[i - 1] == B[j - 1])
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            else
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+        }
+    }
+    
+    cout << dp[n][m];
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм НОП?</h3>
+            <p><strong>НОП (Longest Common Subsequence, LCS)</strong> — это задача поиска самой длинной последовательности, которая является подпоследовательностью двух заданных последовательностей (массивов или строк).</p>
+            
+            <p>Подпоследовательность не обязана быть непрерывной, но порядок элементов должен сохраняться.</p>
+            
+            <h4>Основная идея динамического программирования</h4>
+            <p>Пусть <code>dp[i][j]</code> — длина наибольшей общей подпоследовательности для первых <code>i</code> элементов массива <code>A</code> и первых <code>j</code> элементов массива <code>B</code>.</p>
+            
+            <p><strong>Рекуррентная формула:</strong></p>
+            <ul>
+                <li>Если <code>A[i-1] == B[j-1]</code>, то <code>dp[i][j] = dp[i-1][j-1] + 1</code></li>
+                <li>Иначе <code>dp[i][j] = max(dp[i-1][j], dp[i][j-1])</code></li>
+            </ul>
+            
+            <p><strong>Базовый случай:</strong> <code>dp[0][j] = dp[i][0] = 0</code> (пустая подпоследовательность)</p>
+            
+            <p><strong>Временная сложность: O(n × m)</strong> — два вложенных цикла.</p>
+            <p><strong>Пространственная сложность: O(n × m)</strong> — матрица dp.</p>
+        </div>
+
+        <!-- Пример -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим два массива:</p>
+            <p><code>A = [1, 3, 4, 5, 2]</code> (n=5)</p>
+            <p><code>B = [2, 4, 3, 5, 1]</code> (m=5)</p>
+            
+            <div class="input-example">
+                <h4>Таблица dp:</h4>
+                <pre><code>      ∅  2  4  3  5  1
+   ∅  0  0  0  0  0  0
+   1  0  0  0  0  0  1
+   3  0  0  0  1  1  1
+   4  0  0  1  1  1  1
+   5  0  0  1  1  2  2
+   2  0  1  1  1  2  2
+
+Ответ: dp[5][5] = 2</code></pre>
+                <p><strong>Длина наибольшей общей подпоследовательности: 2</strong><br>
+                Примеры подпоследовательностей: [3, 5], [4, 5], [1] и т.д.</p>
+            </div>
+            
+            <h4>Визуализация заполнения таблицы</h4>
+            <p>Алгоритм заполняет таблицу построчно:</p>
+            <ul>
+                <li>Если текущие элементы равны — берём значение из диагонали и прибавляем 1</li>
+                <li>Если не равны — берём максимум из верхней и левой ячейки</li>
+            </ul>
+            <p>В конце ответ находится в правом нижнем углу — <code>dp[n][m]</code>.</p>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать алгоритм онлайн</h3>
+            <p>Введите два массива и найдите длину НОП:</p>
+            
+            <label>Первый массив (числа через пробел):</label>
+            <input type="text" id="arrayA-input" value="1 3 4 5 2">
+            
+            <label>Второй массив (числа через пробел):</label>
+            <input type="text" id="arrayB-input" value="2 4 3 5 1">
+            
+            <div class="try-it">
+                <button onclick="runLCS()">Найти НОП</button>
+                <button onclick="loadExample1()">Пример: 1 3 4 5 2 и 2 4 3 5 1</button>
+                <button onclick="loadExample2()">Пример: 1 2 3 4 5 и 3 4 5 6 7</button>
+                <button onclick="loadExample3()">Пример: 1 1 1 1 и 1 1 1</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runLCS() {
+            const arrayAStr = document.getElementById('arrayA-input').value;
+            const arrayBStr = document.getElementById('arrayB-input').value;
+            
+            const A = arrayAStr.trim().split(/\s+/).map(Number);
+            const B = arrayBStr.trim().split(/\s+/).map(Number);
+            const n = A.length;
+            const m = B.length;
+            
+            if (n === 0 || m === 0) {
+                document.getElementById('demo-output').innerHTML = 'Введите оба массива';
+                return;
+            }
+            
+            const dp = Array(n + 1).fill().map(() => Array(m + 1).fill(0));
+            const steps = [];
+            
+            steps.push(`Первый массив A: [${A.join(', ')}]`);
+            steps.push(`Второй массив B: [${B.join(', ')}]`);
+            steps.push(`Размеры: n = ${n}, m = ${m}\n`);
+            
+            for (let i = 1; i <= n; i++) {
+                for (let j = 1; j <= m; j++) {
+                    if (A[i - 1] === B[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1] + 1;
+                        steps.push(`A[${i-1}] = ${A[i-1]} == B[${j-1}] = ${B[j-1]} → dp[${i}][${j}] = dp[${i-1}][${j-1}] + 1 = ${dp[i][j]}`);
+                    } else {
+                        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                        steps.push(`A[${i-1}] = ${A[i-1]} != B[${j-1}] = ${B[j-1]} → dp[${i}][${j}] = max(dp[${i-1}][${j}]=${dp[i-1][j]}, dp[${i}][${j-1}]=${dp[i][j-1]}) = ${dp[i][j]}`);
+                    }
+                }
+                steps.push(`Строка ${i} заполнена: [${dp[i].slice(1).join(', ')}]`);
+            }
+            
+            const answer = dp[n][m];
+            steps.push(`\nРезультат: dp[${n}][${m}] = ${answer}`);
+            
+            // Восстановление подпоследовательности
+            let i = n, j = m;
+            const lcs = [];
+            while (i > 0 && j > 0) {
+                if (A[i - 1] === B[j - 1]) {
+                    lcs.unshift(A[i - 1]);
+                    i--;
+                    j--;
+                } else if (dp[i - 1][j] > dp[i][j - 1]) {
+                    i--;
+                } else {
+                    j--;
+                }
+            }
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Длина наибольшей общей подпоследовательности: <strong>${answer}</strong><br>Пример подпоследовательности: [${lcs.join(', ')}]`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('arrayA-input').value = '1 3 4 5 2';
+            document.getElementById('arrayB-input').value = '2 4 3 5 1';
+            runLCS();
+        }
+        
+        function loadExample2() {
+            document.getElementById('arrayA-input').value = '1 2 3 4 5';
+            document.getElementById('arrayB-input').value = '3 4 5 6 7';
+            runLCS();
+        }
+        
+        function loadExample3() {
+            document.getElementById('arrayA-input').value = '1 1 1 1';
+            document.getElementById('arrayB-input').value = '1 1 1';
+            runLCS();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

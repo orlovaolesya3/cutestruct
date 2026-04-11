@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>НВП - наибольшая возрастающая подпоследовательность (O(n log n))</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .info-note {
+            background: rgba(171, 205, 239, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        body.dark-theme .info-note {
+            background: rgba(29, 30, 51, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Наибольшая возрастающая подпоследовательность (НВП)</h1>
+            <p>Поиск длины и восстановление последовательности за O(n log n)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>import bisect
+
+INF = 10**9 + 7
+n = int(input())
+A = list(map(int, input().split()))
+
+dp = [INF] * (n + 1)
+dp[0] = -INF
+pos = [-1] * (n + 1)
+prev = [-1] * (n + 1)
+l = 0
+
+for i in range(n):
+    j = bisect.bisect_left(dp, A[i])
+    if dp[j - 1] < A[i] and A[i] < dp[j]:
+        dp[j] = A[i]
+        pos[j] = i
+        prev[i] = pos[j - 1]
+        l = max(l, j)
+
+ANS = []
+p = pos[l]
+while p != -1:
+    ANS.append(A[p])
+    p = prev[p]
+ANS = list(reversed(ANS))
+
+print(l)
+print(*ANS)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int INF = 1e9 + 7;
+
+int main() {
+    int n;
+    cin >> n;
+    vector&lt;int&gt; A(n);
+    for (int i = 0; i &lt; n; i++) {
+        cin >> A[i];
+    }
+    
+    vector&lt;int&gt; dp(n + 1, INF);
+    vector&lt;int&gt; pos(n + 1, -1);
+    vector&lt;int&gt; prev(n, -1);
+    
+    dp[0] = -INF;
+    int l = 0;
+    
+    for (int i = 0; i &lt; n; i++) {
+        int j = lower_bound(dp.begin(), dp.end(), A[i]) - dp.begin();
+        if (dp[j - 1] < A[i] && A[i] < dp[j]) {
+            dp[j] = A[i];
+            pos[j] = i;
+            prev[i] = pos[j - 1];
+            l = max(l, j);
+        }
+    }
+    
+    vector&lt;int&gt; ANS;
+    int p = pos[l];
+    while (p != -1) {
+        ANS.push_back(A[p]);
+        p = prev[p];
+    }
+    reverse(ANS.begin(), ANS.end());
+    
+    cout << l << endl;
+    for (int i = 0; i < (int)ANS.size(); i++) {
+        cout << ANS[i] << " ";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="info-note">
+            <strong>Сравнение реализаций:</strong> Существует также <a href="lis.html" style="text-decoration: underline;">реализация НВП за O(n²)</a>, которая проще для понимания, но работает медленнее на больших массивах.
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм НВП за O(n log n)?</h3>
+            <p><strong>НВП (Longest Increasing Subsequence)</strong> — это задача поиска самой длинной подпоследовательности, в которой элементы идут в строго возрастающем порядке.</p>
+            
+            <h4>Основная идея оптимизации</h4>
+            <p>Вместо хранения длины подпоследовательности для каждого элемента, мы храним <strong>минимальный возможный последний элемент</strong> для подпоследовательности каждой длины.</p>
+            
+            <ul>
+                <li><code>dp[j]</code> — минимальный последний элемент возрастающей подпоследовательности длины <code>j</code></li>
+                <li><code>pos[j]</code> — индекс в исходном массиве элемента, который стоит на позиции <code>j</code> в оптимальной подпоследовательности</li>
+                <li><code>prev[i]</code> — индекс предыдущего элемента в подпоследовательности для элемента <code>A[i]</code></li>
+            </ul>
+            
+            <h4>Шаги алгоритма</h4>
+            <ol>
+                <li>Инициализируем <code>dp[0] = -INF</code> (фиктивный элемент)</li>
+                <li>Для каждого элемента <code>A[i]</code> находим позицию <code>j = lower_bound(dp, A[i])</code> — первую позицию, где <code>dp[j] >= A[i]</code></li>
+                <li>Если <code>A[i]</code> можно вставить между <code>dp[j-1]</code> и <code>dp[j]</code>, обновляем <code>dp[j] = A[i]</code></li>
+                <li>Сохраняем индексы для восстановления ответа</li>
+            </ol>
+            
+            <p><strong>Временная сложность: O(n log n)</strong> — бинарный поиск на каждом шаге.</p>
+            <p><strong>Пространственная сложность: O(n)</strong> — массивы dp, pos, prev.</p>
+        </div>
+
+        <!-- Пример -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим массив: <code>A = [3, 1, 4, 2, 5]</code></p>
+            
+            <div class="input-example">
+                <h4>Пошаговое выполнение:</h4>
+                <pre><code>Инициализация: dp[0] = -∞, dp[1..5] = ∞
+
+i=0, A[0]=3: lower_bound(3) = 1
+       dp[0]=-∞ < 3 < ∞ → dp[1]=3, pos[1]=0, prev[0]=pos[0]=-1
+
+i=1, A[1]=1: lower_bound(1) = 1
+       dp[0]=-∞ < 1 < 3 → dp[1]=1, pos[1]=1, prev[1]=pos[0]=-1
+
+i=2, A[2]=4: lower_bound(4) = 2
+       dp[1]=1 < 4 < ∞ → dp[2]=4, pos[2]=2, prev[2]=pos[1]=1
+
+i=3, A[3]=2: lower_bound(2) = 2
+       dp[1]=1 < 2 < 4 → dp[2]=2, pos[2]=3, prev[3]=pos[1]=1
+
+i=4, A[4]=5: lower_bound(5) = 3
+       dp[2]=2 < 5 < ∞ → dp[3]=5, pos[3]=4, prev[4]=pos[2]=3
+
+Результат: l = 3
+Восстановление: pos[3]=4 → A[4]=5
+                prev[4]=3 → A[3]=2
+                prev[3]=1 → A[1]=1
+Ответ: 1 2 5 (длина 3)</code></pre>
+                <p><strong>Длина наибольшей возрастающей подпоследовательности: 3</strong><br>
+                Сама последовательность: <strong>1 2 5</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать алгоритм онлайн</h3>
+            <p>Введите массив чисел и найдите НВП:</p>
+            
+            <label>Массив (числа через пробел):</label>
+            <input type="text" id="array-input" value="3 1 4 2 5">
+            
+            <div class="try-it">
+                <button onclick="runLISFast()">Найти НВП</button>
+                <button onclick="loadExample1()">Пример: 3 1 4 2 5</button>
+                <button onclick="loadExample2()">Пример: 10 9 2 5 3 7 101 18</button>
+                <button onclick="loadExample3()">Пример: 7 7 7 7 (нестрого)</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runLISFast() {
+            const arrayStr = document.getElementById('array-input').value;
+            const A = arrayStr.trim().split(/\s+/).map(Number);
+            const n = A.length;
+            
+            if (n === 0) {
+                document.getElementById('demo-output').innerHTML = 'Введите массив чисел';
+                return;
+            }
+            
+            const INF = 1e9 + 7;
+            const dp = Array(n + 1).fill(INF);
+            const pos = Array(n + 1).fill(-1);
+            const prev = Array(n).fill(-1);
+            
+            dp[0] = -INF;
+            let l = 0;
+            const steps = [];
+            
+            steps.push(`Массив: [${A.join(', ')}]`);
+            steps.push(`Начальные значения: dp[0] = -∞, dp[1..${n}] = ∞\n`);
+            
+            for (let i = 0; i < n; i++) {
+                // Бинарный поиск позиции для A[i]
+                let left = 0, right = n;
+                while (left < right) {
+                    const mid = Math.floor((left + right) / 2);
+                    if (dp[mid] < A[i]) {
+                        left = mid + 1;
+                    } else {
+                        right = mid;
+                    }
+                }
+                const j = left;
+                
+                steps.push(`Шаг ${i + 1}: A[${i}] = ${A[i]}`);
+                steps.push(`  Бинарный поиск: j = ${j} (первая позиция с dp[j] >= ${A[i]})`);
+                
+                if (dp[j - 1] < A[i] && A[i] < dp[j]) {
+                    const oldVal = dp[j] === INF ? '∞' : dp[j];
+                    dp[j] = A[i];
+                    pos[j] = i;
+                    prev[i] = pos[j - 1];
+                    l = Math.max(l, j);
+                    steps.push(`  dp[${j - 1}] = ${dp[j - 1] === -INF ? '-∞' : dp[j - 1]} < ${A[i]} < ${oldVal} → обновляем`);
+                    steps.push(`  dp[${j}] = ${A[i]}, pos[${j}] = ${i}, prev[${i}] = ${pos[j - 1]}`);
+                } else {
+                    steps.push(`  Условие не выполнено, пропускаем`);
+                }
+                steps.push(`  Текущий dp: [${dp.slice(0, l + 2).map(d => d === INF ? '∞' : d === -INF ? '-∞' : d).join(', ')}...]`);
+                steps.push(`  Текущая длина НВП: ${l}\n`);
+            }
+            
+            // Восстановление ответа
+            const ANS = [];
+            let p = pos[l];
+            while (p !== -1) {
+                ANS.unshift(A[p]);
+                p = prev[p];
+            }
+            
+            steps.push(`Восстановление последовательности:`);
+            steps.push(`  pos[${l}] = ${pos[l]} → A[${pos[l]}] = ${A[pos[l]]}`);
+            let temp = pos[l];
+            while (prev[temp] !== -1) {
+                steps.push(`  prev[${temp}] = ${prev[temp]} → A[${prev[temp]}] = ${A[prev[temp]]}`);
+                temp = prev[temp];
+            }
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Длина наибольшей возрастающей подпоследовательности: <strong>${l}</strong><br>Сама последовательность: [${ANS.join(', ')}]`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('array-input').value = '3 1 4 2 5';
+            runLISFast();
+        }
+        
+        function loadExample2() {
+            document.getElementById('array-input').value = '10 9 2 5 3 7 101 18';
+            runLISFast();
+        }
+        
+        function loadExample3() {
+            document.getElementById('array-input').value = '7 7 7 7';
+            runLISFast();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

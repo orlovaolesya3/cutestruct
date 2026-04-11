@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Динамическое программирование</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* Дополнительные стили для блока объяснения */
+        .dp-intro {
+            background: rgba(171, 205, 239, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        body.light-theme .dp-intro {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(171, 205, 239, 0.3);
+        }
+        
+        body.dark-theme .dp-intro {
+            background: rgba(30, 30, 50, 0.5);
+            border: 1px solid rgba(29, 30, 51, 0.3);
+        }
+        
+        .dp-intro h3 {
+            margin-bottom: 12px;
+        }
+        
+        .dp-intro p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .dp-intro ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .dp-intro li {
+            margin: 8px 0;
+            list-style-type: disc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-btn">← На главную</a>
+        
+        <header>
+            <h1>Динамическое программирование</h1>
+            <p>Оптимизация рекурсивных алгоритмов через запоминание результатов</p>
+        </header>
+
+        <!-- Блок объяснения -->
+        <div class="dp-intro">
+            <h3> Что такое динамическое программирование?</h3>
+            <p><strong>Динамическое программирование (ДП)</strong> — это метод решения сложных задач путём разбиения их на более простые подзадачи с сохранением результатов для повторного использования.</p>
+            
+            <p><strong>Ключевые идеи:</strong></p>
+            <ul>
+                <li><strong>Оптимальная подструктура</strong> — оптимальное решение задачи можно получить из оптимальных решений подзадач</li>
+                <li><strong>Перекрывающиеся подзадачи</strong> — одни и те же подзадачи встречаются многократно</li>
+                <li><strong>Мемоизация</strong> — запоминание результатов вычислений</li>
+            </ul>
+            
+                    </div>
+
+        <div class="categories">
+            <div class="category-card">
+                <h2>Числа Фибоначчи</h2>
+                <p>F(n) = F(n-1) + F(n-2)</p>
+                <a href="../algorithms/fibonacci.html" class="btn">Перейти →</a>
+            </div>
+            <div class="category-card">
+                <h2>Подъём по лестнице</h2>
+                <p>Сколькими способами можно подняться на n ступенек</p>
+                <a href="../algorithms/climbing_stairs.html" class="btn">Перейти →</a>
+            </div>
+            <div class="category-card">
+                <h2>Задача о монетках</h2>
+                <p>Нахождение минимального количества монет для заданной суммы</p>
+                <a href="../algorithms/coin_change.html" class="btn">Перейти →</a>
+            </div>
+            <div class="category-card">
+                <h2>Задача о рюкзаке (0/1)</h2>
+                <p>Выбор предметов с максимальной ценностью при ограничении по весу</p>
+                <a href="../algorithms/knapsack.html" class="btn">Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>НОП </h2>
+                <p>Наибольшая общая подпоследовательность двух строк</p>
+                <a href="../algorithms/lcs.html" class="btn">Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>НВП O(n²)</h2>
+                <p>Наибольшая возрастающая подпоследовательность</p>
+                <a href="../algorithms/lis.html" class="btn">Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>НВП O(nlogn)</h2>
+                <p>Наибольшая возрастающая подпоследовательность</p>
+                <a href="../algorithms/lis.html" class="btn">Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Расстояние Левенштейна</h2>
+                <p>Минимальное количество операций для преобразования строки в другую</p>
+                <a href="../algorithms/levenshtein.html" class="btn">Перейти →</a>
+            </div>
+
+            
+
+            
+        </div>
+    </div>
+    <script src="../script.js"></script>
+</body>
+</html>
