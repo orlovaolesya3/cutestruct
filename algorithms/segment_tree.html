@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Дерево отрезков - сумма на отрезке и точечное обновление</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .tree-viz {
+            font-family: monospace;
+            white-space: pre;
+            text-align: center;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/trees.html" class="back-btn">← Назад к структурам данных</a>
+        
+        <header>
+            <h1>Дерево отрезков</h1>
+            <p>Сумма на отрезке и точечное обновление за O(log n)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n, m = map(int, input().split())
+A = list(map(int, input().split()))
+tree = [0] * (n * 4)
+
+def build(v, l, r):
+    if l == r:
+        tree[v] = A[l]
+        return
+    m = (l + r) // 2
+    build(v * 2, l, m)
+    build(v * 2 + 1, m + 1, r)
+    tree[v] = tree[v * 2] + tree[v * 2 + 1]
+
+def update(v, l, r, z, p):
+    if l == r:
+        tree[v] = z
+        return
+    m = (l + r) // 2
+    if p <= m:
+        update(v * 2, l, m, z, p)
+    else:
+        update(v * 2 + 1, m + 1, r, z, p)
+    tree[v] = tree[v * 2] + tree[v * 2 + 1]
+
+def get(v, l, r, l0, r0):
+    if l == l0 and r == r0:
+        return tree[v]
+    m = (l + r) // 2
+    s1 = s2 = 0
+    if l0 <= m:
+        s1 = get(v * 2, l, m, l0, min(r0, m))
+    if r0 >= m + 1:
+        s2 = get(v * 2 + 1, m + 1, r, max(l0, m + 1), r0)
+    return s1 + s2
+
+build(1, 0, n - 1)
+
+for _ in range(m):
+    f, l, r = map(int, input().split())
+    if f == 1:
+        print(get(1, 0, n - 1, l - 1, r - 1))
+    else:
+        update(1, 0, n - 1, r, l - 1)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using T = long long;
+
+vector&lt;T&gt; tree, A;
+
+void build(T v, T l, T r) {
+    if (l == r) {
+        tree[v] = A[l];
+        return;
+    }
+    T m = (l + r) / 2;
+    build(v * 2, l, m);
+    build(v * 2 + 1, m + 1, r);
+    tree[v] = tree[v * 2] + tree[v * 2 + 1];
+}
+
+void update(T v, T l, T r, T z, T p) {
+    if (l == r) {
+        tree[v] = z;
+        return;
+    }
+    T m = (l + r) / 2;
+    if (p <= m)
+        update(v * 2, l, m, z, p);
+    else
+        update(v * 2 + 1, m + 1, r, z, p);
+    tree[v] = tree[v * 2] + tree[v * 2 + 1];
+}
+
+T get(T v, T l, T r, T l0, T r0) {
+    if (l == l0 && r == r0)
+        return tree[v];
+    T m = (l + r) / 2;
+    T s1 = 0, s2 = 0;
+    if (l0 <= m)
+        s1 = get(v * 2, l, m, l0, min(r0, m));
+    if (r0 >= m + 1)
+        s2 = get(v * 2 + 1, m + 1, r, max(l0, m + 1), r0);
+    return s1 + s2;
+}
+
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    
+    T n, m;
+    cin >> n;
+    A.resize(n);
+    tree.resize(n * 4 + 1);
+    
+    for (T i = 0; i < n; i++)
+        cin >> A[i];
+    
+    build(1, 0, n - 1);
+    
+    cin >> m;
+    for (T i = 0; i < m; i++) {
+        T f, l, r;
+        cin >> f >> l >> r;
+        if (f == 1) {
+            cout << get(1, 0, n - 1, l - 1, r - 1) << "\n";
+        } else {
+            update(1, 0, n - 1, r, l - 1);
+        }
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает дерево отрезков?</h3>
+            <p><strong>Дерево отрезков</strong> — это структура данных, которая позволяет выполнять запросы на отрезке (сумма, минимум, максимум) и точечные обновления за <strong>O(log n)</strong>.</p>
+            
+            <h4>Основная идея</h4>
+            <p>Массив разбивается на отрезки, каждый узел дерева хранит информацию о своём отрезке (например, сумму). Корень хранит информацию обо всём массиве, листья — об отдельных элементах.</p>
+            
+            <div class="tree-viz">
+                <pre>
+                    [0..7]
+                   /      \
+              [0..3]      [4..7]
+              /    \      /    \
+          [0..1] [2..3] [4..5] [6..7]
+           / \    / \    / \    / \
+         [0][1] [2][3] [4][5] [6][7]</pre>
+            </div>
+            
+            <h4>Основные операции</h4>
+            <ul>
+                <li><strong>Построение (build)</strong> — рекурсивно строим дерево, вычисляя значение узлов из детей. <strong>O(n)</strong></li>
+                <li><strong>Обновление (update)</strong> — находим лист, меняем его значение и обновляем всех предков. <strong>O(log n)</strong></li>
+                <li><strong>Запрос (get)</strong> — рекурсивно спускаемся по дереву, суммируя значения отрезков, полностью покрывающих запрос. <strong>O(log n)</strong></li>
+            </ul>
+            
+            <h4>Параметры функций</h4>
+            <ul>
+                <li><code>v</code> — номер текущего узла (1 — корень)</li>
+                <li><code>l, r</code> — границы отрезка, за который отвечает узел v</li>
+                <li><code>z</code> — новое значение элемента</li>
+                <li><code>p</code> — индекс обновляемого элемента</li>
+                <li><code>l0, r0</code> — границы запроса</li>
+            </ul>
+            
+            <p><strong>Временная сложность:</strong> O(log n) на запрос и обновление.</p>
+            <p><strong>Пространственная сложность:</strong> O(4n) ≈ 4n памяти.</p>
+        </div>
+
+        <!-- Пример -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим массив: <code>A = [1, 3, 5, 7, 9, 11]</code> (n=6)</p>
+            
+            <div class="input-example">
+                <h4>Дерево отрезков (суммы):</h4>
+                <pre><code>                    [0..5] = 36
+                   /          \
+          [0..2] = 9          [3..5] = 27
+           /     \             /     \
+     [0..1]=4   [2]=5     [3..4]=16   [5]=11
+      /    \               /    \
+    [0]=1  [1]=3         [3]=7  [4]=9
+
+Операции:
+1. get(1, 3) → сумма A[1..3] = 3+5+7 = 15
+2. update(2, 10) → A[2] = 10
+   Обновляем лист [2]=10, затем [0..2]=1+3+10=14, корень=14+27=41
+3. get(0, 5) → сумма всех элементов = 41</code></pre>
+                <p><strong>Результат:</strong> быстрый ответ на запросы суммы и обновления</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать дерево отрезков онлайн</h3>
+            <p>Введите массив и запросы (1 l r — сумма, 2 p z — обновление):</p>
+            
+            <label>Массив (числа через пробел):</label>
+            <input type="text" id="array-input" value="1 3 5 7 9 11">
+            
+            <label>Запросы (каждый с новой строки):</label>
+            <textarea id="queries-input" rows="5" placeholder="1 2 4
+2 3 10
+1 1 5"></textarea>
+            
+            <div class="try-it">
+                <button onclick="runSegmentTree()"><span class="paw-icon"></span> Выполнить запросы</button>
+                <button onclick="loadExample1()">Пример: сумма и обновление</button>
+                <button onclick="loadExample2()">Пример: только суммы</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        class SegmentTree {
+            constructor(arr) {
+                this.n = arr.length;
+                this.tree = new Array(4 * this.n);
+                this.build(1, 0, this.n - 1, arr);
+            }
+            
+            build(v, l, r, arr) {
+                if (l === r) {
+                    this.tree[v] = arr[l];
+                    return;
+                }
+                const m = Math.floor((l + r) / 2);
+                this.build(v * 2, l, m, arr);
+                this.build(v * 2 + 1, m + 1, r, arr);
+                this.tree[v] = this.tree[v * 2] + this.tree[v * 2 + 1];
+            }
+            
+            update(v, l, r, p, z) {
+                if (l === r) {
+                    this.tree[v] = z;
+                    return;
+                }
+                const m = Math.floor((l + r) / 2);
+                if (p <= m) {
+                    this.update(v * 2, l, m, p, z);
+                } else {
+                    this.update(v * 2 + 1, m + 1, r, p, z);
+                }
+                this.tree[v] = this.tree[v * 2] + this.tree[v * 2 + 1];
+            }
+            
+            get(v, l, r, l0, r0) {
+                if (l === l0 && r === r0) {
+                    return this.tree[v];
+                }
+                const m = Math.floor((l + r) / 2);
+                let s1 = 0, s2 = 0;
+                if (l0 <= m) {
+                    s1 = this.get(v * 2, l, m, l0, Math.min(r0, m));
+                }
+                if (r0 >= m + 1) {
+                    s2 = this.get(v * 2 + 1, m + 1, r, Math.max(l0, m + 1), r0);
+                }
+                return s1 + s2;
+            }
+        }
+        
+        function runSegmentTree() {
+            const arrayStr = document.getElementById('array-input').value;
+            const A = arrayStr.trim().split(/\s+/).map(Number);
+            const n = A.length;
+            
+            if (n === 0) {
+                document.getElementById('demo-output').innerHTML = ' Введите массив чисел';
+                return;
+            }
+            
+            const queriesText = document.getElementById('queries-input').value;
+            const lines = queriesText.trim().split('\n');
+            
+            const segTree = new SegmentTree(A);
+            const results = [];
+            const steps = [];
+            
+            steps.push(`Исходный массив: [${A.join(', ')}]`);
+            steps.push(`Дерево отрезков построено.\n`);
+            
+            let currentA = [...A];
+            
+            for (let idx = 0; idx < lines.length; idx++) {
+                const parts = lines[idx].trim().split(/\s+/).map(Number);
+                if (parts.length < 3) continue;
+                
+                const f = parts[0];
+                const l = parts[1];
+                const r = parts[2];
+                
+                if (f === 1) {
+                    const sum = segTree.get(1, 0, n - 1, l - 1, r - 1);
+                    results.push(`sum(${l}, ${r}) = ${sum}`);
+                    steps.push(`Запрос ${idx + 1}: сумма на отрезке [${l}, ${r}] = ${sum}`);
+                } else if (f === 2) {
+                    const p = l - 1;
+                    const z = r;
+                    const oldVal = currentA[p];
+                    currentA[p] = z;
+                    segTree.update(1, 0, n - 1, p, z);
+                    results.push(`update(${l}, ${z})`);
+                    steps.push(`Запрос ${idx + 1}: обновление A[${l}] = ${z} (было ${oldVal})`);
+                    steps.push(`  Массив теперь: [${currentA.join(', ')}]`);
+                }
+            }
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            let resultHtml = ` Результаты запросов:<br><br>`;
+            for (let i = 0; i < results.length; i++) {
+                resultHtml += ` ${results[i]}<br>`;
+            }
+            outputDiv.innerHTML = resultHtml;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('array-input').value = '1 3 5 7 9 11';
+            document.getElementById('queries-input').value = `1 2 4
+2 3 10
+1 1 5`;
+            runSegmentTree();
+        }
+        
+        function loadExample2() {
+            document.getElementById('array-input').value = '2 4 6 8 10 12 14';
+            document.getElementById('queries-input').value = `1 1 3
+1 2 5
+1 3 7`;
+            runSegmentTree();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

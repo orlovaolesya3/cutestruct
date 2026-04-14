@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>LCA - наименьший общий предок в дереве</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .tree-viz {
+            font-family: monospace;
+            white-space: pre;
+            text-align: center;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+        
+        <header>
+            <h1>LCA - наименьший общий предок</h1>
+            <p>Поиск ближайшего общего предка двух вершин в дереве</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>from math import log2
+
+n, m = map(int, input().split())
+G = [[] for _ in range(n)]
+
+for _ in range(n - 1):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    G[a].append(b)
+    G[b].append(a)
+
+l = int(log2(n)) + 1
+P = [[0] * l for _ in range(n)]
+V1 = [0] * n
+V2 = [0] * n
+t = 0
+
+def dfs(h):
+    global t
+    for i in range(1, l):
+        P[h][i] = P[P[h][i - 1]][i - 1]
+    t += 1
+    V1[h] = t
+    for a in G[h]:
+        if V1[a] == 0:
+            P[a][0] = h
+            dfs(a)
+    V2[h] = t
+
+def f(a, b):
+    return V1[a] <= V1[b] and V2[b] <= V2[a]
+
+def lca(a, b):
+    if f(a, b):
+        return a
+    if f(b, a):
+        return b
+    
+    for i in range(l - 1, -1, -1):
+        if not f(P[a][i], b):
+            a = P[a][i]
+    
+    return P[a][0]
+
+dfs(0)
+
+for _ in range(m):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    print(lca(a, b) + 1)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; G;
+vector&lt;vector&lt;int&gt;&gt; P;
+vector&lt;int&gt; V1, V2;
+int t = 0;
+int l;
+
+void dfs(int h) {
+    for (int i = 1; i < l; i++) {
+        P[h][i] = P[P[h][i - 1]][i - 1];
+    }
+    t++;
+    V1[h] = t;
+    for (int a : G[h]) {
+        if (V1[a] == 0) {
+            P[a][0] = h;
+            dfs(a);
+        }
+    }
+    V2[h] = t;
+}
+
+bool f(int a, int b) {
+    return V1[a] <= V1[b] && V2[b] <= V2[a];
+}
+
+int lca(int a, int b) {
+    if (f(a, b)) return a;
+    if (f(b, a)) return b;
+    
+    for (int i = l - 1; i >= 0; i--) {
+        if (!f(P[a][i], b)) {
+            a = P[a][i];
+        }
+    }
+    
+    return P[a][0];
+}
+
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int n, m;
+    cin >> n >> m;
+    
+    G.resize(n);
+    for (int i = 0; i < n - 1; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        G[a].push_back(b);
+        G[b].push_back(a);
+    }
+    
+    l = log2(n) + 1;
+    P.assign(n, vector&lt;int&gt;(l, 0));
+    V1.assign(n, 0);
+    V2.assign(n, 0);
+    
+    dfs(0);
+    
+    for (int i = 0; i < m; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        cout << lca(a, b) + 1 << "\n";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм LCA?</h3>
+            <p><strong>LCA (Lowest Common Ancestor)</strong> — это алгоритм поиска наименьшего (ближайшего) общего предка двух вершин в дереве. Предком вершины считается любая вершина на пути от корня до данной вершины, включая саму вершину.</p>
+            
+            <h4>Основная идея</h4>
+            <p>Алгоритм использует двоичные подъёмы (binary lifting) и времена входа/выхода (DFS-порядок).</p>
+            
+            <h4>Предподсчёт</h4>
+            <ul>
+                <li><strong>P[h][i]</strong> — 2<sup>i</sup>-й предок вершины h (P[h][0] — родитель)</li>
+                <li><strong>V1[h]</strong> — время входа в вершину h при DFS (порядковый номер)</li>
+                <li><strong>V2[h]</strong> — время выхода из вершины h (порядковый номер после обработки всех потомков)</li>
+            </ul>
+            
+            <p>Функция <strong>f(a, b)</strong> проверяет, является ли вершина a предком вершины b: <code>V1[a] ≤ V1[b] и V2[b] ≤ V2[a]</code>.</p>
+            
+            <h4>Поиск LCA</h4>
+            <ol>
+                <li>Если a — предок b, то LCA = a</li>
+                <li>Если b — предок a, то LCA = b</li>
+                <li>Иначе поднимаемся по двоичным степеням сверху вниз, чтобы приблизиться к LCA</li>
+                <li>После подъёма родитель текущей вершины — LCA</li>
+            </ol>
+            
+            <p><strong>Временная сложность:</strong> O(n log n) на предподсчёт, O(log n) на запрос.</p>
+            <p><strong>Пространственная сложность:</strong> O(n log n) для хранения предков.</p>
+        </div>
+
+        <!-- Пример дерева -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим дерево из 7 вершин:</p>
+            
+            <div class="tree-viz">
+                <pre>        1 (корень)
+       /|\
+      2 3 4
+     / \   \
+    5   6   7</pre>
+            </div>
+            <p>Вершины: 1-2-5, 1-2-6, 1-3, 1-4-7</p>
+            
+            <div class="input-example">
+                <h4>Примеры запросов:</h4>
+                <pre><code>Запрос 1: LCA(5, 6) → общий предок 2 (вершина 2)
+Запрос 2: LCA(5, 7) → общий предок 1 (корень)
+Запрос 3: LCA(2, 4) → общий предок 1
+Запрос 4: LCA(3, 3) → сама вершина 3
+
+Пошаговый поиск LCA(5, 7):
+  f(5, 7)? 5 — предок 7? Нет
+  f(7, 5)? 7 — предок 5? Нет
+  Поднимаем 5:
+    Проверяем предка 5 на расстоянии 2ⁱ (i=2,1,0)
+    На i=2: предок 5 на 4 шага — не подходит
+    На i=1: предок 5 на 2 шага — это 1, f(1,7)? Да → не поднимаем
+    На i=0: предок 5 на 1 шаг — это 2, f(2,7)? Нет → поднимаем a=2
+  После цикла: a=2, родитель 2 = 1 → LCA = 1</code></pre>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать алгоритм онлайн</h3>
+            <p>Введите дерево и запросы:</p>
+            
+            <label>Количество вершин (n) и запросов (m):</label>
+            <input type="text" id="nm-input" value="7 3">
+            
+            <label>Рёбра (n-1 строк, формат: a b):</label>
+            <textarea id="edges-input" rows="6" placeholder="1 2
+1 3
+1 4
+2 5
+2 6
+4 7"></textarea>
+            
+            <label>Запросы (m строк, формат: a b):</label>
+            <textarea id="queries-input" rows="3" placeholder="5 6
+5 7
+2 4"></textarea>
+            
+            <div class="try-it">
+                <button onclick="runLCA()"> Найти LCA</button>
+                <button onclick="loadExample1()">Пример: дерево из 7 вершин</button>
+                <button onclick="loadExample2()">Пример: дерево из 5 вершин</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runLCA() {
+            const nmStr = document.getElementById('nm-input').value;
+            const [n, m] = nmStr.trim().split(/\s+/).map(Number);
+            const edgesText = document.getElementById('edges-input').value;
+            const queriesText = document.getElementById('queries-input').value;
+            
+            if (isNaN(n) || isNaN(m)) {
+                document.getElementById('demo-output').innerHTML = ' Введите n и m';
+                return;
+            }
+            
+            // Построение графа
+            const G = Array(n).fill().map(() => []);
+            const edges = edgesText.trim().split('\n');
+            
+            for (let line of edges) {
+                const [a, b] = line.trim().split(/\s+/).map(Number);
+                if (!isNaN(a) && !isNaN(b)) {
+                    G[a - 1].push(b - 1);
+                    G[b - 1].push(a - 1);
+                }
+            }
+            
+            const queries = [];
+            const queryLines = queriesText.trim().split('\n');
+            for (let line of queryLines) {
+                const [a, b] = line.trim().split(/\s+/).map(Number);
+                if (!isNaN(a) && !isNaN(b)) {
+                    queries.push([a - 1, b - 1]);
+                }
+            }
+            
+            const l = Math.floor(Math.log2(n)) + 1;
+            const P = Array(n).fill().map(() => Array(l).fill(0));
+            const V1 = Array(n).fill(0);
+            const V2 = Array(n).fill(0);
+            let t = 0;
+            
+            function f(a, b) {
+                return V1[a] <= V1[b] && V2[b] <= V2[a];
+            }
+            
+            function dfs(h) {
+                for (let i = 1; i < l; i++) {
+                    P[h][i] = P[P[h][i - 1]][i - 1];
+                }
+                t++;
+                V1[h] = t;
+                for (let a of G[h]) {
+                    if (V1[a] === 0) {
+                        P[a][0] = h;
+                        dfs(a);
+                    }
+                }
+                V2[h] = t;
+            }
+            
+            dfs(0);
+            
+            const results = [];
+            const steps = [];
+            steps.push(`Дерево построено, корень = 1`);
+            steps.push(`Времена входа V1: [${V1.map(v => v).join(', ')}]`);
+            steps.push(`Времена выхода V2: [${V2.map(v => v).join(', ')}]`);
+            steps.push(``);
+            
+            for (let idx = 0; idx < queries.length; idx++) {
+                let [a, b] = queries[idx];
+                const origA = a, origB = b;
+                steps.push(`Запрос ${idx + 1}: LCA(${origA + 1}, ${origB + 1})`);
+                
+                if (f(a, b)) {
+                    steps.push(`  f(${origA + 1}, ${origB + 1}) → вершина ${origA + 1} является предком ${origB + 1}`);
+                    results.push(`${origA + 1}`);
+                    steps.push(`  Ответ: ${origA + 1}\n`);
+                    continue;
+                }
+                if (f(b, a)) {
+                    steps.push(`  f(${origB + 1}, ${origA + 1}) → вершина ${origB + 1} является предком ${origA + 1}`);
+                    results.push(`${origB + 1}`);
+                    steps.push(`  Ответ: ${origB + 1}\n`);
+                    continue;
+                }
+                
+                steps.push(`  Поднимаем вершину ${origA + 1}:`);
+                for (let i = l - 1; i >= 0; i--) {
+                    const ancestor = P[a][i];
+                    if (!f(ancestor, b)) {
+                        steps.push(`    Проверяем предка на 2^${i} шагов = ${ancestor + 1}, f(${ancestor + 1}, ${origB + 1})? нет → поднимаем`);
+                        a = ancestor;
+                    } else {
+                        steps.push(`    Проверяем предка на 2^${i} шагов = ${ancestor + 1}, f(${ancestor + 1}, ${origB + 1})? да → не поднимаем`);
+                    }
+                }
+                
+                const lcaVertex = P[a][0];
+                steps.push(`  Родитель текущей вершины ${a + 1} = ${lcaVertex + 1} → LCA = ${lcaVertex + 1}`);
+                results.push(`${lcaVertex + 1}`);
+                steps.push(`  Ответ: ${lcaVertex + 1}\n`);
+            }
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            let resultHtml = ` Результаты запросов:<br><br>`;
+            for (let i = 0; i < results.length; i++) {
+                resultHtml += ` LCA(${queries[i][0] + 1}, ${queries[i][1] + 1}) = ${results[i]}<br>`;
+            }
+            outputDiv.innerHTML = resultHtml;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('nm-input').value = '7 3';
+            document.getElementById('edges-input').value = `1 2
+1 3
+1 4
+2 5
+2 6
+4 7`;
+            document.getElementById('queries-input').value = `5 6
+5 7
+2 4`;
+            runLCA();
+        }
+        
+        function loadExample2() {
+            document.getElementById('nm-input').value = '5 4';
+            document.getElementById('edges-input').value = `1 2
+1 3
+2 4
+2 5`;
+            document.getElementById('queries-input').value = `4 5
+4 3
+1 5
+3 3`;
+            runLCA();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>
