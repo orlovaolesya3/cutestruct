@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Немного добрых слов</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* === ФОТОАППАРАТ — ПЕРЕДНИЙ СЛОЙ (СДВИНУТ ВПРАВО) === */
+        .camera-wrapper {
+            position: fixed;
+            bottom: 30px;
+            left: 15%;                    /* было 5%, стало 15% — сдвиг вправо */
+            width: 320px;
+            max-width: 35vw;
+            z-index: 200;
+            cursor: pointer;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.25));
+        }
+        .camera {
+            position: relative;
+            width: 100%;
+            transition: transform 0.1s ease;
+        }
+        .camera:active {
+            transform: scale(0.97);
+        }
+        .camera img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Кнопка спуска */
+        .shutter {
+            position: absolute;
+            left: 217px;
+            top: 730px;
+            width: 130px;
+            height: 130px;
+            cursor: pointer;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            transition: background 0.1s;
+            transform: translate(-50%, -50%);
+        }
+        .shutter:active {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 700px) {
+            .camera-wrapper { 
+                left: 12%;
+                width: 240px; 
+            }
+            .shutter { left: 163px; top: 548px; width: 98px; height: 98px; }
+        }
+        @media (max-width: 500px) {
+            .camera-wrapper { 
+                left: 8%;
+                width: 180px; 
+            }
+            .shutter { left: 122px; top: 410px; width: 73px; height: 73px; }
+        }
+
+        /* === ВЕРТИКАЛЬНАЯ ПОДСКАЗКА (СДВИНУТА ВПРАВО ВМЕСТЕ С КАМЕРОЙ) === */
+        .hint {
+            position: fixed;
+            bottom: 200px;
+            left: calc(15% + 330px);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+        }
+        @media (max-width: 700px) {
+            .hint {
+                left: calc(12% + 250px);
+                bottom: 160px;
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 500px) {
+            .hint {
+                left: calc(8% + 190px);
+                bottom: 120px;
+                font-size: 10px;
+            }
+        }
+        body.dark-theme .hint {
+            color: #aaa;
+        }
+
+        /* === МЕСТО ДЛЯ ПОСЛЕДНЕЙ ФОТОГРАФИИ (СДВИНУТО ВПРАВО) === */
+        .photo-stack {
+            position: fixed;
+            bottom: 480px;
+            left: calc(15% + 40px);
+            width: calc(320px - 80px);
+            max-width: calc(35vw - 80px);
+            z-index: 150;
+            pointer-events: none;
+        }
+        @media (max-width: 700px) {
+            .photo-stack {
+                bottom: 360px;
+                left: calc(12% + 30px);
+                width: calc(240px - 60px);
+            }
+        }
+        @media (max-width: 500px) {
+            .photo-stack {
+                bottom: 260px;
+                left: calc(8% + 20px);
+                width: calc(180px - 40px);
+            }
+        }
+
+        /* Последняя фотография */
+        .last-photo {
+            background: white;
+            padding: 10px 10px 8px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 100%;
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+        .last-photo img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .last-photo p {
+            font-size: 12px;
+            font-weight: 500;
+            margin: 0;
+            color: #333;
+        }
+        body.dark-theme .last-photo {
+            background: white;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+        body.dark-theme .last-photo p {
+            color: #333;
+        }
+
+        /* === АНИМАЦИЯ ВЫЕЗДА ФОТО (СДВИНУТО ВПРАВО) === */
+        .animated-photo-container {
+            position: fixed;
+            bottom: 30px;
+            left: calc(15% + 40px);
+            width: calc(320px - 80px);
+            z-index: 180;
+            pointer-events: none;
+        }
+        @media (max-width: 700px) {
+            .animated-photo-container {
+                left: calc(12% + 30px);
+                width: calc(240px - 60px);
+            }
+        }
+        @media (max-width: 500px) {
+            .animated-photo-container {
+                left: calc(8% + 20px);
+                width: calc(180px - 40px);
+            }
+        }
+
+        .anim-photo {
+            background: white;
+            padding: 10px 10px 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(0);
+        }
+        .anim-photo.animate {
+            animation: liftHigh 1.4s cubic-bezier(0.2, 0.85, 0.3, 1) forwards;
+        }
+        @keyframes liftHigh {
+            0% {
+                opacity: 0;
+                transform: translateY(0);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-30px);
+            }
+            60% {
+                opacity: 1;
+                transform: translateY(-250px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(-480px);
+            }
+        }
+        .anim-photo img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .anim-photo p {
+            font-size: 13px;
+            font-weight: 500;
+            margin: 0;
+            color: #333;
+        }
+        body.dark-theme .anim-photo {
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        body.dark-theme .anim-photo p {
+            color: #333;
+        }
+
+        /* === ВСПЫШКА === */
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+            transition: opacity 0.12s ease-out;
+        }
+
+        /* === ОСНОВНОЙ КОНТЕНТ — В ПРАВОЙ ПОЛОВИНЕ === */
+        .right-content {
+            position: relative;
+            width: 40%;
+            margin-left: 55%;
+            padding: 20px;
+            padding-bottom: 75vh;
+        }
+        @media (max-width: 900px) {
+            .right-content {
+                width: 45%;
+                margin-left: 50%;
+            }
+        }
+        @media (max-width: 768px) {
+            .right-content {
+                width: 90%;
+                margin-left: 5%;
+                text-align: center;
+                padding-bottom: 80vh;
+            }
+        }
+
+        /* Кнопка "На главную" */
+        .back-btn {
+            display: inline-block;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+        body.light-theme .back-btn {
+            background: rgba(171, 205, 239, 0.8);
+            color: #333;
+        }
+        body.light-theme .back-btn:hover {
+            background: rgba(171, 205, 239, 1);
+        }
+        body.dark-theme .back-btn {
+            background: rgba(74, 74, 255, 0.8);
+            color: #fff;
+        }
+        body.dark-theme .back-btn:hover {
+            background: #4a4aff;
+        }
+
+        .right-content header {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        .right-content h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        .right-content p {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+
+        .support-text {
+            text-align: left;
+        }
+        .support-text h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+        .support-text p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 768px) {
+            .right-content header,
+            .support-text {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flash-overlay" id="flashOverlay"></div>
+
+    <!-- ФОТОАППАРАТ -->
+    <div class="camera-wrapper" id="cameraWrapper">
+        <div class="camera" id="cameraBtn">
+            <img src="../images/camera.png" alt="Фотоаппарат">
+            <div class="shutter" id="shutterBtn"></div>
+        </div>
+    </div>
+
+    <!-- ВЕРТИКАЛЬНАЯ ПОДСКАЗКА -->
+    <div class="hint">нажми на фотик</div>
+
+    <!-- АНИМАЦИЯ ВЫЕЗДА -->
+    <div class="animated-photo-container" id="animatedPhotoContainer"></div>
+
+    <!-- ПОСЛЕДНЯЯ ФОТОГРАФИЯ -->
+    <div class="photo-stack" id="photoStack"></div>
+
+    <!-- ВСЁ ОСТАЛЬНОЕ — В ПРАВОЙ ПОЛОВИНЕ -->
+    <div class="right-content">
+        <a href="../index.html" class="back-btn">← На главную</a>
+        <header>
+            <h1>Немного добрых слов</h1>
+            <p>Все будет круто</p>
+        </header>
+
+        <div class="support-text">
+            <p>Олимпиады это лишь маленький этап в твоей огромной жизни</p>
+            <p>Я верю, что ты со всем справишься</p>
+            <p>Просто кайфуй</p>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        const images = [
+            "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg",
+            "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
+            "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg",
+            "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg"
+        ];
+        const phrases = [
+            "Смотри, какой ты умничка!",
+            "Какая ты хорошая!",
+            "Ты просто прелесть! ",
+            "Какая милота!",
+            "Ты самый лучший! ",
+            "Обожаю твою улыбку! ",
+            "Ты чудесно выглядишь! ",
+            "Какой ты классный! ",
+            "Ты молодец, правда! ",
+            "Хорошо, что ты есть! ",
+            "У тебя отлично получается!",
+            "Ты справляешься, и это круто!",
+            "У тебя всё сложится!",
+            "Просто напоминаю: ты можешь!",
+            "Ты стараешься, и это заметно!",
+            "Сегодня ты уже сделал(а) многое!",
+            "Ты — приятный человек!",
+            "Ты есть, и это уже победа!",
+            "Просто ты есть, и это хорошо!",
+            "Мяу!",
+            "Ты смог(ла) больше, чем кажется!",
+            "Ты сделал(а) этот мир лучше!",
+            "Хорошего тебе дня, умница!",
+            "Ты умничка!)",
+            "Я в тебя верю!)",
+            "Ты всё сможешь!)",
+            "Ты молодец!)"
+        ];
+
+        let isAnimating = false;
+
+        function getRandomImage() {
+            return images[Math.floor(Math.random() * images.length)];
+        }
+        function getRandomPhrase() {
+            return phrases[Math.floor(Math.random() * phrases.length)];
+        }
+
+        function flashEffect() {
+            const flash = document.getElementById('flashOverlay');
+            flash.style.opacity = '0.85';
+            setTimeout(() => flash.style.opacity = '0', 120);
+        }
+
+        function showLastPhoto(imageFile, phrase) {
+            const container = document.getElementById('photoStack');
+            container.innerHTML = '';
+
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'last-photo';
+
+            const img = document.createElement('img');
+            img.src = `../images/animals/${imageFile}`;
+            const text = document.createElement('p');
+            text.textContent = phrase;
+
+            photoDiv.appendChild(img);
+            photoDiv.appendChild(text);
+            container.appendChild(photoDiv);
+        }
+
+        function animatePhoto(imageFile, phrase) {
+            const container = document.getElementById('animatedPhotoContainer');
+            container.innerHTML = '';
+
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'anim-photo';
+
+            const img = document.createElement('img');
+            img.src = `../images/animals/${imageFile}`;
+            const text = document.createElement('p');
+            text.textContent = phrase;
+
+            photoDiv.appendChild(img);
+            photoDiv.appendChild(text);
+            container.appendChild(photoDiv);
+
+            setTimeout(() => photoDiv.classList.add('animate'), 20);
+
+            setTimeout(() => {
+                showLastPhoto(imageFile, phrase);
+                container.innerHTML = '';
+                isAnimating = false;
+            }, 1500);
+        }
+
+        function takePhoto() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            flashEffect();
+            const image = getRandomImage();
+            const phrase = getRandomPhrase();
+
+            setTimeout(() => animatePhoto(image, phrase), 100);
+        }
+
+        const shutter = document.getElementById('shutterBtn');
+        const cameraWrapper = document.getElementById('cameraWrapper');
+
+        shutter.addEventListener('click', (e) => { e.stopPropagation(); takePhoto(); });
+        shutter.addEventListener('touchstart', (e) => { e.stopPropagation(); takePhoto(); });
+        cameraWrapper.addEventListener('click', (e) => {
+            if (e.target === shutter || shutter.contains(e.target)) return;
+            takePhoto();
+        });
+
+        window.addEventListener('load', () => {
+            const firstImage = getRandomImage();
+            const img = new Image();
+            img.src = `../images/animals/${firstImage}`;
+        });
+    </script>
+</body>
+</html>
