@@ -37,23 +37,7 @@
             width: 100%;
             height: auto;
             display: block;
-        }
-
-        /* Кнопка спуска */
-        .shutter {
-            position: absolute;
-            left: 68%;
-            top: 66%;
-            width: 26%;
-            height: 18%;
-            cursor: pointer;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.25);
-            transition: background 0.1s;
-            transform: translate(-50%, -50%);
-        }
-        .shutter:active {
-            background: rgba(255, 255, 255, 0.5);
+            pointer-events: auto;
         }
 
         /* === ВЕРТИКАЛЬНАЯ ПОДСКАЗКА === */
@@ -74,17 +58,16 @@
             color: #aaa;
         }
 
-        /* === МЕСТО ДЛЯ ПОСЛЕДНЕЙ ФОТОГРАФИИ === */
+        /* === МЕСТО ДЛЯ ПОСЛЕДНЕЙ ФОТОГРАФИИ (чуть меньше) === */
         .photo-stack {
             position: fixed;
             bottom: 58vh;
-            left: calc(8% + min(320px, 35vw) * 0.12);
-            width: calc(min(320px, 35vw) * 0.8);
+            left: calc(8% + min(320px, 35vw) * 0.14);
+            width: calc(min(320px, 35vw) * 0.72);
             z-index: 150;
             pointer-events: none;
         }
 
-        /* Последняя фотография — увеличен размер, уменьшена рамка */
         .last-photo {
             background: white;
             padding: 6px;
@@ -115,12 +98,12 @@
             color: #333;
         }
 
-        /* === АНИМАЦИЯ ВЫЕЗДА — увеличен размер, уменьшена рамка === */
+        /* === АНИМАЦИЯ ВЫЕЗДА (чуть меньше) === */
         .animated-photo-container {
             position: fixed;
             bottom: 5vh;
-            left: calc(8% + min(320px, 35vw) * 0.12);
-            width: calc(min(320px, 35vw) * 0.8);
+            left: calc(8% + min(320px, 35vw) * 0.14);
+            width: calc(min(320px, 35vw) * 0.72);
             z-index: 180;
             pointer-events: none;
         }
@@ -268,7 +251,6 @@
     <div class="camera-wrapper" id="cameraWrapper">
         <div class="camera" id="cameraBtn">
             <img src="../images/camera.png" alt="Фотоаппарат">
-            <div class="shutter" id="shutterBtn"></div>
         </div>
     </div>
 
@@ -378,13 +360,13 @@
             setTimeout(() => animatePhoto(image, phrase), 100);
         }
 
-        const shutter = document.getElementById('shutterBtn');
         const cameraWrapper = document.getElementById('cameraWrapper');
-
-        shutter.addEventListener('click', (e) => { e.stopPropagation(); takePhoto(); });
-        shutter.addEventListener('touchstart', (e) => { e.stopPropagation(); takePhoto(); });
         cameraWrapper.addEventListener('click', (e) => {
-            if (e.target === shutter || shutter.contains(e.target)) return;
+            e.stopPropagation();
+            takePhoto();
+        });
+        cameraWrapper.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
             takePhoto();
         });
 
