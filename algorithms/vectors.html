@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Векторы - длина, сумма, скалярное и векторное произведение</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Векторы</h1>
+            <p>Длина векторов, сумма, скалярное и векторное произведение, площадь треугольника</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>x1, y1, x2, y2 = map(int, input().split())
+x3, y3, x4, y4 = map(int, input().split())
+
+# координаты первого вектора
+xx1, yy1 = x2 - x1, y2 - y1
+# координаты второго вектора
+xx2, yy2 = x4 - x3, y4 - y3
+
+# длина векторов
+print((xx1**2 + yy1**2)**0.5, (xx2**2 + yy2**2)**0.5)
+
+# координаты вектора суммы
+print(xx1 + xx2, yy1 + yy2)
+
+# скалярное и векторное произведение
+print(xx1 * xx2 + yy1 * yy2, xx1 * yy2 - xx2 * yy1)
+
+# площадь треугольника на векторах
+print(abs(xx1 * yy2 - xx2 * yy1) / 2)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int x1, y1, x2, y2, x3, y3, x4, y4;
+    cin >> x1 >> y1 >> x2 >> y2;
+    cin >> x3 >> y3 >> x4 >> y4;
+    
+    // координаты первого вектора
+    int xx1 = x2 - x1, yy1 = y2 - y1;
+    // координаты второго вектора
+    int xx2 = x4 - x3, yy2 = y4 - y3;
+    
+    // длина векторов
+    cout << sqrt(xx1*xx1 + yy1*yy1) << " " << sqrt(xx2*xx2 + yy2*yy2) << "\n";
+    
+    // координаты вектора суммы
+    cout << xx1 + xx2 << " " << yy1 + yy2 << "\n";
+    
+    // скалярное и векторное произведение
+    cout << xx1*xx2 + yy1*yy2 << " " << xx1*yy2 - xx2*yy1 << "\n";
+    
+    // площадь треугольника на векторах
+    cout << abs(xx1*yy2 - xx2*yy1) / 2.0 << "\n";
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Основные операции с векторами</h3>
+            
+            <h4>Координаты вектора по двум точкам</h4>
+            <p>Если даны точки A(x₁, y₁) и B(x₂, y₂), то вектор AB имеет координаты:</p>
+            <div class="formula">(x₂ - x₁, y₂ - y₁)</div>
+            
+            <h4>Длина вектора</h4>
+            <div class="formula">|AB| = √((x₂ - x₁)² + (y₂ - y₁)²)</div>
+            
+            <h4>Сумма векторов</h4>
+            <p>При сложении векторов их координаты складываются:</p>
+            <div class="formula">(x₁ + x₂, y₁ + y₂)</div>
+            
+            <h4>Скалярное произведение</h4>
+            <div class="formula">(x₁, y₁) · (x₂, y₂) = x₁·x₂ + y₁·y₂</div>
+            <p>Скалярное произведение равно |a|·|b|·cos(α), где α — угол между векторами.</p>
+            <ul>
+                <li>Если > 0 → угол острый</li>
+                <li>Если = 0 → векторы перпендикулярны</li>
+                <li>Если < 0 → угол тупой</li>
+            </ul>
+            
+            <h4>Векторное произведение (псевдоскалярное)</h4>
+            <div class="formula">(x₁, y₁) × (x₂, y₂) = x₁·y₂ - x₂·y₁</div>
+            <p>Векторное произведение равно |a|·|b|·sin(α). Оно показывает ориентацию:</p>
+            <ul>
+                <li>Если > 0 → поворот против часовой стрелки</li>
+                <li>Если = 0 → векторы коллинеарны</li>
+                <li>Если < 0 → поворот по часовой стрелке</li>
+            </ul>
+            
+            <h4>Площадь треугольника на векторах</h4>
+            <div class="formula">S = |x₁·y₂ - x₂·y₁| / 2</div>
+            <p>Площадь треугольника, построенного на векторах a и b, равна половине модуля их векторного произведения.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li>Первая строка: x₁ y₁ x₂ y₂ — координаты двух точек первого вектора</li>
+                <li>Вторая строка: x₃ y₃ x₄ y₄ — координаты двух точек второго вектора</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Длины векторов</li>
+                <li>Координаты вектора суммы</li>
+                <li>Скалярное и векторное произведение</li>
+                <li>Площадь треугольника на векторах</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>0 0 3 4
+0 0 1 2</code></pre>
+                <p>Первый вектор: (3, 4), длина = 5<br>
+                Второй вектор: (1, 2), длина ≈ 2.236<br>
+                Сумма: (4, 6)<br>
+                Скалярное произведение: 3·1 + 4·2 = 11<br>
+                Векторное произведение: 3·2 - 1·4 = 2<br>
+                Площадь треугольника: 2/2 = 1</p>
+                <p><strong>Вывод:</strong><br>
+                5.0 2.23606797749979<br>
+                4 6<br>
+                11 2<br>
+                1.0</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать операции с векторами онлайн</h3>
+            <p>Введите координаты двух векторов:</p>
+            
+            <label>Первый вектор (x₁ y₁ x₂ y₂):</label>
+            <input type="text" id="vec1-input" value="0 0 3 4">
+            
+            <label>Второй вектор (x₃ y₃ x₄ y₄):</label>
+            <input type="text" id="vec2-input" value="0 0 1 2">
+            
+            <div class="try-it">
+                <button onclick="runVectors()"><span class="paw-icon"></span> Вычислить</button>
+                <button onclick="loadVectorsExample1()">Пример 1 (перпендикулярные)</button>
+                <button onclick="loadVectorsExample2()">Пример 2 (коллинеарные)</button>
+            </div>
+            
+            <div class="output" id="vectors-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runVectors() {
+            const vec1 = document.getElementById('vec1-input').value.trim().split(/\s+/).map(Number);
+            const vec2 = document.getElementById('vec2-input').value.trim().split(/\s+/).map(Number);
+            
+            if (vec1.length < 4 || vec2.length < 4) {
+                document.getElementById('vectors-output').innerHTML = 'Введите координаты двух векторов (по 4 числа)';
+                return;
+            }
+            
+            const [x1, y1, x2, y2] = vec1;
+            const [x3, y3, x4, y4] = vec2;
+            
+            // координаты векторов
+            const xx1 = x2 - x1, yy1 = y2 - y1;
+            const xx2 = x4 - x3, yy2 = y4 - y3;
+            
+            // длины
+            const len1 = Math.sqrt(xx1*xx1 + yy1*yy1);
+            const len2 = Math.sqrt(xx2*xx2 + yy2*yy2);
+            
+            // сумма
+            const sumX = xx1 + xx2;
+            const sumY = yy1 + yy2;
+            
+            // скалярное и векторное произведение
+            const dot = xx1 * xx2 + yy1 * yy2;
+            const cross = xx1 * yy2 - xx2 * yy1;
+            
+            // площадь треугольника
+            const area = Math.abs(cross) / 2;
+            
+            const steps = [];
+            steps.push(`Первый вектор: (${x1},${y1}) → (${x2},${y2})`);
+            steps.push(`  Координаты: (${xx1}, ${yy1})`);
+            steps.push(`Второй вектор: (${x3},${y3}) → (${x4},${y4})`);
+            steps.push(`  Координаты: (${xx2}, ${yy2})`);
+            steps.push(`\nДлина первого вектора: √(${xx1}² + ${yy1}²) = ${len1.toFixed(4)}`);
+            steps.push(`Длина второго вектора: √(${xx2}² + ${yy2}²) = ${len2.toFixed(4)}`);
+            steps.push(`\nСумма векторов: (${xx1} + ${xx2}, ${yy1} + ${yy2}) = (${sumX}, ${sumY})`);
+            steps.push(`\nСкалярное произведение: ${xx1}·${xx2} + ${yy1}·${yy2} = ${dot}`);
+            steps.push(`Векторное произведение: ${xx1}·${yy2} - ${xx2}·${yy1} = ${cross}`);
+            steps.push(`\nПлощадь треугольника: |${cross}| / 2 = ${area.toFixed(4)}`);
+            
+            const outputDiv = document.getElementById('vectors-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Длины векторов: ${len1.toFixed(4)} ${len2.toFixed(4)}<br>Сумма: (${sumX}, ${sumY})<br>Скалярное: ${dot}, Векторное: ${cross}<br>Площадь треугольника: ${area.toFixed(4)}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadVectorsExample1() {
+            document.getElementById('vec1-input').value = '0 0 3 0';
+            document.getElementById('vec2-input').value = '0 0 0 4';
+            runVectors();
+        }
+        
+        function loadVectorsExample2() {
+            document.getElementById('vec1-input').value = '0 0 2 4';
+            document.getElementById('vec2-input').value = '0 0 4 8';
+            runVectors();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadVectorsExample1();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Параллельная прямая на заданном расстоянии</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Параллельная прямая на заданном расстоянии</h1>
+            <p>Построение двух параллельных прямых на расстоянии r от заданной прямой ax + by + c = 0</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>with open('line3.in', 'r') as fin:
+    a, b, c, r = map(int, fin.readline().split())
+
+c1 = c - r * (a**2 + b**2)**0.5
+c2 = c + r * (a**2 + b**2)**0.5
+
+with open('line3.out', 'w') as fout:
+    fout.write(str(a) + " " + str(b) + " " + str(c1) + "\n")
+    fout.write(str(a) + " " + str(b) + " " + str(c2) + "\n")</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ifstream fin("line3.in");
+    ofstream fout("line3.out");
+    
+    double a, b, c, r;
+    fin >> a >> b >> c >> r;
+    
+    double norm = sqrt(a * a + b * b);
+    
+    double c1 = c - r * norm;
+    double c2 = c + r * norm;
+    
+    fout << a << " " << b << " " << c1 << "\n";
+    fout << a << " " << b << " " << c2 << "\n";
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как построить параллельную прямую?</h3>
+            
+            <p>Дана прямая: <code>ax + by + c = 0</code>. Нужно найти уравнения двух параллельных прямых на расстоянии <code>r</code> от неё.</p>
+            
+            <div class="formula">d = |a·x + b·y + c| / √(a² + b²)</div>
+            
+            <p>Чтобы сдвинуть прямую на расстояние r, нужно изменить свободный член c:</p>
+            <div class="formula">c₁ = c - r·√(a² + b²)</div>
+            <div class="formula">c₂ = c + r·√(a² + b²)</div>
+            
+            <p>Две полученные прямые будут параллельны исходной и находиться на расстоянии r от неё.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> файл <code>line3.in</code> содержит <code>a b c r</code></p>
+            <p><strong>Вывод:</strong> файл <code>line3.out</code> содержит уравнения двух прямых</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>3 4 5 2</code></pre>
+                <p>Исходная прямая: 3x + 4y + 5 = 0, норма = 5</p>
+                <p>c₁ = 5 - 2·5 = -5</p>
+                <p>c₂ = 5 + 2·5 = 15</p>
+                <p><strong>Вывод:</strong><br>3 4 -5<br>3 4 15</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Прямая (a b c):</label>
+            <input type="text" id="line3-input" value="3 4 5">
+            
+            <label>Расстояние r:</label>
+            <input type="number" id="distance-r" value="2" step="0.5">
+            
+            <div class="try-it">
+                <button onclick="runParallelLine()"><span class="paw-icon"></span> Построить</button>
+                <button onclick="loadParallelExample1()">Пример 1</button>
+                <button onclick="loadParallelExample2()">Пример 2</button>
+            </div>
+            
+            <div class="output" id="parallel-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runParallelLine() {
+            const line = document.getElementById('line3-input').value.trim().split(/\s+/).map(Number);
+            const r = parseFloat(document.getElementById('distance-r').value);
+            
+            if (line.length < 3 || isNaN(r)) {
+                document.getElementById('parallel-output').innerHTML = 'Введите коэффициенты a b c и расстояние r';
+                return;
+            }
+            
+            const [a, b, c] = line;
+            
+            const norm = Math.sqrt(a * a + b * b);
+            const c1 = c - r * norm;
+            const c2 = c + r * norm;
+            
+            const steps = [];
+            steps.push(`Исходная прямая: ${a}x + ${b}y + ${c} = 0`);
+            steps.push(`Расстояние: r = ${r}`);
+            steps.push(`\nНорма вектора: √(${a}² + ${b}²) = √${a*a + b*b} = ${norm.toFixed(4)}`);
+            steps.push(`\nПараллельные прямые:`);
+            steps.push(`  ${a}x + ${b}y + (${c} - ${r}·${norm.toFixed(4)}) = 0 → ${a}x + ${b}y + ${c1.toFixed(4)} = 0`);
+            steps.push(`  ${a}x + ${b}y + (${c} + ${r}·${norm.toFixed(4)}) = 0 → ${a}x + ${b}y + ${c2.toFixed(4)} = 0`);
+            
+            const outputDiv = document.getElementById('parallel-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `${a} ${b} ${c1}<br>${a} ${b} ${c2}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadParallelExample1() {
+            document.getElementById('line3-input').value = '3 4 5';
+            document.getElementById('distance-r').value = '2';
+            runParallelLine();
+        }
+        
+        function loadParallelExample2() {
+            document.getElementById('line3-input').value = '1 1 0';
+            document.getElementById('distance-r').value = '5';
+            runParallelLine();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadParallelExample1();
+        });
+    </script>
+</body>
+</html>

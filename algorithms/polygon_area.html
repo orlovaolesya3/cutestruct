@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Площадь многоугольника - формула Гаусса</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .warning {
+            background: rgba(255, 193, 7, 0.15);
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Площадь многоугольника</h1>
+            <p>Формула Гаусса (метод трапеций) для вычисления площади произвольного многоугольника</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n = int(input())
+A = [list(map(int, input().split())) for _ in range(n)]
+z = 0
+
+for i in range(n - 1):
+    z += A[i][0] * A[i + 1][1] - A[i + 1][0] * A[i][1]
+
+z += A[-1][0] * A[0][1] - A[0][0] * A[-1][1]
+z = abs(z) / 2
+
+print(z)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;pair&lt;double, double&gt;&gt; points(n);
+    for (int i = 0; i < n; i++) {
+        cin >> points[i].first >> points[i].second;
+    }
+    
+    double area = 0;
+    for (int i = 0; i < n; i++) {
+        int j = (i + 1) % n;
+        area += points[i].first * points[j].second;
+        area -= points[j].first * points[i].second;
+    }
+    
+    area = abs(area) / 2.0;
+    cout << area << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Формула Гаусса (метод трапеций)</h3>
+            
+            <p>Площадь произвольного многоугольника, заданного последовательностью вершин (в порядке обхода), вычисляется по формуле:</p>
+            <div class="formula">S = ½ · |Σ (xᵢ·yᵢ₊₁ - xᵢ₊₁·yᵢ)|</div>
+            
+            <h4>Как это работает</h4>
+            <ul>
+                <li>Вершины многоугольника должны быть перечислены <strong>в порядке обхода</strong> (по часовой или против часовой стрелки)</li>
+                <li>Суммируются попарные произведения координат соседних вершин</li>
+                <li>После замыкания (последняя вершина с первой) берётся абсолютное значение и делится на 2</li>
+            </ul>
+            
+            <div class="warning">
+                <strong>Важно:</strong> Вершины многоугольника должны быть заданы в правильном порядке (без самопересечений). Формула работает для любых (в том числе невыпуклых) простых многоугольников.
+            </div>
+            
+            <h4>Пример для квадрата</h4>
+            <p>Пусть вершины квадрата: (0,0), (1,0), (1,1), (0,1)</p>
+            <p>Сумма = 0·0 + 1·1 + 1·1 + 0·0 - (0·1 + 0·1 + 1·0 + 1·0) = 0+1+1+0 - (0+0+0+0) = 2</p>
+            <p>Площадь = |2|/2 = 1</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n</code> — количество вершин</li>
+                <li><code>x₁ y₁</code> — координаты 1-й вершины</li>
+                <li><code>x₂ y₂</code> — координаты 2-й вершины</li>
+                <li>... (всего n строк)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Площадь многоугольника</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода (квадрат):</h4>
+                <pre><code>4
+0 0
+1 0
+1 1
+0 1</code></pre>
+                <p><strong>Вывод: 1.0</strong></p>
+            </div>
+            
+            <div class="input-example">
+                <h4>Пример ввода (прямоугольник):</h4>
+                <pre><code>4
+0 0
+3 0
+3 2
+0 2</code></pre>
+                <p><strong>Вывод: 6.0</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <p>Введите количество вершин и их координаты:</p>
+            
+            <label>Количество вершин (n):</label>
+            <input type="number" id="polygon-n" value="4" min="3" max="20">
+            
+            <label>Координаты (каждая строка: x y):</label>
+            <textarea id="polygon-input" rows="6">0 0
+1 0
+1 1
+0 1</textarea>
+            
+            <div class="try-it">
+                <button onclick="runPolygonArea()"><span class="paw-icon"></span> Вычислить площадь</button>
+                <button onclick="loadPolygonExample1()">Квадрат</button>
+                <button onclick="loadPolygonExample2()">Прямоугольник</button>
+                <button onclick="loadPolygonExample3()">Треугольник</button>
+            </div>
+            
+            <div class="output" id="polygon-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runPolygonArea() {
+            const n = parseInt(document.getElementById('polygon-n').value);
+            const text = document.getElementById('polygon-input').value;
+            const lines = text.trim().split('\n');
+            
+            if (isNaN(n) || n < 3) {
+                document.getElementById('polygon-output').innerHTML = 'Введите корректное n (≥ 3)';
+                return;
+            }
+            
+            const points = [];
+            for (let i = 0; i < n && i < lines.length; i++) {
+                const coords = lines[i].trim().split(/\s+/).map(Number);
+                if (coords.length >= 2) {
+                    points.push([coords[0], coords[1]]);
+                }
+            }
+            
+            if (points.length < n) {
+                document.getElementById('polygon-output').innerHTML = `Недостаточно координат (нужно ${n} строк)`;
+                return;
+            }
+            
+            let sum = 0;
+            const steps = [];
+            steps.push(`Вершины многоугольника:`);
+            for (let i = 0; i < n; i++) {
+                steps.push(`  ${i+1}: (${points[i][0]}, ${points[i][1]})`);
+            }
+            steps.push(`\nВычисление суммы xᵢ·yᵢ₊₁ - xᵢ₊₁·yᵢ:`);
+            
+            for (let i = 0; i < n; i++) {
+                const j = (i + 1) % n;
+                const term = points[i][0] * points[j][1] - points[j][0] * points[i][1];
+                sum += term;
+                steps.push(`  i=${i+1}, j=${j+1}: ${points[i][0]}·${points[j][1]} - ${points[j][0]}·${points[i][1]} = ${term} → сумма = ${sum}`);
+            }
+            
+            const area = Math.abs(sum) / 2;
+            steps.push(`\nПлощадь = |${sum}| / 2 = ${area.toFixed(4)}`);
+            
+            const outputDiv = document.getElementById('polygon-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Площадь многоугольника = ${area.toFixed(4)}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadPolygonExample1() {
+            document.getElementById('polygon-n').value = '4';
+            document.getElementById('polygon-input').value = `0 0
+1 0
+1 1
+0 1`;
+            runPolygonArea();
+        }
+        
+        function loadPolygonExample2() {
+            document.getElementById('polygon-n').value = '4';
+            document.getElementById('polygon-input').value = `0 0
+3 0
+3 2
+0 2`;
+            runPolygonArea();
+        }
+        
+        function loadPolygonExample3() {
+            document.getElementById('polygon-n').value = '3';
+            document.getElementById('polygon-input').value = `0 0
+3 0
+0 4`;
+            runPolygonArea();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPolygonExample1();
+        });
+    </script>
+</body>
+</html>

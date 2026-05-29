@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Биссектриса угла</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Биссектриса угла</h1>
+            <p>Построение уравнения биссектрисы угла, заданного тремя точками</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>with open('bisector.in', 'r') as fin:
+    b1, b2, a1, a2, c1, c2 = map(int, fin.readline().split())
+
+from math import gcd
+
+BA = [a1 - b1, a2 - b2]
+BC = [c1 - b1, c2 - b2]
+
+d1 = (BA[0]**2 + BA[1]**2)**0.5
+d2 = (BC[0]**2 + BC[1]**2)**0.5
+BA[0] /= d1
+BA[1] /= d1
+BC[0] /= d2
+BC[1] /= d2
+
+H = [BA[0] + BC[0], BA[1] + BC[1]]
+
+if H == [0, 0]:
+    H = [-BA[1], BA[0]]
+
+A = H[1]
+B = -H[0]
+C = H[0] * b2 - H[1] * b1
+
+f = (A**2 + B**2)**0.5
+A /= f
+B /= f
+C /= f
+
+if C > 0:
+    A, B, C = -A, -B, -C
+
+with open('bisector.out', 'w') as fout:
+    fout.write(str(A) + " " + str(B) + " " + str(C))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ifstream fin("bisector.in");
+    ofstream fout("bisector.out");
+    
+    int b1, b2, a1, a2, c1, c2;
+    fin >> b1 >> b2 >> a1 >> a2 >> c1 >> c2;
+    
+    double BAx = a1 - b1, BAy = a2 - b2;
+    double BCx = c1 - b1, BCy = c2 - b2;
+    
+    double d1 = sqrt(BAx*BAx + BAy*BAy);
+    double d2 = sqrt(BCx*BCx + BCy*BCy);
+    
+    BAx /= d1; BAy /= d1;
+    BCx /= d2; BCy /= d2;
+    
+    double Hx = BAx + BCx;
+    double Hy = BAy + BCy;
+    
+    if (Hx == 0 && Hy == 0) {
+        Hx = -BAy;
+        Hy = BAx;
+    }
+    
+    double A = Hy;
+    double B = -Hx;
+    double C = Hx * b2 - Hy * b1;
+    
+    double f = sqrt(A*A + B*B);
+    A /= f; B /= f; C /= f;
+    
+    if (C > 0) {
+        A = -A; B = -B; C = -C;
+    }
+    
+    fout << A << " " << B << " " << C << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как построить биссектрису угла?</h3>
+            
+            <p>Для угла с вершиной B и точками A и C на сторонах:</p>
+            <ul>
+                <li>Строим единичные векторы BA и BC</li>
+                <li>Их сумма даёт направление биссектрисы</li>
+                <li>Если сумма равна нулю (угол 180°), берём перпендикулярный вектор</li>
+                <li>Уравнение биссектрисы приводится к нормированному виду</li>
+            </ul>
+            
+            <p>Результат — уравнение прямой в виде <code>ax + by + c = 0</code>, где √(a²+b²) = 1 и c ≤ 0.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> файл <code>bisector.in</code> содержит <code>b1 b2 a1 a2 c1 c2</code></p>
+            <p><strong>Вывод:</strong> файл <code>bisector.out</code> содержит коэффициенты уравнения</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>0 0 1 0 0 1</code></pre>
+                <p>Угол с вершиной (0,0), стороны (1,0) и (0,1) → биссектриса y = x</p>
+                <p><strong>Вывод: 0.7071067811865475 -0.7071067811865475 0.0</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Вершина B и точки A, C (b1 b2 a1 a2 c1 c2):</label>
+            <input type="text" id="bisector-input" value="0 0 1 0 0 1">
+            
+            <div class="try-it">
+                <button onclick="runBisector()"><span class="paw-icon"></span> Построить биссектрису</button>
+                <button onclick="loadBisectorExample1()">Прямой угол</button>
+                <button onclick="loadBisectorExample2()">Острый угол</button>
+            </div>
+            
+            <div class="output" id="bisector-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runBisector() {
+            const input = document.getElementById('bisector-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 6) {
+                document.getElementById('bisector-output').innerHTML = 'Введите 6 чисел';
+                return;
+            }
+            
+            const [b1, b2, a1, a2, c1, c2] = input;
+            
+            let BAx = a1 - b1, BAy = a2 - b2;
+            let BCx = c1 - b1, BCy = c2 - b2;
+            
+            const d1 = Math.hypot(BAx, BAy);
+            const d2 = Math.hypot(BCx, BCy);
+            
+            BAx /= d1; BAy /= d1;
+            BCx /= d2; BCy /= d2;
+            
+            let Hx = BAx + BCx;
+            let Hy = BAy + BCy;
+            
+            if (Math.abs(Hx) < 1e-12 && Math.abs(Hy) < 1e-12) {
+                Hx = -BAy;
+                Hy = BAx;
+            }
+            
+            let A = Hy;
+            let B = -Hx;
+            let C = Hx * b2 - Hy * b1;
+            
+            const norm = Math.hypot(A, B);
+            A /= norm; B /= norm; C /= norm;
+            
+            if (C > 0) {
+                A = -A; B = -B; C = -C;
+            }
+            
+            const steps = [];
+            steps.push(`Вершина B: (${b1}, ${b2})`);
+            steps.push(`Точка A: (${a1}, ${a2})`);
+            steps.push(`Точка C: (${c1}, ${c2})`);
+            steps.push(`\nВектор BA: (${BAx.toFixed(4)}, ${BAy.toFixed(4)})`);
+            steps.push(`Вектор BC: (${BCx.toFixed(4)}, ${BCy.toFixed(4)})`);
+            steps.push(`\nСумма векторов: (${Hx.toFixed(4)}, ${Hy.toFixed(4)})`);
+            steps.push(`\nНормированные коэффициенты: ${A} ${B} ${C}`);
+            
+            const outputDiv = document.getElementById('bisector-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `${A} ${B} ${C}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadBisectorExample1() {
+            document.getElementById('bisector-input').value = '0 0 1 0 0 1';
+            runBisector();
+        }
+        
+        function loadBisectorExample2() {
+            document.getElementById('bisector-input').value = '0 0 2 0 1 1';
+            runBisector();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBisectorExample1();
+        });
+    </script>
+</body>
+</html>

@@ -128,7 +128,7 @@
             color: #aaa;
         }
         
-        /* Тонкие прямоугольники для информации и базы языков (в стиле карточек) */
+        /* Карточки для информации и базы языков */
         .info-row {
             display: flex;
             gap: 25px;
@@ -138,26 +138,35 @@
         
         .info-card {
             flex: 1;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px 25px;
+            border-radius: 16px;
+            padding: 25px;
             transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
             cursor: pointer;
-            border: 1px solid rgba(171, 205, 239, 0.3);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 15px;
+            gap: 16px;
+            text-align: left;
+        }
+        
+        body.light-theme .info-card {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(171, 205, 239, 0.3);
         }
         
         body.dark-theme .info-card {
             background: rgba(30, 30, 50, 0.9);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
             border: 1px solid rgba(29, 30, 51, 0.5);
         }
         
         .info-card:hover {
             transform: translateY(-5px);
+        }
+        
+        body.light-theme .info-card:hover {
             box-shadow: 0 10px 30px rgba(171, 205, 239, 0.3);
         }
         
@@ -185,8 +194,16 @@
         
         .info-text p {
             margin: 0;
-            font-size: 0.9em;
-            opacity: 0.8;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        body.light-theme .info-text p {
+            color: #333;
+        }
+        
+        body.dark-theme .info-text p {
+            color: #e0e0e0;
         }
         
         /* Лапка вместо кнопки */
@@ -228,9 +245,9 @@
             margin-top: 10px;
         }
         
-        /* Стиль для обычных карточек (оставляем как есть) */
+        /* Стиль для обычных карточек */
         .category-card {
-            border-radius: 15px;
+            border-radius: 16px;
             padding: 25px;
             text-align: center;
             transition: transform 0.3s, box-shadow 0.3s;
@@ -262,7 +279,7 @@
         }
         
         .category-card h2 {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             font-weight: 600;
         }
         
@@ -276,15 +293,16 @@
         
         .category-card p {
             margin-bottom: 20px;
-            font-size: 14px;
+            font-size: 16px;
+            line-height: 1.5;
         }
         
         body.light-theme .category-card p {
-            color: #666;
+            color: #333;
         }
         
         body.dark-theme .category-card p {
-            color: #aaa;
+            color: #e0e0e0;
         }
         
         .btn {
@@ -319,13 +337,10 @@
                 gap: 15px;
             }
             .info-card {
-                padding: 16px 20px;
+                padding: 20px;
             }
             .info-text h3 {
                 font-size: 1.1em;
-            }
-            .info-text p {
-                font-size: 0.85em;
             }
             .paw-link {
                 width: 40px;
@@ -353,12 +368,12 @@
             <div class="search-results" id="searchResults"></div>
         </div>
 
-        <!-- Тонкие прямоугольники во всю ширину (информация и база языков) -->
+        <!-- Карточки информации и базы языков -->
         <div class="info-row">
             <div class="info-card" onclick="location.href='pages/language_basics.html'">
                 <div class="info-text">
                     <h3>База языков</h3>
-                    <p>Основные приёмы Python и C++: быстрый ввод/вывод, работа с файлами, структуры данных и многое другое</p>
+                    <p>Основные приёмы Python и C++: функции, методы, структуры данных</p>
                 </div>
                 <div class="paw-link">
                     <div class="paw-icon"></div>
@@ -374,7 +389,7 @@
                 </div>
             </div>
         </div>
-	
+    
         <div class="categories">
             <div class="category-card">
                 <h2>Графовые алгоритмы</h2>
@@ -479,16 +494,18 @@
             { name: "Расстояние Левенштейна", url: "algorithms/levenshtein.html", category: "Строки", keywords: ["левенштейн", "levenshtein", "редакционное расстояние"] },
             
             // Геометрия
-            { name: "Расстояние между точками", url: "algorithms/point_distance.html", category: "Геометрия", keywords: ["расстояние", "distance"] },
-            { name: "Псевдоскалярное произведение", url: "algorithms/cross_product.html", category: "Геометрия", keywords: ["псевдоскалярное", "cross product"] },
-            { name: "Пересечение отрезков", url: "algorithms/segments_intersect.html", category: "Геометрия", keywords: ["пересечение отрезков"] },
-            { name: "Принадлежность точки многоугольнику", url: "algorithms/point_in_polygon.html", category: "Геометрия", keywords: ["принадлежность точки", "point in polygon"] },
-            { name: "Площадь многоугольника", url: "algorithms/polygon_area.html", category: "Геометрия", keywords: ["площадь многоугольника"] },
-            { name: "Выпуклая оболочка (Грэхем)", url: "algorithms/convex_hull.html", category: "Геометрия", keywords: ["выпуклая оболочка", "convex hull", "грэхем"] },
-            { name: "Ближайшая пара точек", url: "algorithms/closest_pair.html", category: "Геометрия", keywords: ["ближайшая пара", "closest pair"] },
-            { name: "Диаметр множества точек", url: "algorithms/diameter.html", category: "Геометрия", keywords: ["диаметр", "diameter"] },
-            { name: "Пересечение окружностей", url: "algorithms/circles_intersect.html", category: "Геометрия", keywords: ["пересечение окружностей"] },
-            { name: "Расстояние от точки до прямой", url: "algorithms/point_line_distance.html", category: "Геометрия", keywords: ["расстояние до прямой"] },
+            { name: "Векторы", url: "algorithms/vectors.html", category: "Геометрия", keywords: ["векторы", "длина вектора", "сумма векторов", "скалярное произведение", "векторное произведение", "площадь треугольника"] },
+            { name: "Площадь треугольника", url: "algorithms/triangle_area.html", category: "Геометрия", keywords: ["площадь треугольника", "треугольник", "координаты"] },
+            { name: "Площадь многоугольника", url: "algorithms/polygon_area.html", category: "Геометрия", keywords: ["площадь многоугольника", "формула гаусса", "метод трапеций"] },
+            { name: "Расстояние от точки до прямой", url: "algorithms/point_line_distance.html", category: "Геометрия", keywords: ["расстояние от точки до прямой", "точка", "прямая"] },
+            { name: "Расположение точки относительно прямой", url: "algorithms/point_line_side.html", category: "Геометрия", keywords: ["расположение точки", "слева", "справа", "ориентация"] },
+            { name: "Принадлежность точки прямой, лучу, отрезку", url: "algorithms/point_on_segment.html", category: "Геометрия", keywords: ["принадлежность точки", "на прямой", "на луче", "на отрезке"] },
+            { name: "Пересечение прямых", url: "algorithms/lines_intersect.html", category: "Геометрия", keywords: ["пересечение прямых", "точка пересечения", "коэффициенты"] },
+            { name: "Параллельная прямая", url: "algorithms/parallel_line.html", category: "Геометрия", keywords: ["параллельная прямая", "расстояние", "сдвиг"] },
+            { name: "Уравнение прямой по двум точкам", url: "algorithms/line_from_points.html", category: "Геометрия", keywords: ["уравнение прямой", "две точки", "коэффициенты"] },
+            { name: "Угол между векторами", url: "algorithms/angle_between_vectors.html", category: "Геометрия", keywords: ["угол между векторами", "радианы", "скалярное произведение"] },
+            { name: "Биссектриса угла", url: "algorithms/angle_bisector.html", category: "Геометрия", keywords: ["биссектриса", "угол", "уравнение"] },
+            { name: "Нормализация уравнения прямой", url: "algorithms/line_normalization.html", category: "Геометрия", keywords: ["нормализация", "канонический вид", "уравнение прямой"] },
             
             // Информация
             { name: "Информация для подготовки", url: "pages/support.html", category: "Информация", keywords: ["кружки", "школы", "олимпиады", "курсы", "информация"] },
@@ -506,6 +523,8 @@
             if (!query) {
                 searchResults.style.display = 'none';
                 categoriesContainer.style.display = 'grid';
+                const infoRow = document.querySelector('.info-row');
+                if (infoRow) infoRow.style.display = 'flex';
                 noResultsDiv.style.display = 'none';
                 return [];
             }
@@ -520,14 +539,24 @@
         }
         
         function displayResults(results) {
+            const infoRow = document.querySelector('.info-row');
+            
             if (results.length === 0) {
                 searchResults.style.display = 'none';
-                categoriesContainer.style.display = 'none';
-                noResultsDiv.style.display = 'block';
+                if (searchInput.value.trim() === '') {
+                    categoriesContainer.style.display = 'grid';
+                    if (infoRow) infoRow.style.display = 'flex';
+                    noResultsDiv.style.display = 'none';
+                } else {
+                    categoriesContainer.style.display = 'none';
+                    if (infoRow) infoRow.style.display = 'none';
+                    noResultsDiv.style.display = 'block';
+                }
                 return;
             }
             
             categoriesContainer.style.display = 'none';
+            if (infoRow) infoRow.style.display = 'none';
             noResultsDiv.style.display = 'none';
             
             searchResults.innerHTML = '';
@@ -561,6 +590,8 @@
                 if (searchInput.value.trim() === '') {
                     searchResults.style.display = 'none';
                     categoriesContainer.style.display = 'grid';
+                    const infoRow = document.querySelector('.info-row');
+                    if (infoRow) infoRow.style.display = 'flex';
                     noResultsDiv.style.display = 'none';
                 }
             }

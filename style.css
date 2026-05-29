@@ -778,3 +778,29 @@ body.dark-theme .algorithm-card {
     box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     border: 1px solid rgba(102, 126, 234, 0.3);
 }
+/* ========== ЛАПКА ДЛЯ СВЕТЛОЙ И ТЁМНОЙ ТЕМЫ ========== */
+.paw {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-image: url('images/paw.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.paw-icon {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background-image: url('paw.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+body.dark-theme .paw,
+body.dark-theme .paw-icon {
+    filter: brightness(0) invert(1);
+}

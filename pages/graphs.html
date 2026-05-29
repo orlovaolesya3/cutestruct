@@ -61,15 +61,16 @@
         
         .visualizer-text p {
             margin: 0;
-            font-size: 14px;
+            font-size: 16px;
+            line-height: 1.5;
         }
         
         body.light-theme .visualizer-text p {
-            color: #666;
+            color: #333;
         }
         
         body.dark-theme .visualizer-text p {
-            color: #aaa;
+            color: #e0e0e0;
         }
         
         .visualizer-btn {
@@ -119,7 +120,7 @@
         }
         
         .algorithm-card {
-            border-radius: 15px;
+            border-radius: 16px;
             padding: 25px;
             text-align: center;
             transition: transform 0.3s, box-shadow 0.3s;
@@ -151,7 +152,8 @@
         }
         
         .algorithm-card h3 {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            font-weight: 600;
         }
         
         body.light-theme .algorithm-card h3 {
@@ -164,14 +166,16 @@
         
         .algorithm-card p {
             margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.5;
         }
         
         body.light-theme .algorithm-card p {
-            color: #666;
+            color: #333;
         }
         
         body.dark-theme .algorithm-card p {
-            color: #aaa;
+            color: #e0e0e0;
         }
         
         .btn {
@@ -270,73 +274,84 @@
                 <p>Рекурсивный обход графа</p>
                 <a href="../algorithms/dfs.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Алгоритм Флойда-Уоршелла</h3>
                 <p>Кратчайшие пути между всеми парами вершин</p>
                 <a href="../algorithms/floyd.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Алгоритм Дейкстры</h3>
                 <p>Кратчайший путь во взвешенном графе</p>
                 <a href="../algorithms/dijkstra.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Алгоритм Дейкстры O(mlogn)</h3>
                 <p>Кратчайший путь во взвешенном графе</p>
                 <a href="../algorithms/dijkstra_heap.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>LCA</h3>
                 <p>Наименьший общий предок</p>
                 <a href="../algorithms/lca.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Topsort</h3>
                 <p>Топологическая сортировка</p>
                 <a href="../algorithms/topological_sort.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Алгоритм Краскала</h3>
                 <p>Построение минимального остовного дерева</p>
                 <a href="../algorithms/kruskal.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Алгоритм Прима</h3>
                 <p>Построение минимального остовного дерева</p>
                 <a href="../algorithms/prim.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Алгоритма Форда-Беллмана</h3>
                 <p>Поиск кратчайших путей от одной вершины, работает с отрицательными весами</p>
                 <a href="../algorithms/bellman_ford.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Конденсация графа</h3>
                 <p>Поиск компонент сильной связности</p>
                 <a href="../algorithms/condensation.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Поиск мостов</h3>
                 <p>Поиск рёбер, удаление которых увеличивает число компонент связности</p>
                 <a href="../algorithms/bridges.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Поиск точек сочленения</h3>
                 <p>Поиск вершин, удаление которых увеличивает число компонент связности</p>
                 <a href="../algorithms/articulation_points.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Изоморфизм деревьев</h3>
                 <p>Проверка структурного сходства графов</p>
                 <a href="../algorithms/tree_isomorphism.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
+
             <div class="algorithm-card">
                 <h3>Изоморфизм корневых деревьев</h3>
                 <p>Проверка структурного сходства деревьев с заданными корнями</p>
                 <a href="../algorithms/rooted_tree_isomorphism.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
             </div>
-            
-            
         </div>
     </div>
     

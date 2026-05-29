@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Уравнение прямой по двум точкам</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Уравнение прямой по двум точкам</h1>
+            <p>Построение уравнения прямой, проходящей через две заданные точки</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>a = y1 - y2
+b = x2 - x1
+c = y1 * (x1 - x2) + x1 * (y2 - y1)
+print(-a, -b, -c)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int x1, y1, x2, y2;
+    cin >> x1 >> y1 >> x2 >> y2;
+    
+    int a = y1 - y2;
+    int b = x2 - x1;
+    int c = y1 * (x1 - x2) + x1 * (y2 - y1);
+    
+    cout << -a << " " << -b << " " << -c << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как получить уравнение прямой?</h3>
+            
+            <p>Для точек A(x₁, y₁) и B(x₂, y₂) уравнение прямой имеет вид:</p>
+            <div class="formula">(y₂ - y₁)(x - x₁) = (x₂ - x₁)(y - y₁)</div>
+            
+            <p>После преобразования получаем коэффициенты:</p>
+            <div class="formula">a = y₁ - y₂</div>
+            <div class="formula">b = x₂ - x₁</div>
+            <div class="formula">c = y₁·(x₁ - x₂) + x₁·(y₂ - y₁)</div>
+            
+            <p>Итоговое уравнение: <code>ax + by + c = 0</code></p>
+            <p>Выводятся коэффициенты <code>-a, -b, -c</code> для получения канонического вида.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> <code>x₁ y₁ x₂ y₂</code> — координаты двух точек</p>
+            <p><strong>Вывод:</strong> <code>a b c</code> — коэффициенты уравнения прямой ax + by + c = 0</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>0 0 3 4</code></pre>
+                <p>a = 0-4 = -4 → выводится 4<br>b = 3-0 = 3 → выводится -3<br>c = 0·(0-3) + 0·(4-0) = 0 → 0</p>
+                <p><strong>Вывод: 4 -3 0</strong> (уравнение 4x - 3y = 0)</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Точки A и B (x1 y1 x2 y2):</label>
+            <input type="text" id="points-input" value="0 0 3 4">
+            
+            <div class="try-it">
+                <button onclick="runLineFromPoints()"><span class="paw-icon"></span> Получить уравнение</button>
+                <button onclick="loadPointsExample1()">Пример 1</button>
+                <button onclick="loadPointsExample2()">Пример 2</button>
+            </div>
+            
+            <div class="output" id="line-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runLineFromPoints() {
+            const input = document.getElementById('points-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 4) {
+                document.getElementById('line-output').innerHTML = 'Введите 4 числа (координаты двух точек)';
+                return;
+            }
+            
+            const [x1, y1, x2, y2] = input;
+            
+            const a = y1 - y2;
+            const b = x2 - x1;
+            const c = y1 * (x1 - x2) + x1 * (y2 - y1);
+            
+            const steps = [];
+            steps.push(`Точка A: (${x1}, ${y1})`);
+            steps.push(`Точка B: (${x2}, ${y2})`);
+            steps.push(`\na = y₁ - y₂ = ${y1} - ${y2} = ${a}`);
+            steps.push(`b = x₂ - x₁ = ${x2} - ${x1} = ${b}`);
+            steps.push(`c = y₁·(x₁ - x₂) + x₁·(y₂ - y₁) = ${y1}·(${x1} - ${x2}) + ${x1}·(${y2} - ${y1}) = ${c}`);
+            steps.push(`\nУравнение: ${a}x + ${b}y + ${c} = 0`);
+            steps.push(`После нормировки: ${-a}x + ${-b}y + ${-c} = 0`);
+            
+            const outputDiv = document.getElementById('line-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `${-a} ${-b} ${-c}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadPointsExample1() {
+            document.getElementById('points-input').value = '0 0 3 4';
+            runLineFromPoints();
+        }
+        
+        function loadPointsExample2() {
+            document.getElementById('points-input').value = '1 1 4 2';
+            runLineFromPoints();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPointsExample1();
+        });
+    </script>
+</body>
+</html>

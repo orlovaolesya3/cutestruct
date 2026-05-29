@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Расположение точки относительно прямой</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Расположение точки относительно прямой</h1>
+            <p>Определение, находится точка слева, справа или на прямой</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>x1, y1, x2, y2, x3, y3 = map(int, input().split())
+
+q = (x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)
+
+if q == 0:
+    print("BOTH")
+elif q < 0:
+    print("LEFT")
+else:
+    print("RIGHT")</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int x1, y1, x2, y2, x3, y3;
+    cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+    
+    int q = (x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1);
+    
+    if (q == 0) {
+        cout << "BOTH" << endl;
+    } else if (q < 0) {
+        cout << "LEFT" << endl;
+    } else {
+        cout << "RIGHT" << endl;
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как определить сторону?</h3>
+            
+            <p>Для точек A(x₁, y₁), B(x₂, y₂) и C(x₃, y₃) вычисляется ориентированная площадь треугольника ABC:</p>
+            <div class="formula">q = (x₃ - x₁)·(y₂ - y₁) - (y₃ - y₁)·(x₂ - x₁)</div>
+            
+            <h4>Интерпретация значения q</h4>
+            <ul>
+                <li><strong>q > 0</strong> — точка C находится <strong>справа</strong> от направленного отрезка AB</li>
+                <li><strong>q < 0</strong> — точка C находится <strong>слева</strong> от направленного отрезка AB</li>
+                <li><strong>q = 0</strong> — точка C лежит <strong>на прямой</strong> AB</li>
+            </ul>
+            
+            <h4>Геометрический смысл</h4>
+            <p>q — это удвоенная ориентированная площадь треугольника ABC. Знак определяет поворот вектора AB к AC:</p>
+            <ul>
+                <li>Положительное значение → поворот против часовой стрелки</li>
+                <li>Отрицательное значение → поворот по часовой стрелке</li>
+            </ul>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> <code>x₁ y₁ x₂ y₂ x₃ y₃</code> — координаты точек A, B, C</p>
+            <p><strong>Вывод:</strong> <code>LEFT</code>, <code>RIGHT</code> или <code>BOTH</code></p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>0 0 3 0 1 1</code></pre>
+                <p>Точка (1,1) находится слева от отрезка (0,0)-(3,0) → вывод: LEFT</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Точки A, B, C (x1 y1 x2 y2 x3 y3):</label>
+            <input type="text" id="side-input" value="0 0 3 0 1 1">
+            
+            <div class="try-it">
+                <button onclick="runPointLineSide()"><span class="paw-icon"></span> Определить положение</button>
+                <button onclick="loadSideExample1()">Точка слева</button>
+                <button onclick="loadSideExample2()">Точка справа</button>
+                <button onclick="loadSideExample3()">Точка на прямой</button>
+            </div>
+            
+            <div class="output" id="side-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runPointLineSide() {
+            const input = document.getElementById('side-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 6) {
+                document.getElementById('side-output').innerHTML = 'Введите 6 чисел (координаты трёх точек)';
+                return;
+            }
+            
+            const [x1, y1, x2, y2, x3, y3] = input;
+            
+            const q = (x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1);
+            
+            let result;
+            let explanation;
+            if (q === 0) {
+                result = "BOTH";
+                explanation = "Точка лежит на прямой";
+            } else if (q < 0) {
+                result = "LEFT";
+                explanation = "Точка находится слева от направленного отрезка";
+            } else {
+                result = "RIGHT";
+                explanation = "Точка находится справа от направленного отрезка";
+            }
+            
+            const steps = [];
+            steps.push(`Точка A: (${x1}, ${y1})`);
+            steps.push(`Точка B: (${x2}, ${y2})`);
+            steps.push(`Точка C: (${x3}, ${y3})`);
+            steps.push(`\nq = (x₃ - x₁)·(y₂ - y₁) - (y₃ - y₁)·(x₂ - x₁)`);
+            steps.push(`  = (${x3} - ${x1})·(${y2} - ${y1}) - (${y3} - ${y1})·(${x2} - ${x1})`);
+            steps.push(`  = ${x3-x1}·${y2-y1} - ${y3-y1}·${x2-x1} = ${q}`);
+            steps.push(`\n${explanation}`);
+            steps.push(`Результат: ${result}`);
+            
+            const outputDiv = document.getElementById('side-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = result;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadSideExample1() {
+            document.getElementById('side-input').value = '0 0 3 0 1 1';
+            runPointLineSide();
+        }
+        
+        function loadSideExample2() {
+            document.getElementById('side-input').value = '0 0 3 0 1 -1';
+            runPointLineSide();
+        }
+        
+        function loadSideExample3() {
+            document.getElementById('side-input').value = '0 0 3 0 2 0';
+            runPointLineSide();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSideExample1();
+        });
+    </script>
+</body>
+</html>

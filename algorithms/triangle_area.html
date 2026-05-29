@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Площадь треугольника - формула через координаты</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Площадь треугольника</h1>
+            <p>Вычисление площади треугольника по координатам вершин</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>x1, y1, x2, y2, x3, y3 = map(int, input().split())
+print(abs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)) / 2)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int x1, y1, x2, y2, x3, y3;
+    cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+    
+    double area = abs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)) / 2.0;
+    cout << area << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как вычислить площадь треугольника по координатам?</h3>
+            
+            <p>Площадь треугольника с вершинами A(x₁, y₁), B(x₂, y₂), C(x₃, y₃) вычисляется по формуле:</p>
+            <div class="formula">S = |(x₂ - x₁)·(y₃ - y₁) - (x₃ - x₁)·(y₂ - y₁)| / 2</div>
+            
+            <h4>Геометрический смысл</h4>
+            <p>Эта формула основана на векторном произведении. Площадь треугольника равна половине модуля векторного произведения векторов AB и AC:</p>
+            <div class="formula">S = ½ · |AB × AC|</div>
+            <p>где AB = (x₂ - x₁, y₂ - y₁), AC = (x₃ - x₁, y₃ - y₁).</p>
+            
+            <h4>Почему это работает?</h4>
+            <p>Векторное произведение двух векторов равно площади параллелограмма, построенного на этих векторах. Треугольник занимает ровно половину этого параллелограмма, поэтому его площадь равна половине модуля векторного произведения.</p>
+            
+            <h4>Проверка вырожденности</h4>
+            <p>Если площадь равна 0, то треугольник вырожденный — все три точки лежат на одной прямой (коллинеарны).</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>x₁ y₁ x₂ y₂ x₃ y₃</code> — координаты трёх точек</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Площадь треугольника</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>0 0 3 0 0 4</code></pre>
+                <p>Вершины: A(0,0), B(3,0), C(0,4) — прямоугольный треугольник с катетами 3 и 4.</p>
+                <p><strong>Вывод: 6.0</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <p>Введите координаты трёх точек:</p>
+            
+            <label>Координаты (x1 y1 x2 y2 x3 y3):</label>
+            <input type="text" id="triangle-input" value="0 0 3 0 0 4">
+            
+            <div class="try-it">
+                <button onclick="runTriangleArea()"><span class="paw-icon"></span> Вычислить площадь</button>
+                <button onclick="loadTriangleExample1()">Пример 1 (прямоугольный)</button>
+                <button onclick="loadTriangleExample2()">Пример 2 (равносторонний)</button>
+                <button onclick="loadTriangleExample3()">Пример 3 (вырожденный)</button>
+            </div>
+            
+            <div class="output" id="triangle-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runTriangleArea() {
+            const input = document.getElementById('triangle-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 6) {
+                document.getElementById('triangle-output').innerHTML = 'Введите 6 чисел (координаты трёх точек)';
+                return;
+            }
+            
+            const [x1, y1, x2, y2, x3, y3] = input;
+            
+            // Векторы AB и AC
+            const abx = x2 - x1;
+            const aby = y2 - y1;
+            const acx = x3 - x1;
+            const acy = y3 - y1;
+            
+            // Векторное произведение
+            const cross = abx * acy - acx * aby;
+            
+            // Площадь
+            const area = Math.abs(cross) / 2;
+            
+            const steps = [];
+            steps.push(`Точка A: (${x1}, ${y1})`);
+            steps.push(`Точка B: (${x2}, ${y2})`);
+            steps.push(`Точка C: (${x3}, ${y3})`);
+            steps.push(`\nВектор AB = (${x2} - ${x1}, ${y2} - ${y1}) = (${abx}, ${aby})`);
+            steps.push(`Вектор AC = (${x3} - ${x1}, ${y3} - ${y1}) = (${acx}, ${acy})`);
+            steps.push(`\nВекторное произведение AB × AC = ${abx}·${acy} - ${acx}·${aby} = ${cross}`);
+            steps.push(`\nПлощадь треугольника = |${cross}| / 2 = ${area.toFixed(4)}`);
+            
+            if (area === 0) {
+                steps.push(`\nПлощадь равна 0 → треугольник вырожденный, все три точки лежат на одной прямой`);
+            }
+            
+            const outputDiv = document.getElementById('triangle-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Площадь треугольника = ${area.toFixed(4)}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadTriangleExample1() {
+            document.getElementById('triangle-input').value = '0 0 3 0 0 4';
+            runTriangleArea();
+        }
+        
+        function loadTriangleExample2() {
+            document.getElementById('triangle-input').value = '0 0 2 0 1 1.732';
+            runTriangleArea();
+        }
+        
+        function loadTriangleExample3() {
+            document.getElementById('triangle-input').value = '0 0 2 0 4 0';
+            runTriangleArea();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTriangleExample1();
+        });
+    </script>
+</body>
+</html>

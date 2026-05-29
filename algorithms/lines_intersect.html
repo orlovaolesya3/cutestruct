@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Пересечение двух прямых</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .warning {
+            background: rgba(255, 193, 7, 0.15);
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Пересечение двух прямых</h1>
+            <p>Нахождение точки пересечения прямых, заданных уравнениями a₁x + b₁y + c₁ = 0 и a₂x + b₂y + c₂ = 0</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>a1, b1, c1, a2, b2, c2 = map(int, input().split())
+
+def f(ax, ay, bx, by):
+    return ax * by - ay * bx
+
+sg = f(a1, b1, a2, b2)
+
+y = -f(a1, c1, a2, c2) / sg
+x = -f(c1, b1, c2, b2) / sg
+
+print(x, y)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+double f(double ax, double ay, double bx, double by) {
+    return ax * by - ay * bx;
+}
+
+int main() {
+    double a1, b1, c1, a2, b2, c2;
+    cin >> a1 >> b1 >> c1 >> a2 >> b2 >> c2;
+    
+    double sg = f(a1, b1, a2, b2);
+    
+    double y = -f(a1, c1, a2, c2) / sg;
+    double x = -f(c1, b1, c2, b2) / sg;
+    
+    cout << x << " " << y << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Формула пересечения прямых</h3>
+            
+            <p>Для прямых, заданных уравнениями:</p>
+            <div class="formula">a₁x + b₁y + c₁ = 0</div>
+            <div class="formula">a₂x + b₂y + c₂ = 0</div>
+            
+            <p>Точка пересечения вычисляется по формулам Крамера:</p>
+            <div class="formula">x = -det(c₁ b₁; c₂ b₂) / det(a₁ b₁; a₂ b₂)</div>
+            <div class="formula">y = -det(a₁ c₁; a₂ c₂) / det(a₁ b₁; a₂ b₂)</div>
+            
+            <div class="warning">
+                <strong>Внимание:</strong> Если определитель det(a₁ b₁; a₂ b₂) = 0, то прямые параллельны или совпадают. В этом случае решения нет (или бесконечно много).
+            </div>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> <code>a₁ b₁ c₁ a₂ b₂ c₂</code> — коэффициенты уравнений</p>
+            <p><strong>Вывод:</strong> <code>x y</code> — координаты точки пересечения</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>1 -1 0 1 1 -2</code></pre>
+                <p>Прямые: x - y = 0 и x + y - 2 = 0 → пересечение в (1, 1)</p>
+                <p><strong>Вывод: 1.0 1.0</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Коэффициенты (a1 b1 c1 a2 b2 c2):</label>
+            <input type="text" id="lines-input" value="1 -1 0 1 1 -2">
+            
+            <div class="try-it">
+                <button onclick="runLinesIntersect()"><span class="paw-icon"></span> Найти пересечение</button>
+                <button onclick="loadIntersectExample1()">Пример 1</button>
+                <button onclick="loadIntersectExample2()">Пример 2</button>
+            </div>
+            
+            <div class="output" id="intersect-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function f(ax, ay, bx, by) {
+            return ax * by - ay * bx;
+        }
+        
+        function runLinesIntersect() {
+            const input = document.getElementById('lines-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 6) {
+                document.getElementById('intersect-output').innerHTML = 'Введите 6 коэффициентов';
+                return;
+            }
+            
+            const [a1, b1, c1, a2, b2, c2] = input;
+            
+            const sg = f(a1, b1, a2, b2);
+            
+            if (sg === 0) {
+                document.getElementById('intersect-output').innerHTML = 'Прямые параллельны или совпадают (определитель = 0)';
+                return;
+            }
+            
+            const y = -f(a1, c1, a2, c2) / sg;
+            const x = -f(c1, b1, c2, b2) / sg;
+            
+            const steps = [];
+            steps.push(`Прямая 1: ${a1}x + ${b1}y + ${c1} = 0`);
+            steps.push(`Прямая 2: ${a2}x + ${b2}y + ${c2} = 0`);
+            steps.push(`\nОпределитель Δ = a₁·b₂ - a₂·b₁ = ${a1}·${b2} - ${a2}·${b1} = ${sg}`);
+            steps.push(`\nΔx = -(c₁·b₂ - c₂·b₁) = -(${c1}·${b2} - ${c2}·${b1}) = ${-f(c1, b1, c2, b2)}`);
+            steps.push(`Δy = -(a₁·c₂ - a₂·c₁) = -(${a1}·${c2} - ${a2}·${c1}) = ${-f(a1, c1, a2, c2)}`);
+            steps.push(`\nx = Δx / Δ = ${x}`);
+            steps.push(`y = Δy / Δ = ${y}`);
+            
+            const outputDiv = document.getElementById('intersect-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Точка пересечения: (${x}, ${y})`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadIntersectExample1() {
+            document.getElementById('lines-input').value = '1 -1 0 1 1 -2';
+            runLinesIntersect();
+        }
+        
+        function loadIntersectExample2() {
+            document.getElementById('lines-input').value = '2 -1 1 1 1 -3';
+            runLinesIntersect();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadIntersectExample1();
+        });
+    </script>
+</body>
+</html>

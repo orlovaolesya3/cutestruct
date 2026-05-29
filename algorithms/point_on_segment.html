@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Принадлежность точки прямой, лучу, отрезку</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .result-block {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(171, 205, 239, 0.1);
+        }
+        
+        body.dark-theme .result-block {
+            background: rgba(102, 126, 234, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Принадлежность точки прямой, лучу, отрезку</h1>
+            <p>Определение, лежит ли точка на прямой, на луче или на отрезке</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>x0, y0 = map(int, input().split())
+x1, y1 = map(int, input().split())
+x2, y2 = map(int, input().split())
+
+# прямая
+q = (x0 - x1) * (y2 - y1) - (y0 - y1) * (x2 - x1)
+if q == 0:
+    print("YES")
+else:
+    print("NO")
+
+# луч
+q1 = (x0 - x1) * (y2 - y1) == (x2 - x1) * (y0 - y1)
+q2 = (x0 - x1) * (x2 - x1) >= 0
+q3 = (y0 - y1) * (y2 - y1) >= 0
+if q1 and q2 and q3:
+    print("YES")
+else:
+    print("NO")
+
+# отрезок
+q1 = (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1) == 0
+q2 = 0 <= (x0 - x1) * (x2 - x0) <= (x1 - x2)**2
+q3 = 0 <= (y0 - y1) * (y2 - y0) <= (y1 - y2)**2
+if q1 and q2 and q3:
+    print("YES")
+else:
+    print("NO")</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int x0, y0, x1, y1, x2, y2;
+    cin >> x0 >> y0 >> x1 >> y1 >> x2 >> y2;
+    
+    // прямая
+    int q = (x0 - x1) * (y2 - y1) - (y0 - y1) * (x2 - x1);
+    cout << (q == 0 ? "YES" : "NO") << endl;
+    
+    // луч
+    bool q1 = (x0 - x1) * (y2 - y1) == (x2 - x1) * (y0 - y1);
+    bool q2 = (x0 - x1) * (x2 - x1) >= 0;
+    bool q3 = (y0 - y1) * (y2 - y1) >= 0;
+    cout << (q1 && q2 && q3 ? "YES" : "NO") << endl;
+    
+    // отрезок
+    bool q1s = (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1) == 0;
+    bool q2s = (x0 - x1) * (x2 - x0) >= 0 && (x0 - x1) * (x2 - x0) <= (x1 - x2)*(x1 - x2);
+    bool q3s = (y0 - y1) * (y2 - y0) >= 0 && (y0 - y1) * (y2 - y0) <= (y1 - y2)*(y1 - y2);
+    cout << (q1s && q2s && q3s ? "YES" : "NO") << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как проверить принадлежность точки?</h3>
+            
+            <h4>Прямая</h4>
+            <p>Точка лежит на прямой AB, если векторное произведение векторов AB и AC равно нулю:</p>
+            <div class="formula">(x₀ - x₁)·(y₂ - y₁) - (y₀ - y₁)·(x₂ - x₁) = 0</div>
+            
+            <h4>Луч</h4>
+            <p>Точка лежит на луче AB, если:</p>
+            <ul>
+                <li>Точка лежит на прямой AB</li>
+                <li>Координаты точки находятся в том же направлении от A, что и B (скалярное произведение векторов AB и AC неотрицательно)</li>
+            </ul>
+            
+            <h4>Отрезок</h4>
+            <p>Точка лежит на отрезке AB, если:</p>
+            <ul>
+                <li>Точка лежит на прямой AB</li>
+                <li>Координаты точки находятся между A и B (проекции на оси лежат в пределах)</li>
+            </ul>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> <code>x₀ y₀</code> — точка C, <code>x₁ y₁</code> — точка A, <code>x₂ y₂</code> — точка B</p>
+            <p><strong>Вывод:</strong> три строки: для прямой, луча и отрезка (YES/NO)</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>2 2
+0 0
+4 4</code></pre>
+                <p>Точка (2,2) лежит на прямой через (0,0) и (4,4), на луче и на отрезке → YES YES YES</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Точка C (x₀ y₀):</label>
+            <input type="text" id="pointC-input" value="2 2">
+            
+            <label>Точка A (x₁ y₁):</label>
+            <input type="text" id="pointA-input" value="0 0">
+            
+            <label>Точка B (x₂ y₂):</label>
+            <input type="text" id="pointB-input" value="4 4">
+            
+            <div class="try-it">
+                <button onclick="runPointOnSegment()"><span class="paw-icon"></span> Проверить</button>
+                <button onclick="loadPointExample1()">Пример 1 (на отрезке)</button>
+                <button onclick="loadPointExample2()">Пример 2 (на луче, не на отрезке)</button>
+                <button onclick="loadPointExample3()">Пример 3 (вне)</button>
+            </div>
+            
+            <div class="output" id="segment-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runPointOnSegment() {
+            const c = document.getElementById('pointC-input').value.trim().split(/\s+/).map(Number);
+            const a = document.getElementById('pointA-input').value.trim().split(/\s+/).map(Number);
+            const b = document.getElementById('pointB-input').value.trim().split(/\s+/).map(Number);
+            
+            if (c.length < 2 || a.length < 2 || b.length < 2) {
+                document.getElementById('segment-output').innerHTML = 'Введите координаты трёх точек';
+                return;
+            }
+            
+            const [x0, y0] = c;
+            const [x1, y1] = a;
+            const [x2, y2] = b;
+            
+            // прямая
+            const q = (x0 - x1) * (y2 - y1) - (y0 - y1) * (x2 - x1);
+            const onLine = q === 0;
+            
+            // луч
+            const q1 = (x0 - x1) * (y2 - y1) === (x2 - x1) * (y0 - y1);
+            const q2 = (x0 - x1) * (x2 - x1) >= 0;
+            const q3 = (y0 - y1) * (y2 - y1) >= 0;
+            const onRay = q1 && q2 && q3;
+            
+            // отрезок
+            const q1s = (x0 - x1) * (y2 - y1) - (x2 - x1) * (y0 - y1) === 0;
+            const dx = (x0 - x1) * (x2 - x0);
+            const dy = (y0 - y1) * (y2 - y0);
+            const limit = (x1 - x2) * (x1 - x2);
+            const q2s = dx >= 0 && dx <= limit;
+            const q3s = dy >= 0 && dy <= limit;
+            const onSegment = q1s && q2s && q3s;
+            
+            const steps = [];
+            steps.push(`Точка C: (${x0}, ${y0})`);
+            steps.push(`Точка A: (${x1}, ${y1})`);
+            steps.push(`Точка B: (${x2}, ${y2})`);
+            steps.push(`\nПрямая: q = (x₀-x₁)·(y₂-y₁) - (y₀-y₁)·(x₂-x₁) = ${q} → ${onLine ? 'YES' : 'NO'}`);
+            steps.push(`\nЛуч: q1 = ${q1}, q2 = ${q2}, q3 = ${q3} → ${onRay ? 'YES' : 'NO'}`);
+            steps.push(`\nОтрезок: q1 = ${q1s}, `);
+            steps.push(`  dx = (x₀-x₁)·(x₂-x₀) = ${dx}, limit = ${limit} → ${q2s}`);
+            steps.push(`  dy = (y₀-y₁)·(y₂-y₀) = ${dy}, limit = ${limit} → ${q3s}`);
+            steps.push(`  → ${onSegment ? 'YES' : 'NO'}`);
+            
+            const outputDiv = document.getElementById('segment-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `
+                <div class="result-block"><strong>Прямая:</strong> ${onLine ? 'YES' : 'NO'}</div>
+                <div class="result-block"><strong>Луч:</strong> ${onRay ? 'YES' : 'NO'}</div>
+                <div class="result-block"><strong>Отрезок:</strong> ${onSegment ? 'YES' : 'NO'}</div>
+            `;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadPointExample1() {
+            document.getElementById('pointC-input').value = '2 2';
+            document.getElementById('pointA-input').value = '0 0';
+            document.getElementById('pointB-input').value = '4 4';
+            runPointOnSegment();
+        }
+        
+        function loadPointExample2() {
+            document.getElementById('pointC-input').value = '5 5';
+            document.getElementById('pointA-input').value = '0 0';
+            document.getElementById('pointB-input').value = '4 4';
+            runPointOnSegment();
+        }
+        
+        function loadPointExample3() {
+            document.getElementById('pointC-input').value = '1 2';
+            document.getElementById('pointA-input').value = '0 0';
+            document.getElementById('pointB-input').value = '4 4';
+            runPointOnSegment();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPointExample1();
+        });
+    </script>
+</body>
+</html>

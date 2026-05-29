@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Расстояние от точки до прямой</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Расстояние от точки до прямой</h1>
+            <p>Вычисление кратчайшего расстояния от точки до прямой, заданной уравнением ax + by + c = 0</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>with open('distance1.in', 'r') as fin:
+    x, y, a, b, c = map(int, fin.readline().split())
+
+z = abs(a * x + b * y + c) / (a**2 + b**2)**0.5
+
+with open('distance1.out', 'w') as fout:
+    fout.write(str(z))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ifstream fin("distance1.in");
+    ofstream fout("distance1.out");
+    
+    int x, y, a, b, c;
+    fin >> x >> y >> a >> b >> c;
+    
+    double dist = abs(a * x + b * y + c) / sqrt(a * a + b * b);
+    fout << dist << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Формула расстояния от точки до прямой</h3>
+            
+            <p>Расстояние от точки (x₀, y₀) до прямой, заданной уравнением <code>ax + by + c = 0</code>, вычисляется по формуле:</p>
+            <div class="formula">d = |a·x₀ + b·y₀ + c| / √(a² + b²)</div>
+            
+            <h4>Геометрический смысл</h4>
+            <p>Числитель — это абсолютное значение подстановки координат точки в уравнение прямой. Знаменатель — длина нормального вектора (a, b). Результат — длина перпендикуляра, опущенного из точки на прямую.</p>
+            
+            <h4>Проверка принадлежности</h4>
+            <p>Если d = 0, то точка лежит на прямой.</p>
+            
+            <div class="input-example">
+                <h4>Пример</h4>
+                <pre><code>Точка: (1, 2)
+Прямая: 3x + 4y - 10 = 0
+d = |3·1 + 4·2 - 10| / √(3² + 4²) = |3 + 8 - 10| / 5 = |1| / 5 = 0.2</code></pre>
+            </div>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> файл <code>distance1.in</code> содержит числа <code>x y a b c</code></p>
+            <p><strong>Вывод:</strong> файл <code>distance1.out</code> содержит расстояние</p>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Точка (x y):</label>
+            <input type="text" id="point-input" value="1 2">
+            
+            <label>Прямая (a b c):</label>
+            <input type="text" id="line-input" value="3 4 -10">
+            
+            <div class="try-it">
+                <button onclick="runPointLineDistance()"><span class="paw-icon"></span> Вычислить расстояние</button>
+                <button onclick="loadDistanceExample1()">Пример 1</button>
+                <button onclick="loadDistanceExample2()">Пример 2 (точка на прямой)</button>
+            </div>
+            
+            <div class="output" id="distance-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runPointLineDistance() {
+            const point = document.getElementById('point-input').value.trim().split(/\s+/).map(Number);
+            const line = document.getElementById('line-input').value.trim().split(/\s+/).map(Number);
+            
+            if (point.length < 2 || line.length < 3) {
+                document.getElementById('distance-output').innerHTML = 'Введите точку (x y) и прямую (a b c)';
+                return;
+            }
+            
+            const [x, y] = point;
+            const [a, b, c] = line;
+            
+            const numerator = Math.abs(a * x + b * y + c);
+            const denominator = Math.sqrt(a * a + b * b);
+            const dist = numerator / denominator;
+            
+            const steps = [];
+            steps.push(`Точка: (${x}, ${y})`);
+            steps.push(`Прямая: ${a}x + ${b}y + ${c} = 0`);
+            steps.push(`\nЧислитель = |${a}·${x} + ${b}·${y} + ${c}| = |${a*x + b*y + c}| = ${numerator}`);
+            steps.push(`Знаменатель = √(${a}² + ${b}²) = √${a*a + b*b} = ${denominator.toFixed(4)}`);
+            steps.push(`\nРасстояние = ${numerator} / ${denominator.toFixed(4)} = ${dist.toFixed(6)}`);
+            
+            const outputDiv = document.getElementById('distance-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Расстояние от точки до прямой = ${dist.toFixed(6)}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadDistanceExample1() {
+            document.getElementById('point-input').value = '1 2';
+            document.getElementById('line-input').value = '3 4 -10';
+            runPointLineDistance();
+        }
+        
+        function loadDistanceExample2() {
+            document.getElementById('point-input').value = '2 1';
+            document.getElementById('line-input').value = '1 1 -3';
+            runPointLineDistance();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDistanceExample1();
+        });
+    </script>
+</body>
+</html>

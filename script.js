@@ -1,8 +1,14 @@
+// ========== ПРИМЕНЕНИЕ ТЕМЫ МГНОВЕННО (до загрузки DOM) ==========
+(function() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.classList.add(savedTheme + '-theme');
+    document.body.classList.add(savedTheme + '-theme');
+})();
+
 // ========== ПЕРЕКЛЮЧАТЕЛЬ ТЕМ ==========
 document.addEventListener('DOMContentLoaded', () => {
     // Проверяем сохранённую тему
     const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.classList.add(savedTheme + '-theme');
     
     // Создаём переключатель, если его нет
     if (!document.querySelector('.theme-switch-wrapper')) {
@@ -24,15 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.checked) {
                 document.body.classList.remove('light-theme');
                 document.body.classList.add('dark-theme');
+                document.documentElement.classList.remove('light-theme');
+                document.documentElement.classList.add('dark-theme');
                 localStorage.setItem('theme', 'dark');
             } else {
                 document.body.classList.remove('dark-theme');
                 document.body.classList.add('light-theme');
+                document.documentElement.classList.remove('dark-theme');
+                document.documentElement.classList.add('light-theme');
                 localStorage.setItem('theme', 'light');
             }
         });
     }
 });
+
 // ========== КОПИРОВАНИЕ КОДА ==========
 function setupCopyButtons() {
     const codeBlocks = document.querySelectorAll('.code-block');
@@ -85,6 +96,7 @@ if (window.MutationObserver) {
     });
     observer.observe(document.body, { childList: true, subtree: true });
 }
+
 // Функция для вставки лапки вместо смайликов
 function addPawIcons() {
     // Заменяем смайлики в заголовках карточек

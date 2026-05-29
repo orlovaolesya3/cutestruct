@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Приведение уравнения прямой к нормальному виду</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/geometry.html" class="back-btn">← Назад к геометрии</a>
+        
+        <header>
+            <h1>Приведение уравнения прямой к нормальному виду</h1>
+            <p>Нормализация коэффициентов уравнения ax + by + c = 0</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>a*x + b*y = c
+
+g = gcd([a, b, c])
+(a/g)*x + (b/g)*y = (c/g)
+
+if a != 0: a > 0
+elif b != 0: b > 0
+else: c > 0</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int gcd(int a, int b) {
+    return b ? gcd(b, a % b) : abs(a);
+}
+
+int gcd3(int a, int b, int c) {
+    return gcd(gcd(a, b), c);
+}
+
+int main() {
+    int a, b, c;
+    cin >> a >> b >> c;
+    
+    int g = gcd3(a, b, c);
+    a /= g; b /= g; c /= g;
+    
+    if (a < 0 || (a == 0 && b < 0) || (a == 0 && b == 0 && c < 0)) {
+        a = -a; b = -b; c = -c;
+    }
+    
+    cout << a << " " << b << " " << c << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Нормализация уравнения прямой</h3>
+            
+            <p>Уравнение прямой <code>ax + by = c</code> приводится к нормальному виду:</p>
+            <ol>
+                <li>Сокращаем коэффициенты на <strong>НОД(a, b, c)</strong></li>
+                <li>Нормируем знак: первый ненулевой коэффициент должен быть положительным</li>
+            </ol>
+            
+            <h4>Правила нормализации:</h4>
+            <ul>
+                <li>Если a ≠ 0, делаем a > 0</li>
+                <li>Если a = 0 и b ≠ 0, делаем b > 0</li>
+                <li>Если a = b = 0, делаем c > 0</li>
+            </ul>
+            
+            <p>Такая нормализация позволяет однозначно сравнивать прямые и упрощает их хранение.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> <code>a b c</code> — коэффициенты уравнения ax + by = c</p>
+            <p><strong>Вывод:</strong> нормализованные коэффициенты</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>-2 4 6</code></pre>
+                <p>НОД(2,4,6) = 2 → (-1, 2, 3) → a < 0, умножаем на -1 → (1, -2, -3)</p>
+                <p><strong>Вывод: 1 -2 -3</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Коэффициенты (a b c):</label>
+            <input type="text" id="norm-input" value="-2 4 6">
+            
+            <div class="try-it">
+                <button onclick="runNormalization()"><span class="paw-icon"></span> Нормализовать</button>
+                <button onclick="loadNormExample1()">Пример 1</button>
+                <button onclick="loadNormExample2()">Пример 2</button>
+            </div>
+            
+            <div class="output" id="norm-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b !== 0) {
+                const t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+        
+        function gcd3(a, b, c) {
+            return gcd(gcd(a, b), c);
+        }
+        
+        function runNormalization() {
+            const input = document.getElementById('norm-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 3) {
+                document.getElementById('norm-output').innerHTML = 'Введите 3 коэффициента a b c';
+                return;
+            }
+            
+            let [a, b, c] = input;
+            
+            const steps = [];
+            steps.push(`Исходное уравнение: ${a}x + ${b}y = ${c}`);
+            
+            const g = gcd3(a, b, c);
+            if (g > 1) {
+                steps.push(`\nНОД(${a}, ${b}, ${c}) = ${g}`);
+                a /= g; b /= g; c /= g;
+                steps.push(`Сокращаем: ${a}x + ${b}y = ${c}`);
+            }
+            
+            if (a < 0 || (a === 0 && b < 0) || (a === 0 && b === 0 && c < 0)) {
+                steps.push(`\nПервый ненулевой коэффициент отрицательный, умножаем на -1`);
+                a = -a; b = -b; c = -c;
+                steps.push(`Результат: ${a}x + ${b}y = ${c}`);
+            } else {
+                steps.push(`\nПервый ненулевой коэффициент положительный, нормировка не требуется`);
+            }
+            
+            const outputDiv = document.getElementById('norm-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `${a} ${b} ${c}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadNormExample1() {
+            document.getElementById('norm-input').value = '-2 4 6';
+            runNormalization();
+        }
+        
+        function loadNormExample2() {
+            document.getElementById('norm-input').value = '0 -3 9';
+            runNormalization();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadNormExample1();
+        });
+    </script>
+</body>
+</html>
