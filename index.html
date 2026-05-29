@@ -128,13 +128,213 @@
             color: #aaa;
         }
         
-        .categories {
-            margin-top: 20px;
+        /* Тонкие прямоугольники для информации и базы языков (в стиле карточек) */
+        .info-row {
+            display: flex;
+            gap: 25px;
+            margin: 20px 0 35px 0;
+            flex-wrap: wrap;
         }
         
-        /* Убираем смайлики из карточек через CSS, если они есть */
-        .category-card h2::before {
-            content: none;
+        .info-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(171, 205, 239, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        body.dark-theme .info-card {
+            background: rgba(30, 30, 50, 0.9);
+            border: 1px solid rgba(29, 30, 51, 0.5);
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(171, 205, 239, 0.3);
+        }
+        
+        body.dark-theme .info-card:hover {
+            box-shadow: 0 10px 30px rgba(29, 30, 51, 0.5);
+        }
+        
+        .info-text {
+            flex: 1;
+        }
+        
+        .info-text h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        body.light-theme .info-text h3 {
+            color: #abcdef;
+        }
+        
+        body.dark-theme .info-text h3 {
+            color: #667eea;
+        }
+        
+        .info-text p {
+            margin: 0;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        /* Лапка вместо кнопки */
+        .paw-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba(171, 205, 239, 0.2);
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        body.dark-theme .paw-link {
+            background: rgba(102, 126, 234, 0.2);
+        }
+        
+        .info-card:hover .paw-link {
+            background: rgba(171, 205, 239, 0.4);
+            transform: scale(1.05);
+        }
+        
+        body.dark-theme .info-card:hover .paw-link {
+            background: rgba(102, 126, 234, 0.4);
+        }
+        
+        .paw-icon {
+            width: 28px;
+            height: 28px;
+            background-image: url('paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .categories {
+            margin-top: 10px;
+        }
+        
+        /* Стиль для обычных карточек (оставляем как есть) */
+        .category-card {
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        body.light-theme .category-card {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(171, 205, 239, 0.3);
+        }
+        
+        body.dark-theme .category-card {
+            background: rgba(30, 30, 50, 0.9);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(29, 30, 51, 0.5);
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        body.light-theme .category-card:hover {
+            box-shadow: 0 10px 30px rgba(171, 205, 239, 0.3);
+        }
+        
+        body.dark-theme .category-card:hover {
+            box-shadow: 0 10px 30px rgba(29, 30, 51, 0.5);
+        }
+        
+        .category-card h2 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        body.light-theme .category-card h2 {
+            color: #abcdef;
+        }
+        
+        body.dark-theme .category-card h2 {
+            color: #667eea;
+        }
+        
+        .category-card p {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .category-card p {
+            color: #666;
+        }
+        
+        body.dark-theme .category-card p {
+            color: #aaa;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        body.light-theme .btn {
+            background: #abcdef;
+            color: #333;
+        }
+        
+        body.dark-theme .btn {
+            background: #4a4aff;
+            color: #fff;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .info-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .info-card {
+                padding: 16px 20px;
+            }
+            .info-text h3 {
+                font-size: 1.1em;
+            }
+            .info-text p {
+                font-size: 0.85em;
+            }
+            .paw-link {
+                width: 40px;
+                height: 40px;
+            }
+            .paw-icon {
+                width: 22px;
+                height: 22px;
+            }
         }
     </style>
 </head>
@@ -153,6 +353,28 @@
             <div class="search-results" id="searchResults"></div>
         </div>
 
+        <!-- Тонкие прямоугольники во всю ширину (информация и база языков) -->
+        <div class="info-row">
+            <div class="info-card" onclick="location.href='pages/language_basics.html'">
+                <div class="info-text">
+                    <h3>База языков</h3>
+                    <p>Основные приёмы Python и C++: быстрый ввод/вывод, работа с файлами, структуры данных и многое другое</p>
+                </div>
+                <div class="paw-link">
+                    <div class="paw-icon"></div>
+                </div>
+            </div>
+            <div class="info-card" onclick="location.href='pages/support.html'">
+                <div class="info-text">
+                    <h3>Информация</h3>
+                    <p>Кружки, летние школы, перечень олимпиад, полезные ресурсы для подготовки</p>
+                </div>
+                <div class="paw-link">
+                    <div class="paw-icon"></div>
+                </div>
+            </div>
+        </div>
+	
         <div class="categories">
             <div class="category-card">
                 <h2>Графовые алгоритмы</h2>
@@ -190,11 +412,6 @@
                 <a href="pages/strings.html" class="btn">Перейти →</a>
             </div>
 
-            <div class="category-card">
-                <h2>Информация</h2>
-                <p>Кружки, школы, перечень олимпиад</p>
-                <a href="pages/support.html" class="btn">Перейти →</a>
-            </div>
         </div>
 
         <div class="no-results" id="noResults">
@@ -274,7 +491,10 @@
             { name: "Расстояние от точки до прямой", url: "algorithms/point_line_distance.html", category: "Геометрия", keywords: ["расстояние до прямой"] },
             
             // Информация
-            { name: "Информация для подготовки", url: "pages/support.html", category: "Информация", keywords: ["кружки", "школы", "олимпиады", "курсы", "информация"] }
+            { name: "Информация для подготовки", url: "pages/support.html", category: "Информация", keywords: ["кружки", "школы", "олимпиады", "курсы", "информация"] },
+            
+            // База языков
+            { name: "База языков", url: "pages/language_basics.html", category: "База языков", keywords: ["python", "c++", "cpp", "основы", "языки"] }
         ];
         
         const searchInput = document.getElementById('searchInput');

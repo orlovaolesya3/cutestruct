@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Основные приёмы - Python и C++</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .basics-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .basics-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .basics-table th {
+            background: rgba(171, 205, 239, 0.3);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        body.dark-theme .basics-table th {
+            background: rgba(102, 126, 234, 0.2);
+        }
+        
+        .basics-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(171, 205, 239, 0.2);
+            vertical-align: top;
+        }
+        
+        body.dark-theme .basics-table td {
+            border-bottom-color: rgba(102, 126, 234, 0.15);
+        }
+        
+        .basics-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .basics-table pre {
+            margin: 0;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.04);
+            border-radius: 8px;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        body.dark-theme .basics-table pre {
+            background: rgba(0,0,0,0.25);
+        }
+        
+        .lang-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .lang-name {
+            font-size: 1.1em;
+        }
+        
+        .doc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: inherit;
+        }
+        
+        body.light-theme .doc-link {
+            color: #333;
+        }
+        
+        body.dark-theme .doc-link {
+            color: #e0e0e0;
+        }
+        
+        .doc-link:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .basics-table th,
+            .basics-table td {
+                padding: 10px 12px;
+            }
+            .basics-table pre {
+                font-size: 11px;
+            }
+            .lang-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .doc-link {
+                font-size: 10px;
+                padding: 3px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-btn">← На главную</a>
+        
+        <header>
+            <h1>Основные приёмы Python и C++</h1>
+            <p>Часто используемые конструкции и методы для олимпиадного программирования</p>
+        </header>
+
+        <div class="basics-container">
+            <table class="basics-table">
+                <thead>
+                    <tr>
+                        <th>Описание</th>
+                        <th>
+                            <div class="lang-header">
+                                <span class="lang-name">🐍 Python</span>
+                                <a href="https://docs.python.org/3/" target="_blank" class="doc-link">Переход на документацию</a>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="lang-header">
+                                <span class="lang-name">⚙️ C++</span>
+                                <a href="https://en.cppreference.com/" target="_blank" class="doc-link">Переход на документацию</a>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Базовый ввод/вывод -->
+                    <tr>
+                        <td>Базовый ввод/вывод</td>
+                        <td><pre><code>n = int(input())
+a, b = map(int, input().split())
+arr = list(map(int, input().split()))
+print(n, a, b, arr)</code></pre></td>
+                        <td><pre><code>int n, a, b;
+cin >> n >> a >> b;
+vector&lt;int&gt; arr(n);
+for (int i = 0; i < n; i++) cin >> arr[i];
+cout << n << " " << a << " " << b << endl;</code></pre></td>
+                    </tr>
+                    
+                    <!-- Быстрый ввод/вывод -->
+                    <tr>
+                        <td>Быстрый ввод/вывод<br><small>(для больших объёмов данных)</small></td>
+                        <td><pre><code>import sys
+data = sys.stdin.read().split()
+n = int(data[0])</code></pre></td>
+                        <td><pre><code>ios::sync_with_stdio(0);
+cin.tie(0);
+cout.tie(0);</code></pre></td>
+                    </tr>
+                    
+                    <!-- Работа с файлами -->
+                    <tr>
+                        <td>Чтение из файла и запись в файл</td>
+                        <td><pre><code>with open('.in', 'r') as f:
+    n = int(f.readline())
+    A = list(map(int, f.readline().split()))
+
+with open('.out', 'w') as f:
+    f.write(f"{z}\n")</code></pre></td>
+                        <td><pre><code>#include &lt;fstream&gt;
+ifstream fin(".in");
+ofstream fout(".out");
+
+int n;
+fin >> n;
+fout << n << "\n";</code></pre></td>
+                    </tr>
+                    
+                    <!-- Условия -->
+                    <tr>
+                        <td>Условный оператор</td>
+                        <td><pre><code>if x > 0:
+    print("positive")
+elif x == 0:
+    print("zero")
+else:
+    print("negative")</code></pre></td>
+                        <td><pre><code>if (x > 0) {
+    cout << "positive";
+} else if (x == 0) {
+    cout << "zero";
+} else {
+    cout << "negative";
+}</code></pre></td>
+                    </tr>
+                    
+                    <!-- Циклы -->
+                    <tr>
+                        <td>Циклы (for, while)</td>
+                        <td><pre><code>for i in range(n):
+    print(i)
+
+while x > 0:
+    x -= 1</code></pre></td>
+                        <td><pre><code>for (int i = 0; i < n; i++) {
+    cout << i;
+}
+
+while (x > 0) {
+    x--;
+}</code></pre></td>
+                    </tr>
+                    
+                    <!-- Массивы и векторы -->
+                    <tr>
+                        <td>Массивы / векторы</td>
+                        <td><pre><code>arr = [1, 2, 3]
+arr.append(4)          # добавление
+arr.sort()             # сортировка
+len(arr)               # длина</code></pre></td>
+                        <td><pre><code>vector&lt;int&gt; arr = {1, 2, 3};
+arr.push_back(4);      // добавление
+sort(arr.begin(), arr.end()); // сортировка
+arr.size();            // длина</code></pre></td>
+                    </tr>
+                    
+                    <!-- Строки -->
+                    <tr>
+                        <td>Работа со строками</td>
+                        <td><pre><code>s = "hello"
+s[0]                 # доступ
+s.upper()            # методы
+len(s)               # длина
+s.split()            # разделение</code></pre></td>
+                        <td><pre><code>string s = "hello";
+s[0];                // доступ
+toupper(s[0]);       // методы
+s.length();          // длина
+stringstream ss(s);
+ss >> part;          // разделение</code></pre></td>
+                    </tr>
+                    
+                    <!-- Сортировка -->
+                    <tr>
+                        <td>Сортировка массива</td>
+                        <td><pre><code>arr.sort()                    # по возрастанию
+arr.sort(reverse=True)        # по убыванию
+arr.sort(key=lambda x: x[1])  # по ключу</code></pre></td>
+                        <td><pre><code>sort(arr.begin(), arr.end());                     // по возрастанию
+sort(arr.begin(), arr.end(), greater&lt;int&gt;());    // по убыванию
+sort(arr.begin(), arr.end(), [](int a, int b) {
+    return a > b;
+});</code></pre></td>
+                    </tr>
+                    
+                    <!-- Бинарный поиск -->
+                    <tr>
+                        <td>Бинарный поиск</td>
+                        <td><pre><code>import bisect
+pos = bisect.bisect_left(arr, x)   # первый >= x
+pos = bisect.bisect_right(arr, x)  # первый > x</code></pre></td>
+                        <td><pre><code>int pos = lower_bound(arr.begin(), arr.end(), x) - arr.begin(); // первый >= x
+int pos = upper_bound(arr.begin(), arr.end(), x) - arr.begin(); // первый > x</code></pre></td>
+                    </tr>
+                    
+                    <!-- Очередь с приоритетом -->
+                    <tr>
+                        <td>Очередь с приоритетом (куча)</td>
+                        <td><pre><code>import heapq
+heapq.heappush(heap, x)       # добавить
+min_val = heapq.heappop(heap) # минимум
+# max heap: heapq.heappush(heap, -x)</code></pre></td>
+                        <td><pre><code>priority_queue&lt;int&gt; pq;  // max heap
+pq.push(x);
+int max_val = pq.top();
+pq.pop();
+
+// min heap:
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq;</code></pre></td>
+                    </tr>
+                    
+                    <!-- Множества -->
+                    <tr>
+                        <td>Множество (set)</td>
+                        <td><pre><code>s = set()
+s.add(x)        # добавление
+if x in s:      # проверка
+s.remove(x)     # удаление</code></pre></td>
+                        <td><pre><code>unordered_set&lt;int&gt; s;
+s.insert(x);           // добавление
+if (s.count(x))        // проверка
+s.erase(x);            // удаление</code></pre></td>
+                    </tr>
+                    
+                    <!-- Словари -->
+                    <tr>
+                        <td>Словарь (ассоциативный массив)</td>
+                        <td><pre><code>d = {}
+d[key] = value
+if key in d:
+    val = d[key]
+for k, v in d.items():
+    print(k, v)</code></pre></td>
+                        <td><pre><code>unordered_map&lt;int, int&gt; mp;
+mp[key] = value;
+if (mp.count(key))
+    int val = mp[key];
+for (auto [k, v] : mp) {
+    cout << k << " " << v;
+}</code></pre></td>
+                    </tr>
+                    
+                    <!-- Стек и очередь -->
+                    <tr>
+                        <td>Стек и очередь</td>
+                        <td><pre><code>from collections import deque
+stack = []
+stack.append(x)     # push
+x = stack.pop()     # pop
+
+queue = deque()
+queue.append(x)     # push
+x = queue.popleft() # pop</code></pre></td>
+                        <td><pre><code>stack&lt;int&gt; st;
+st.push(x);     // push
+x = st.top();   // top
+st.pop();       // pop
+
+queue&lt;int&gt; q;
+q.push(x);      // push
+x = q.front();  // front
+q.pop();        // pop</code></pre></td>
+                    </tr>
+                    
+                    <!-- Двумерные массивы -->
+                    <tr>
+                        <td>Создание двумерного массива (n×m, заполненного нулями)</td>
+                        <td><pre><code>a = [[0] * m for _ in range(n)]</code></pre></td>
+                        <td><pre><code>vector&lt;vector&lt;int&gt;&gt; a(n, vector&lt;int&gt;(m, 0));</code></pre></td>
+                    </tr>
+                    
+                    <!-- Чтение матрицы -->
+                    <tr>
+                        <td>Чтение матрицы (n×m)</td>
+                        <td><pre><code>n, m = map(int, input().split())
+a = [list(map(int, input().split())) for _ in range(n)]</code></pre></td>
+                        <td><pre><code>int n, m;
+cin >> n >> m;
+vector&lt;vector&lt;int&gt;&gt; a(n, vector&lt;int&gt;(m));
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < m; j++)
+        cin >> a[i][j];</code></pre></td>
+                    </tr>
+                    
+                    <!-- Увеличение глубины рекурсии -->
+                    <tr>
+                        <td>Увеличение глубины рекурсии / настройка стека</td>
+                        <td><pre><code>import sys
+sys.setrecursionlimit(10**6)</code></pre></td>
+                        <td><pre><code>// Обычно не требуется,
+// но для глубокой рекурсии:
+// g++ -Wl,--stack,16777216 file.cpp</code></pre></td>
+                    </tr>
+                    
+                    <!-- Генерация перестановок -->
+                    <tr>
+                        <td>Генерация всех перестановок</td>
+                        <td><pre><code>from itertools import permutations
+
+for perm in permutations(arr):
+    print(perm)</code></pre></td>
+                        <td><pre><code>#include &lt;algorithm&gt;
+do {
+    for (int x : arr) cout << x << " ";
+    cout << "\n";
+} while (next_permutation(arr.begin(), arr.end()));</code></pre></td>
+                    </tr>
+                    
+                    <!-- Запуск внешней программы -->
+                    <tr>
+                        <td>Запуск внешней программы и получение вывода</td>
+                        <td><pre><code>import subprocess
+result = subprocess.run(['main.exe'], 
+                       input=s, 
+                       text=True, 
+                       capture_output=True)
+ans = int(result.stdout.strip())</code></pre></td>
+                        <td><pre><code>// system() — простой способ
+system("main.exe < input.txt > output.txt");
+// Чтение результата из файла</code></pre></td>
+                    </tr>
+                    
+                    <!-- Побитовые операции -->
+                    <tr>
+                        <td>Побитовые операции</td>
+                        <td><pre><code>x & y    # побитовое И
+x | y    # побитовое ИЛИ
+x ^ y    # побитовое XOR
+~x       # инверсия
+x << k   # сдвиг влево
+x >> k   # сдвиг вправо</code></pre></td>
+                        <td><pre><code>x & y    // побитовое И
+x | y    // побитовое ИЛИ
+x ^ y    // побитовое XOR
+~x       // инверсия
+x << k   // сдвиг влево
+x >> k   // сдвиг вправо</code></pre></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html>
