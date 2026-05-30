@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Китайская теорема об остатках (CRT)</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Китайская теорема об остатках</h1>
+            <p>Решение системы сравнений x ≡ a (mod n), x ≡ b (mod m)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>a, b, n, m = map(int, input().split())
+
+def gcd_extended(a, b):
+    if a == 0:
+        return b, 0, 1
+    g, x1, y1 = gcd_extended(b % a, a)
+    x = y1 - (b // a) * x1
+    y = x1
+    return g, x, y
+
+def mod_inverse(a, m):
+    g, x, y = gcd_extended(a, m)
+    return (x % m + m) % m
+
+inv_n = mod_inverse(n, m)
+x = (a + n * (((b - a) * inv_n) % m)) % (n * m)
+print(x)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+tuple&lt;long long, long long, long long&gt; gcd_extended(long long a, long long b) {
+    if (a == 0) return {b, 0, 1};
+    auto [g, x1, y1] = gcd_extended(b % a, a);
+    long long x = y1 - (b / a) * x1;
+    long long y = x1;
+    return {g, x, y};
+}
+
+long long mod_inverse(long long a, long long m) {
+    auto [g, x, y] = gcd_extended(a, m);
+    return (x % m + m) % m;
+}
+
+int main() {
+    long long a, b, n, m;
+    cin >> a >> b >> n >> m;
+    
+    long long inv_n = mod_inverse(n, m);
+    long long x = (a + n * (((b - a) * inv_n) % m)) % (n * m);
+    
+    cout << x << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Китайская теорема об остатках</h3>
+            
+            <p>Для системы сравнений:</p>
+            <div class="formula">x ≡ a (mod n)</div>
+            <div class="formula">x ≡ b (mod m)</div>
+            <p>где n и m взаимно просты, существует единственное решение по модулю n·m.</p>
+            
+            <h4>Алгоритм</h4>
+            <p>Решение находится по формуле:</p>
+            <div class="formula">x = a + n·((b - a)·n⁻¹ mod m)</div>
+            <p>где n⁻¹ — обратный элемент к n по модулю m.</p>
+            
+            <h4>Условия применимости</h4>
+            <ul>
+                <li>Модули n и m должны быть <strong>взаимно простыми</strong></li>
+                <li>Если НОД(n, m) ≠ 1, система может не иметь решений</li>
+            </ul>
+            
+            <p><strong>Сложность: O(log min(n, m))</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> a b n m — система x ≡ a (mod n), x ≡ b (mod m)</p>
+            <p><strong>Вывод:</strong> решение x (по модулю n·m)</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>1 2 3 5</code></pre>
+                <p>x ≡ 1 (mod 3), x ≡ 2 (mod 5) → x = 7 (7 mod 3 = 1, 7 mod 5 = 2)</p>
+                <p><strong>Вывод: 7</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>a b n m:</label>
+            <input type="text" id="crt-input" value="1 2 3 5">
+            
+            <div class="try-it">
+                <button onclick="runCRT()"><span class="paw-icon"></span> Решить систему</button>
+                <button onclick="loadCRTExample1()">1 2 3 5</button>
+                <button onclick="loadCRTExample2()">2 3 4 7</button>
+            </div>
+            
+            <div class="output" id="crt-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function gcdExtended(a, b) {
+            if (a === 0) {
+                return { g: b, x: 0, y: 1 };
+            }
+            const res = gcdExtended(b % a, a);
+            return {
+                g: res.g,
+                x: res.y - Math.floor(b / a) * res.x,
+                y: res.x
+            };
+        }
+        
+        function modInverse(a, m) {
+            const { g, x } = gcdExtended(a, m);
+            if (g !== 1) return -1;
+            return ((x % m) + m) % m;
+        }
+        
+        function runCRT() {
+            const input = document.getElementById('crt-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 4) {
+                document.getElementById('crt-output').innerHTML = 'Введите a, b, n, m';
+                return;
+            }
+            
+            const [a, b, n, m] = input;
+            
+            const steps = [];
+            steps.push(`Система сравнений:`);
+            steps.push(`  x ≡ ${a} (mod ${n})`);
+            steps.push(`  x ≡ ${b} (mod ${m})`);
+            
+            const inv = modInverse(n, m);
+            steps.push(`\nНаходим обратный элемент к ${n} по модулю ${m}: ${inv}`);
+            
+            if (inv === -1) {
+                steps.push(`\nОбратный элемент не существует → НОД(${n}, ${m}) ≠ 1`);
+                document.getElementById('crt-output').innerHTML = 'Решения нет';
+            } else {
+                const diff = ((b - a) % m + m) % m;
+                const t = (diff * inv) % m;
+                const x = a + n * t;
+                const mod = n * m;
+                const result = ((x % mod) + mod) % mod;
+                
+                steps.push(`\nВычисляем: (b - a) mod m = ${diff}`);
+                steps.push(`t = (b - a)·n⁻¹ mod m = ${diff}·${inv} mod ${m} = ${t}`);
+                steps.push(`x = a + n·t = ${a} + ${n}·${t} = ${x}`);
+                steps.push(`x mod ${mod} = ${result}`);
+                steps.push(`\nПроверка: ${result} mod ${n} = ${result % n} = ${a}, ${result} mod ${m} = ${result % m} = ${b}`);
+                
+                document.getElementById('crt-output').innerHTML = `${result}`;
+            }
+            
+            const outputDiv = document.getElementById('crt-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadCRTExample1() {
+            document.getElementById('crt-input').value = '1 2 3 5';
+            runCRT();
+        }
+        
+        function loadCRTExample2() {
+            document.getElementById('crt-input').value = '2 3 4 7';
+            runCRT();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCRTExample1();
+        });
+    </script>
+</body>
+</html>

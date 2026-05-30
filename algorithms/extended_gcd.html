@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Расширенный алгоритм Евклида</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Расширенный алгоритм Евклида</h1>
+            <p>Нахождение коэффициентов x, y для уравнения ax + by = gcd(a, b)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>def gcdex(a, b):
+    if b == 0:
+        return a, 1, 0
+    else:
+        d, x, y = gcdex(b, a % b)
+        return d, y, x - y * (a // b)
+
+a, b, c = map(int, input().split())
+d, x, y = gcdex(a, b)
+
+if d != 0 and c % d == 0:
+    x *= (c // d)
+    y *= (c // d)
+    x0 = x
+    x %= (b // d)
+    k = (x - x0) // (b // d)
+    y -= k * a // d
+    print(x, y)
+else:
+    print(-1)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+long long gcdex(long long a, long long b, long long &x, long long &y) {
+    if (b == 0) {
+        x = 1;
+        y = 0;
+        return a;
+    }
+    long long x1, y1;
+    long long d = gcdex(b, a % b, x1, y1);
+    x = y1;
+    y = x1 - y1 * (a / b);
+    return d;
+}
+
+int main() {
+    long long a, b, c;
+    cin >> a >> b >> c;
+    
+    long long x, y;
+    long long d = gcdex(a, b, x, y);
+    
+    if (c % d != 0) {
+        cout << -1 << endl;
+        return 0;
+    }
+    
+    x *= (c / d);
+    y *= (c / d);
+    
+    cout << x << " " << y << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает расширенный алгоритм Евклида?</h3>
+            
+            <p><strong>Расширенный алгоритм Евклида</strong> находит не только НОД(a, b), но и коэффициенты x, y, удовлетворяющие уравнению:</p>
+            <div class="formula">a·x + b·y = gcd(a, b)</div>
+            
+            <h4>Основная идея</h4>
+            <p>Из обычного алгоритма Евклида: НОД(a, b) = НОД(b, a mod b). На обратном ходу рекурсии находим x и y.</p>
+            
+            <h4>Решение уравнения a·x + b·y = c</h4>
+            <p>Уравнение имеет решение, только если c делится на НОД(a, b).</p>
+            
+            <h4>Применения</h4>
+            <ul>
+                <li>Нахождение обратного элемента по модулю</li>
+                <li>Решение диофантовых уравнений</li>
+                <li>Китайская теорема об остатках</li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(log min(a, b))</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> a, b, c — коэффициенты уравнения a·x + b·y = c</p>
+            <p><strong>Вывод:</strong> x y — одно из решений, или -1, если решений нет</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>2 3 1</code></pre>
+                <p>2·(-1) + 3·1 = 1 → (-1, 1)</p>
+                <p><strong>Вывод: -1 1</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Коэффициенты (a b c):</label>
+            <input type="text" id="extgcd-input" value="2 3 1">
+            
+            <div class="try-it">
+                <button onclick="runExtendedGCD()"><span class="paw-icon"></span> Решить</button>
+                <button onclick="loadExtGCDExample1()">2x + 3y = 1</button>
+                <button onclick="loadExtGCDExample2()">6x + 9y = 3</button>
+                <button onclick="loadExtGCDExample3()">2x + 4y = 3</button>
+            </div>
+            
+            <div class="output" id="extgcd-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function extendedGCD(a, b) {
+            if (b === 0) {
+                return { d: a, x: 1, y: 0 };
+            }
+            const res = extendedGCD(b, a % b);
+            return {
+                d: res.d,
+                x: res.y,
+                y: res.x - Math.floor(a / b) * res.y
+            };
+        }
+        
+        function runExtendedGCD() {
+            const input = document.getElementById('extgcd-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 3) {
+                document.getElementById('extgcd-output').innerHTML = 'Введите три числа a, b, c';
+                return;
+            }
+            
+            const [a, b, c] = input;
+            const steps = [];
+            steps.push(`Решаем уравнение: ${a}·x + ${b}·y = ${c}`);
+            
+            const { d, x, y } = extendedGCD(a, b);
+            steps.push(`\nНОД(${a}, ${b}) = ${d}`);
+            
+            if (c % d !== 0) {
+                steps.push(`\n${c} не делится на ${d} → решений нет`);
+                document.getElementById('extgcd-output').innerHTML = '-1';
+            } else {
+                const mult = c / d;
+                const solX = x * mult;
+                const solY = y * mult;
+                steps.push(`\nЧастное решение: x₀ = ${solX}, y₀ = ${solY}`);
+                steps.push(`Общее решение: x = ${solX} + t·${b / d}, y = ${solY} - t·${a / d}`);
+                
+                document.getElementById('extgcd-output').innerHTML = `${solX} ${solY}`;
+            }
+            
+            const outputDiv = document.getElementById('extgcd-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExtGCDExample1() {
+            document.getElementById('extgcd-input').value = '2 3 1';
+            runExtendedGCD();
+        }
+        
+        function loadExtGCDExample2() {
+            document.getElementById('extgcd-input').value = '6 9 3';
+            runExtendedGCD();
+        }
+        
+        function loadExtGCDExample3() {
+            document.getElementById('extgcd-input').value = '2 4 3';
+            runExtendedGCD();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExtGCDExample1();
+        });
+    </script>
+</body>
+</html>

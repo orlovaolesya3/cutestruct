@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Алгоритм Евклида - НОД двух чисел</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Алгоритм Евклида</h1>
+            <p>Нахождение наибольшего общего делителя (НОД) двух чисел</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>def gcd(a, b):
+    if b > 0:
+        return gcd(b, a % b)
+    return a
+
+a, b = map(int, input().split())
+print(gcd(a, b))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+long long gcd(long long a, long long b) {
+    if (b > 0)
+        return gcd(b, a % b);
+    return a;
+}
+
+int main() {
+    long long a, b;
+    cin >> a >> b;
+    cout << gcd(a, b) << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм Евклида?</h3>
+            
+            <p><strong>Алгоритм Евклида</strong> — это эффективный способ нахождения наибольшего общего делителя (НОД) двух чисел.</p>
+            
+            <h4>Основная идея</h4>
+            <div class="formula">НОД(a, b) = НОД(b, a mod b)</div>
+            <p>Алгоритм основан на том, что если a и b делятся на d, то и их разность (a - b) также делится на d.</p>
+            
+            <h4>Пример работы</h4>
+            <p>Найдём НОД(48, 18):</p>
+            <ul>
+                <li>48 ÷ 18 = 2 (остаток 12) → НОД(48,18) = НОД(18,12)</li>
+                <li>18 ÷ 12 = 1 (остаток 6) → НОД(18,12) = НОД(12,6)</li>
+                <li>12 ÷ 6 = 2 (остаток 0) → НОД(12,6) = 6</li>
+            </ul>
+            <p><strong>Ответ: 6</strong></p>
+            
+            <p><strong>Временная сложность: O(log min(a, b))</strong> — алгоритм работает очень быстро.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> два целых числа a и b</p>
+            <p><strong>Вывод:</strong> НОД(a, b)</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>48 18</code></pre>
+                <p><strong>Вывод: 6</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Числа a и b:</label>
+            <input type="text" id="gcd-input" value="48 18">
+            
+            <div class="try-it">
+                <button onclick="runGCD()"><span class="paw-icon"></span> Найти НОД</button>
+                <button onclick="loadGCDExample1()">48 и 18</button>
+                <button onclick="loadGCDExample2()">17 и 19</button>
+                <button onclick="loadGCDExample3()">100 и 35</button>
+            </div>
+            
+            <div class="output" id="gcd-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function gcd(a, b) {
+            while (b !== 0) {
+                const temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+        
+        function runGCD() {
+            const input = document.getElementById('gcd-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 2) {
+                document.getElementById('gcd-output').innerHTML = 'Введите два числа';
+                return;
+            }
+            
+            let a = input[0];
+            let b = input[1];
+            const originalA = a;
+            const originalB = b;
+            
+            const steps = [];
+            steps.push(`Находим НОД(${a}, ${b})`);
+            
+            let stepNum = 1;
+            while (b !== 0) {
+                const remainder = a % b;
+                steps.push(`Шаг ${stepNum}: ${a} = ${Math.floor(a / b)}·${b} + ${remainder}`);
+                a = b;
+                b = remainder;
+                stepNum++;
+            }
+            
+            const result = a;
+            steps.push(`\nНОД(${originalA}, ${originalB}) = ${result}`);
+            
+            const outputDiv = document.getElementById('gcd-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `${result}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadGCDExample1() {
+            document.getElementById('gcd-input').value = '48 18';
+            runGCD();
+        }
+        
+        function loadGCDExample2() {
+            document.getElementById('gcd-input').value = '17 19';
+            runGCD();
+        }
+        
+        function loadGCDExample3() {
+            document.getElementById('gcd-input').value = '100 35';
+            runGCD();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadGCDExample1();
+        });
+    </script>
+</body>
+</html>

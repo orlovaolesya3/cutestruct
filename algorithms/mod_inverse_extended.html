@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Обратное число по модулю (расширенный алгоритм Евклида)</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Обратное число по модулю</h1>
+            <p>Нахождение обратного элемента с помощью расширенного алгоритма Евклида</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>def mod_inverse(a, m):
+    m0 = m
+    y = 0
+    x = 1
+    if m == 1:
+        return 0
+    while a > 1:
+        q = a // m
+        t = m
+        m = a % m
+        a = t
+        t = y
+        y = x - q * y
+        x = t
+    if x < 0:
+        x += m0
+    return x
+
+a, m = map(int, input().split())
+
+# Проверка НОД
+g = mod_inverse(a, m)
+if g == 0:
+    print(-1)
+else:
+    print(g)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+long long mod_inverse(long long a, long long m) {
+    long long m0 = m;
+    long long y = 0, x = 1;
+    if (m == 1) return 0;
+    while (a > 1) {
+        long long q = a / m;
+        long long t = m;
+        m = a % m;
+        a = t;
+        t = y;
+        y = x - q * y;
+        x = t;
+    }
+    if (x < 0) x += m0;
+    return x;
+}
+
+int main() {
+    long long a, m;
+    cin >> a >> m;
+    
+    long long inv = mod_inverse(a, m);
+    if (inv == 0) {
+        cout << -1 << endl;
+    } else {
+        cout << inv << endl;
+    }
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Расширенный алгоритм Евклида для обратного элемента</h3>
+            
+            <p>Уравнение a·x + m·y = 1 имеет решение тогда и только тогда, когда НОД(a, m) = 1. В этом случае x является обратным к a по модулю m.</p>
+            
+            <div class="formula">a·x ≡ 1 (mod m) → a·x + m·y = 1</div>
+            
+            <h4>Алгоритм</h4>
+            <p>Расширенный алгоритм Евклида находит x и y, удовлетворяющие этому уравнению. Затем x приводится к положительному значению.</p>
+            
+            <h4>Преимущества</h4>
+            <ul>
+                <li>Работает для <strong>любых взаимно простых чисел</strong> (модуль не обязательно простой)</li>
+                <li>Не требует вычисления больших степеней</li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(log min(a, m))</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> a m — число и модуль</p>
+            <p><strong>Вывод:</strong> обратный элемент или -1, если НОД(a, m) ≠ 1</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>3 7</code></pre>
+                <p><strong>Вывод: 5</strong></p>
+            </div>
+            
+            <div class="input-example">
+                <h4>Пример (не взаимно простые):</h4>
+                <pre><code>2 4</code></pre>
+                <p>НОД(2,4) = 2 ≠ 1 → обратного не существует</p>
+                <p><strong>Вывод: -1</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>a и m:</label>
+            <input type="text" id="inverse-ext-input" value="3 7">
+            
+            <div class="try-it">
+                <button onclick="runModInverseExt()"><span class="paw-icon"></span> Найти обратный</button>
+                <button onclick="loadExtInvExample1()">3 и 7</button>
+                <button onclick="loadExtInvExample2()">2 и 4</button>
+                <button onclick="loadExtInvExample3()">10 и 17</button>
+            </div>
+            
+            <div class="output" id="ext-inv-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function extendedGCD(a, b) {
+            if (b === 0) {
+                return { d: a, x: 1, y: 0 };
+            }
+            const res = extendedGCD(b, a % b);
+            return {
+                d: res.d,
+                x: res.y,
+                y: res.x - Math.floor(a / b) * res.y
+            };
+        }
+        
+        function modInverse(a, m) {
+            const { d, x } = extendedGCD(a, m);
+            if (d !== 1) return -1;
+            return ((x % m) + m) % m;
+        }
+        
+        function runModInverseExt() {
+            const input = document.getElementById('inverse-ext-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 2) {
+                document.getElementById('ext-inv-output').innerHTML = 'Введите a и m';
+                return;
+            }
+            
+            const [a, m] = input;
+            
+            const steps = [];
+            steps.push(`Находим обратный элемент к ${a} по модулю ${m}`);
+            
+            const { d, x, y } = extendedGCD(a, m);
+            steps.push(`\nРасширенный алгоритм Евклида:`);
+            steps.push(`НОД(${a}, ${m}) = ${d}`);
+            steps.push(`Найдены коэффициенты: x = ${x}, y = ${y}`);
+            steps.push(`${a}·${x} + ${m}·${y} = ${d}`);
+            
+            if (d !== 1) {
+                steps.push(`\nНОД не равен 1 → обратного элемента не существует`);
+                document.getElementById('ext-inv-output').innerHTML = '-1';
+            } else {
+                const inv = ((x % m) + m) % m;
+                steps.push(`\nОбратный элемент: ${x} mod ${m} = ${inv}`);
+                steps.push(`Проверка: ${a}·${inv} ≡ ${(a * inv) % m} (mod ${m})`);
+                
+                document.getElementById('ext-inv-output').innerHTML = `${inv}`;
+            }
+            
+            const outputDiv = document.getElementById('ext-inv-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExtInvExample1() {
+            document.getElementById('inverse-ext-input').value = '3 7';
+            runModInverseExt();
+        }
+        
+        function loadExtInvExample2() {
+            document.getElementById('inverse-ext-input').value = '2 4';
+            runModInverseExt();
+        }
+        
+        function loadExtInvExample3() {
+            document.getElementById('inverse-ext-input').value = '10 17';
+            runModInverseExt();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExtInvExample1();
+        });
+    </script>
+</body>
+</html>

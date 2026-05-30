@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Количество делителей числа</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Количество делителей числа</h1>
+            <p>Подсчёт количества натуральных делителей числа</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>x = int(input())
+i = 1
+c = 0
+while i * i <= x:
+    if x % i == 0 and i * i != x:
+        c += 2
+    elif i * i == x and x % i == 0:
+        c += 1
+    i += 1
+print(c)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    long long x;
+    cin >> x;
+    
+    long long i = 1, c = 0;
+    while (i * i <= x) {
+        if (x % i == 0 && i * i != x) {
+            c += 2;
+        } else if (i * i == x && x % i == 0) {
+            c += 1;
+        }
+        i++;
+    }
+    
+    cout << c << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как подсчитать количество делителей?</h3>
+            
+            <p>Делители числа идут парами: если d — делитель n, то n/d — тоже делитель. Исключение — случай, когда d = n/d (то есть d² = n).</p>
+            
+            <h4>Алгоритм</h4>
+            <ul>
+                <li>Перебираем i от 1 до √n</li>
+                <li>Если i делит n:
+                    <ul>
+                        <li>Если i² = n → добавляем 1 делитель (i)</li>
+                        <li>Иначе → добавляем 2 делителя (i и n/i)</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h4>Пример</h4>
+            <p>Для n = 12: делители 1, 2, 3, 4, 6, 12 → всего 6 делителей.</p>
+            
+            <p><strong>Временная сложность: O(√n)</strong></p>
+            
+            <div class="formula">
+                Если n = p₁^{k₁}·p₂^{k₂}·...·pₘ^{kₘ}, то количество делителей = (k₁+1)·(k₂+1)·...·(kₘ+1)
+            </div>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> целое число x (x ≥ 1)</p>
+            <p><strong>Вывод:</strong> количество делителей</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>12</code></pre>
+                <p><strong>Вывод: 6</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Число x:</label>
+            <input type="number" id="divisors-input" value="12" min="1">
+            
+            <div class="try-it">
+                <button onclick="runCountDivisors()"><span class="paw-icon"></span> Подсчитать</button>
+                <button onclick="loadDivisorsExample1()">12</button>
+                <button onclick="loadDivisorsExample2()">16</button>
+                <button onclick="loadDivisorsExample3()">36</button>
+            </div>
+            
+            <div class="output" id="divisors-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runCountDivisors() {
+            const x = parseInt(document.getElementById('divisors-input').value);
+            
+            if (isNaN(x) || x < 1) {
+                document.getElementById('divisors-output').innerHTML = 'Введите число ≥ 1';
+                return;
+            }
+            
+            let count = 0;
+            const steps = [];
+            steps.push(`Подсчёт делителей числа ${x}`);
+            
+            for (let i = 1; i * i <= x; i++) {
+                if (x % i === 0) {
+                    if (i * i === x) {
+                        count++;
+                        steps.push(`  ${i}² = ${x} → добавляем 1 делитель (${i})`);
+                    } else {
+                        count += 2;
+                        steps.push(`  ${i} делит ${x} → добавляем делители ${i} и ${x / i}`);
+                    }
+                } else {
+                    steps.push(`  ${i} не делит ${x}`);
+                }
+            }
+            
+            steps.push(`\nОбщее количество делителей: ${count}`);
+            
+            const outputDiv = document.getElementById('divisors-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `${count}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadDivisorsExample1() {
+            document.getElementById('divisors-input').value = '12';
+            runCountDivisors();
+        }
+        
+        function loadDivisorsExample2() {
+            document.getElementById('divisors-input').value = '16';
+            runCountDivisors();
+        }
+        
+        function loadDivisorsExample3() {
+            document.getElementById('divisors-input').value = '36';
+            runCountDivisors();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDivisorsExample1();
+        });
+    </script>
+</body>
+</html>

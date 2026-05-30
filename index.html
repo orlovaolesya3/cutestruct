@@ -426,6 +426,11 @@
                 <p>Поиск подстрок, Z-функция, Хеширование</p>
                 <a href="pages/strings.html" class="btn">Перейти →</a>
             </div>
+            <div class="category-card">
+                <h2>Математика</h2>
+                <p>Комбинаторика, Теория чисел</p>
+                <a href="pages/math.html" class="btn">Перейти →</a>
+            </div>
 
         </div>
 
@@ -439,81 +444,97 @@
     <script>
         // База данных алгоритмов с прямыми ссылками на страницы
         const algorithmsDB = [
-            // Графовые алгоритмы
-            { name: "BFS", url: "algorithms/bfs.html", category: "Графовые алгоритмы", keywords: ["bfs", "поиск в ширину", "breadth first search", "обход графа", "кратчайший путь"] },
-            { name: "DFS", url: "algorithms/dfs.html", category: "Графовые алгоритмы", keywords: ["dfs", "поиск в глубину", "depth first search", "обход графа"] },
-            { name: "Дейкстра", url: "algorithms/dijkstra_heap.html", category: "Графовые алгоритмы", keywords: ["дейкстра", "dijkstra", "кратчайший путь", "взвешенный граф"] },
-            { name: "Флойд-Уоршелл", url: "algorithms/floyd.html", category: "Графовые алгоритмы", keywords: ["флойд", "уоршелл", "floyd", "warshall", "кратчайшие пути", "все пары"] },
-            { name: "Топологическая сортировка", url: "algorithms/topological_sort.html", category: "Графовые алгоритмы", keywords: ["топологическая", "топологическая сортировка", "топсорт", "topological"] },
-            { name: "Алгоритм Краскала", url: "algorithms/kruskal.html", category: "Графовые алгоритмы", keywords: ["краскал", "kruskal", "mst", "остовное дерево"] },
-            { name: "Алгоритм Прима", url: "algorithms/prim.html", category: "Графовые алгоритмы", keywords: ["прим", "prim", "mst", "остовное дерево"] },
-            { name: "Поиск мостов", url: "algorithms/bridges.html", category: "Графовые алгоритмы", keywords: ["мосты", "bridges", "тарьян"] },
-            { name: "Точки сочленения", url: "algorithms/articulation_points.html", category: "Графовые алгоритмы", keywords: ["точки сочленения", "articulation points", "тарьян"] },
-            { name: "Конденсация графа", url: "algorithms/condensation.html", category: "Графовые алгоритмы", keywords: ["конденсация", "компоненты сильной связности", "косарайю"] },
-            
-            // Поиск
-            { name: "Бинарный поиск", url: "algorithms/binary_search.html", category: "Поиск", keywords: ["бинарный поиск", "binary search", "поиск границы"] },
-            { name: "Бинарный поиск по ответу", url: "algorithms/binary_search_answer.html", category: "Поиск", keywords: ["бинарный поиск по ответу", "левая граница", "правая граница"] },
-            { name: "Тернарный поиск", url: "algorithms/ternary_search.html", category: "Поиск", keywords: ["тернарный поиск", "ternary search", "унимодальная функция"] },
-            { name: "Имитация отжига", url: "algorithms/annealing.html", category: "Поиск", keywords: ["отжиг", "annealing", "ферзи", "оптимизация"] },
-            { name: "Интерполяционный поиск", url: "algorithms/interpolation_search.html", category: "Поиск", keywords: ["интерполяционный поиск", "interpolation search"] },
-            
-            // Динамическое программирование
-            { name: "Числа Фибоначчи", url: "algorithms/fibonacci.html", category: "Динамическое программирование", keywords: ["фибоначчи", "fibonacci", "числа фибоначчи"] },
-            { name: "Задача о рюкзаке (0/1)", url: "algorithms/knapsack.html", category: "Динамическое программирование", keywords: ["рюкзак", "knapsack"] },
-            { name: "НОП (LCS)", url: "algorithms/lcs.html", category: "Динамическое программирование", keywords: ["ноп", "lcs", "общая подпоследовательность"] },
-            { name: "НВП (LIS)", url: "algorithms/lis.html", category: "Динамическое программирование", keywords: ["нвп", "lis", "возрастающая подпоследовательность"] },
-            { name: "Расстояние Левенштейна", url: "algorithms/levenshtein.html", category: "Динамическое программирование", keywords: ["левенштейн", "levenshtein", "редакционное расстояние"] },
-            { name: "Задача о монетках", url: "algorithms/coin_change.html", category: "Динамическое программирование", keywords: ["монетки", "coin change"] },
-            { name: "Подъём по лестнице", url: "algorithms/climbing_stairs.html", category: "Динамическое программирование", keywords: ["лестница", "climbing stairs", "ступеньки"] },
-            { name: "Алгоритм Кэдэйна", url: "algorithms/kadane.html", category: "Динамическое программирование", keywords: ["кэдэйн", "kadane", "максимальная сумма"] },
-            
-            // Структуры данных
-            { name: "Дерево отрезков", url: "algorithms/segment_tree.html", category: "Структуры данных", keywords: ["дерево отрезков", "segment tree", "сумма на отрезке"] },
-            { name: "Дерево Фенвика", url: "algorithms/fenwick.html", category: "Структуры данных", keywords: ["фенвик", "fenwick", "бинарное дерево"] },
-            { name: "Дерево Фенвика (массовое обновление)", url: "algorithms/fenwick_range.html", category: "Структуры данных", keywords: ["фенвик массовое", "range update", "прибавление на отрезке"] },
-            { name: "3D дерево Фенвика", url: "algorithms/fenwick_3d.html", category: "Структуры данных", keywords: ["3d фенвик", "3d fenwick", "трёхмерное"] },
-            { name: "Дерево отрезков (ленивое обновление)", url: "algorithms/segment_tree_lazy.html", category: "Структуры данных", keywords: ["ленивое обновление", "lazy propagation", "массовое обновление"] },
-            { name: "Дерево отрезков (модульная редукция)", url: "algorithms/segment_tree_mod.html", category: "Структуры данных", keywords: ["модульная редукция", "mod", "остаток"] },
-            { name: "Sparse Table", url: "algorithms/sparse_table.html", category: "Структуры данных", keywords: ["sparse table", "разреженная таблица", "rmq"] },
-            { name: "Merge Sort Tree", url: "algorithms/merge_sort_tree.html", category: "Структуры данных", keywords: ["merge sort tree", "дерево слияния"] },
-            { name: "СНМ (DSU)", url: "algorithms/dsu.html", category: "Структуры данных", keywords: ["снм", "dsu", "disjoint set", "система непересекающихся множеств"] },
-            { name: "АВЛ-дерево", url: "algorithms/avl_tree.html", category: "Структуры данных", keywords: ["авл", "avl", "сбалансированное дерево"] },
-            { name: "Алгоритм Мо", url: "algorithms/mo_algorithm.html", category: "Структуры данных", keywords: ["мо", "mo", "sqrt decomposition"] },
-            { name: "Sqrt-декомпозиция (лунки)", url: "algorithms/holes_jumps.html", category: "Структуры данных", keywords: ["лунки", "прыжки", "sqrt"] },
-            
-            // Строки
-            { name: "Префикс-функция (КМП)", url: "algorithms/prefix_function.html", category: "Строки", keywords: ["кмп", "kmp", "префикс функция", "кнут моррис пратт"] },
-            { name: "Z-функция", url: "algorithms/z_function.html", category: "Строки", keywords: ["z функция", "z function", "поиск подстрок"] },
-            { name: "Алгоритм Ахо-Корасик", url: "algorithms/aho_corasick.html", category: "Строки", keywords: ["ахо", "корасик", "множественный поиск"] },
-            { name: "Алгоритм Манакера", url: "algorithms/manacher.html", category: "Строки", keywords: ["манакер", "палиндромы", "manacher"] },
-            { name: "Хеширование строк", url: "algorithms/string_hashing.html", category: "Строки", keywords: ["хеш", "hash", "хеширование", "полиномиальный хеш"] },
-            { name: "2D хеширование", url: "algorithms/string_hashing_2d.html", category: "Строки", keywords: ["2d хеш", "матрица", "подматрица"] },
-            { name: "Бор (префиксное дерево)", url: "algorithms/trie.html", category: "Строки", keywords: ["бор", "trie", "префиксное дерево"] },
-            { name: "Суффиксный массив", url: "algorithms/suffix_array.html", category: "Строки", keywords: ["суффиксный массив", "suffix array"] },
-            { name: "Расстояние Левенштейна", url: "algorithms/levenshtein.html", category: "Строки", keywords: ["левенштейн", "levenshtein", "редакционное расстояние"] },
-            
-            // Геометрия
-            { name: "Векторы", url: "algorithms/vectors.html", category: "Геометрия", keywords: ["векторы", "длина вектора", "сумма векторов", "скалярное произведение", "векторное произведение", "площадь треугольника"] },
-            { name: "Площадь треугольника", url: "algorithms/triangle_area.html", category: "Геометрия", keywords: ["площадь треугольника", "треугольник", "координаты"] },
-            { name: "Площадь многоугольника", url: "algorithms/polygon_area.html", category: "Геометрия", keywords: ["площадь многоугольника", "формула гаусса", "метод трапеций"] },
-            { name: "Расстояние от точки до прямой", url: "algorithms/point_line_distance.html", category: "Геометрия", keywords: ["расстояние от точки до прямой", "точка", "прямая"] },
-            { name: "Расположение точки относительно прямой", url: "algorithms/point_line_side.html", category: "Геометрия", keywords: ["расположение точки", "слева", "справа", "ориентация"] },
-            { name: "Принадлежность точки прямой, лучу, отрезку", url: "algorithms/point_on_segment.html", category: "Геометрия", keywords: ["принадлежность точки", "на прямой", "на луче", "на отрезке"] },
-            { name: "Пересечение прямых", url: "algorithms/lines_intersect.html", category: "Геометрия", keywords: ["пересечение прямых", "точка пересечения", "коэффициенты"] },
-            { name: "Параллельная прямая", url: "algorithms/parallel_line.html", category: "Геометрия", keywords: ["параллельная прямая", "расстояние", "сдвиг"] },
-            { name: "Уравнение прямой по двум точкам", url: "algorithms/line_from_points.html", category: "Геометрия", keywords: ["уравнение прямой", "две точки", "коэффициенты"] },
-            { name: "Угол между векторами", url: "algorithms/angle_between_vectors.html", category: "Геометрия", keywords: ["угол между векторами", "радианы", "скалярное произведение"] },
-            { name: "Биссектриса угла", url: "algorithms/angle_bisector.html", category: "Геометрия", keywords: ["биссектриса", "угол", "уравнение"] },
-            { name: "Нормализация уравнения прямой", url: "algorithms/line_normalization.html", category: "Геометрия", keywords: ["нормализация", "канонический вид", "уравнение прямой"] },
-            
-            // Информация
-            { name: "Информация для подготовки", url: "pages/support.html", category: "Информация", keywords: ["кружки", "школы", "олимпиады", "курсы", "информация"] },
-            
-            // База языков
-            { name: "База языков", url: "pages/language_basics.html", category: "База языков", keywords: ["python", "c++", "cpp", "основы", "языки"] }
-        ];
-        
+    // Графовые алгоритмы
+    { name: "BFS", url: "algorithms/bfs.html", category: "Графовые алгоритмы", keywords: ["bfs", "поиск в ширину", "breadth first search", "обход графа", "кратчайший путь"] },
+    { name: "DFS", url: "algorithms/dfs.html", category: "Графовые алгоритмы", keywords: ["dfs", "поиск в глубину", "depth first search", "обход графа"] },
+    { name: "Дейкстра", url: "algorithms/dijkstra_heap.html", category: "Графовые алгоритмы", keywords: ["дейкстра", "dijkstra", "кратчайший путь", "взвешенный граф"] },
+    { name: "Флойд-Уоршелл", url: "algorithms/floyd.html", category: "Графовые алгоритмы", keywords: ["флойд", "уоршелл", "floyd", "warshall", "кратчайшие пути", "все пары"] },
+    { name: "Топологическая сортировка", url: "algorithms/topological_sort.html", category: "Графовые алгоритмы", keywords: ["топологическая", "топологическая сортировка", "топсорт", "topological"] },
+    { name: "Алгоритм Краскала", url: "algorithms/kruskal.html", category: "Графовые алгоритмы", keywords: ["краскал", "kruskal", "mst", "остовное дерево"] },
+    { name: "Алгоритм Прима", url: "algorithms/prim.html", category: "Графовые алгоритмы", keywords: ["прим", "prim", "mst", "остовное дерево"] },
+    { name: "Поиск мостов", url: "algorithms/bridges.html", category: "Графовые алгоритмы", keywords: ["мосты", "bridges", "тарьян"] },
+    { name: "Точки сочленения", url: "algorithms/articulation_points.html", category: "Графовые алгоритмы", keywords: ["точки сочленения", "articulation points", "тарьян"] },
+    { name: "Конденсация графа", url: "algorithms/condensation.html", category: "Графовые алгоритмы", keywords: ["конденсация", "компоненты сильной связности", "косарайю"] },
+    { name: "Алгоритм Форда-Беллмана", url: "algorithms/bellman_ford.html", category: "Графовые алгоритмы", keywords: ["форд беллман", "bellman ford", "отрицательные веса"] },
+    { name: "LCA", url: "algorithms/lca.html", category: "Графовые алгоритмы", keywords: ["lca", "наименьший общий предок", "двоичные подъёмы"] },
+    
+    // Поиск
+    { name: "Бинарный поиск", url: "algorithms/binary_search.html", category: "Поиск", keywords: ["бинарный поиск", "binary search", "поиск границы"] },
+    { name: "Бинарный поиск по ответу", url: "algorithms/binary_search_answer.html", category: "Поиск", keywords: ["бинарный поиск по ответу", "левая граница", "правая граница"] },
+    { name: "Тернарный поиск", url: "algorithms/ternary_search.html", category: "Поиск", keywords: ["тернарный поиск", "ternary search", "унимодальная функция"] },
+    { name: "Имитация отжига", url: "algorithms/annealing.html", category: "Поиск", keywords: ["отжиг", "annealing", "ферзи", "оптимизация"] },
+    { name: "Интерполяционный поиск", url: "algorithms/interpolation_search.html", category: "Поиск", keywords: ["интерполяционный поиск", "interpolation search"] },
+    
+    // Динамическое программирование
+    { name: "Числа Фибоначчи", url: "algorithms/fibonacci.html", category: "Динамическое программирование", keywords: ["фибоначчи", "fibonacci", "числа фибоначчи"] },
+    { name: "Задача о рюкзаке (0/1)", url: "algorithms/knapsack.html", category: "Динамическое программирование", keywords: ["рюкзак", "knapsack"] },
+    { name: "НОП (LCS)", url: "algorithms/lcs.html", category: "Динамическое программирование", keywords: ["ноп", "lcs", "общая подпоследовательность"] },
+    { name: "НВП (LIS)", url: "algorithms/lis.html", category: "Динамическое программирование", keywords: ["нвп", "lis", "возрастающая подпоследовательность"] },
+    { name: "Расстояние Левенштейна", url: "algorithms/levenshtein.html", category: "Динамическое программирование", keywords: ["левенштейн", "levenshtein", "редакционное расстояние"] },
+    { name: "Задача о монетках", url: "algorithms/coin_change.html", category: "Динамическое программирование", keywords: ["монетки", "coin change"] },
+    { name: "Подъём по лестнице", url: "algorithms/climbing_stairs.html", category: "Динамическое программирование", keywords: ["лестница", "climbing stairs", "ступеньки"] },
+    { name: "Алгоритм Кэдэйна", url: "algorithms/kadane.html", category: "Динамическое программирование", keywords: ["кэдэйн", "kadane", "максимальная сумма"] },
+    
+    // Структуры данных
+    { name: "Дерево отрезков", url: "algorithms/segment_tree.html", category: "Структуры данных", keywords: ["дерево отрезков", "segment tree", "сумма на отрезке"] },
+    { name: "Дерево Фенвика", url: "algorithms/fenwick.html", category: "Структуры данных", keywords: ["фенвик", "fenwick", "бинарное дерево"] },
+    { name: "Дерево Фенвика (массовое обновление)", url: "algorithms/fenwick_range.html", category: "Структуры данных", keywords: ["фенвик массовое", "range update", "прибавление на отрезке"] },
+    { name: "3D дерево Фенвика", url: "algorithms/fenwick_3d.html", category: "Структуры данных", keywords: ["3d фенвик", "3d fenwick", "трёхмерное"] },
+    { name: "Дерево отрезков (ленивое обновление)", url: "algorithms/segment_tree_lazy.html", category: "Структуры данных", keywords: ["ленивое обновление", "lazy propagation", "массовое обновление"] },
+    { name: "Дерево отрезков (модульная редукция)", url: "algorithms/segment_tree_mod.html", category: "Структуры данных", keywords: ["модульная редукция", "mod", "остаток"] },
+    { name: "Sparse Table", url: "algorithms/sparse_table.html", category: "Структуры данных", keywords: ["sparse table", "разреженная таблица", "rmq"] },
+    { name: "Merge Sort Tree", url: "algorithms/merge_sort_tree.html", category: "Структуры данных", keywords: ["merge sort tree", "дерево слияния"] },
+    { name: "СНМ (DSU)", url: "algorithms/dsu.html", category: "Структуры данных", keywords: ["снм", "dsu", "disjoint set", "система непересекающихся множеств"] },
+    { name: "АВЛ-дерево", url: "algorithms/avl_tree.html", category: "Структуры данных", keywords: ["авл", "avl", "сбалансированное дерево"] },
+    { name: "Алгоритм Мо", url: "algorithms/mo_algorithm.html", category: "Структуры данных", keywords: ["мо", "mo", "sqrt decomposition"] },
+    { name: "Sqrt-декомпозиция (лунки)", url: "algorithms/holes_jumps.html", category: "Структуры данных", keywords: ["лунки", "прыжки", "sqrt"] },
+    
+    // Строки
+    { name: "Префикс-функция (КМП)", url: "algorithms/prefix_function.html", category: "Строки", keywords: ["кмп", "kmp", "префикс функция", "кнут моррис пратт"] },
+    { name: "Z-функция", url: "algorithms/z_function.html", category: "Строки", keywords: ["z функция", "z function", "поиск подстрок"] },
+    { name: "Алгоритм Ахо-Корасик", url: "algorithms/aho_corasick.html", category: "Строки", keywords: ["ахо", "корасик", "множественный поиск"] },
+    { name: "Алгоритм Манакера", url: "algorithms/manacher.html", category: "Строки", keywords: ["манакер", "палиндромы", "manacher"] },
+    { name: "Хеширование строк", url: "algorithms/string_hashing.html", category: "Строки", keywords: ["хеш", "hash", "хеширование", "полиномиальный хеш"] },
+    { name: "2D хеширование", url: "algorithms/string_hashing_2d.html", category: "Строки", keywords: ["2d хеш", "матрица", "подматрица"] },
+    { name: "Бор (префиксное дерево)", url: "algorithms/trie.html", category: "Строки", keywords: ["бор", "trie", "префиксное дерево"] },
+    { name: "Суффиксный массив", url: "algorithms/suffix_array.html", category: "Строки", keywords: ["суффиксный массив", "suffix array"] },
+    
+    // Геометрия
+    { name: "Векторы", url: "algorithms/vectors.html", category: "Геометрия", keywords: ["векторы", "длина вектора", "сумма векторов", "скалярное произведение", "векторное произведение", "площадь треугольника"] },
+    { name: "Площадь треугольника", url: "algorithms/triangle_area.html", category: "Геометрия", keywords: ["площадь треугольника", "треугольник", "координаты"] },
+    { name: "Площадь многоугольника", url: "algorithms/polygon_area.html", category: "Геометрия", keywords: ["площадь многоугольника", "формула гаусса", "метод трапеций"] },
+    { name: "Расстояние от точки до прямой", url: "algorithms/point_line_distance.html", category: "Геометрия", keywords: ["расстояние от точки до прямой", "точка", "прямая"] },
+    { name: "Расположение точки относительно прямой", url: "algorithms/point_line_side.html", category: "Геометрия", keywords: ["расположение точки", "слева", "справа", "ориентация"] },
+    { name: "Принадлежность точки прямой, лучу, отрезку", url: "algorithms/point_on_segment.html", category: "Геометрия", keywords: ["принадлежность точки", "на прямой", "на луче", "на отрезке"] },
+    { name: "Пересечение прямых", url: "algorithms/lines_intersect.html", category: "Геометрия", keywords: ["пересечение прямых", "точка пересечения", "коэффициенты"] },
+    { name: "Параллельная прямая", url: "algorithms/parallel_line.html", category: "Геометрия", keywords: ["параллельная прямая", "расстояние", "сдвиг"] },
+    { name: "Уравнение прямой по двум точкам", url: "algorithms/line_from_points.html", category: "Геометрия", keywords: ["уравнение прямой", "две точки", "коэффициенты"] },
+    { name: "Угол между векторами", url: "algorithms/angle_between_vectors.html", category: "Геометрия", keywords: ["угол между векторами", "радианы", "скалярное произведение"] },
+    { name: "Биссектриса угла", url: "algorithms/angle_bisector.html", category: "Геометрия", keywords: ["биссектриса", "угол", "уравнение"] },
+    { name: "Нормализация уравнения прямой", url: "algorithms/line_normalization.html", category: "Геометрия", keywords: ["нормализация", "канонический вид", "уравнение прямой"] },
+    
+    // Комбинаторика и теория чисел
+    { name: "Проверка на простоту", url: "algorithms/is_prime.html", category: "Теория чисел", keywords: ["простота", "prime", "проверка на простоту"] },
+    { name: "НОД (Алгоритм Евклида)", url: "algorithms/gcd.html", category: "Теория чисел", keywords: ["gcd", "нод", "евклид", "наибольший общий делитель"] },
+    { name: "Расширенный алгоритм Евклида", url: "algorithms/extended_gcd.html", category: "Теория чисел", keywords: ["расширенный евклид", "extended gcd", "диофантово уравнение"] },
+    { name: "Обратное по модулю (малая теорема Ферма)", url: "algorithms/mod_inverse_fermat.html", category: "Теория чисел", keywords: ["обратный элемент", "mod inverse", "ферма"] },
+    { name: "Обратное по модулю (расширенный Евклид)", url: "algorithms/mod_inverse_extended.html", category: "Теория чисел", keywords: ["обратный элемент", "mod inverse", "евклид"] },
+    { name: "Решето Эратосфена", url: "algorithms/sieve_eratosthenes.html", category: "Теория чисел", keywords: ["решето", "эратосфен", "простые числа"] },
+    { name: "Линейное решето", url: "algorithms/sieve_linear.html", category: "Теория чисел", keywords: ["линейное решето", "простые числа", "o(n)"] },
+    { name: "Решето на отрезке [l, r]", url: "algorithms/sieve_range.html", category: "Теория чисел", keywords: ["решето на отрезке", "простые числа на отрезке"] },
+    { name: "Количество делителей", url: "algorithms/count_divisors.html", category: "Теория чисел", keywords: ["делители", "количество делителей", "divisors"] },
+    { name: "Факторизация числа", url: "algorithms/factorization.html", category: "Теория чисел", keywords: ["факторизация", "разложение на простые", "множители"] },
+    { name: "Китайская теорема об остатках", url: "algorithms/chinese_remainder.html", category: "Теория чисел", keywords: ["китайская теорема", "crt", "остатки"] },
+    { name: "Генерация перестановок", url: "algorithms/generate_permutations.html", category: "Комбинаторика", keywords: ["перестановки", "permutations", "генерация"] },
+    { name: "Генерация двоичных векторов", url: "algorithms/generate_binary_vectors.html", category: "Комбинаторика", keywords: ["двоичные векторы", "binary vectors", "подмножества"] },
+    { name: "Комбинаторика", url: "algorithms/combinatorics.html", category: "Комбинаторика", keywords: ["комбинаторика", "размещения", "сочетания", "перестановки", "формулы"] },
+    
+    // Информация
+    { name: "Информация для подготовки", url: "pages/support.html", category: "Информация", keywords: ["кружки", "школы", "олимпиады", "курсы", "информация"] },
+    
+    // База языков
+    { name: "База языков", url: "pages/language_basics.html", category: "База языков", keywords: ["python", "c++", "cpp", "основы", "языки"] }
+];
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const categoriesContainer = document.querySelector('.categories');

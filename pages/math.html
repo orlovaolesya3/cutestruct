@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Математика</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .resources {
+            background: rgba(171, 205, 239, 0.1);
+            border-radius: 16px;
+            padding: 12px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        body.dark-theme .resources {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .resources-text {
+            font-size: 14px;
+        }
+        
+        .resources-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(171, 205, 239, 0.2);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        body.light-theme .resources-link {
+            color: #333;
+        }
+        
+        body.dark-theme .resources-link {
+            color: #e0e0e0;
+        }
+        
+        .resources-link:hover {
+            background: rgba(171, 205, 239, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            margin: 30px 0 20px 0;
+            font-size: 1.8em;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        body.light-theme .section-title {
+            color: #abcdef;
+        }
+        
+        body.dark-theme .section-title {
+            color: #667eea;
+        }
+        
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 10px;
+        }
+        
+        .category-card {
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        body.light-theme .category-card {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(171, 205, 239, 0.3);
+        }
+        
+        body.dark-theme .category-card {
+            background: rgba(30, 30, 50, 0.9);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(29, 30, 51, 0.5);
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        body.light-theme .category-card:hover {
+            box-shadow: 0 10px 30px rgba(171, 205, 239, 0.3);
+        }
+        
+        body.dark-theme .category-card:hover {
+            box-shadow: 0 10px 30px rgba(29, 30, 51, 0.5);
+        }
+        
+        .category-card h2 {
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 1.3em;
+        }
+        
+        body.light-theme .category-card h2 {
+            color: #abcdef;
+        }
+        
+        body.dark-theme .category-card h2 {
+            color: #667eea;
+        }
+        
+        .category-card p {
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        body.light-theme .category-card p {
+            color: #666;
+        }
+        
+        body.dark-theme .category-card p {
+            color: #aaa;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        body.light-theme .btn {
+            background: #abcdef;
+            color: #333;
+        }
+        
+        body.dark-theme .btn {
+            background: #4a4aff;
+            color: #fff;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .back-btn {
+            display: inline-block;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        body.light-theme .back-btn {
+            background: rgba(171, 205, 239, 0.8);
+            color: #333;
+        }
+        
+        body.dark-theme .back-btn {
+            background: rgba(29, 30, 51, 0.8);
+            color: #fff;
+        }
+        
+        .back-btn:hover {
+            background: rgba(171, 205, 239, 1);
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+        }
+        
+        @media (max-width: 768px) {
+            .categories {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .resources {
+                flex-direction: column;
+                text-align: center;
+            }
+            .section-title {
+                font-size: 1.5em;
+                margin: 25px 0 15px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-btn">← На главную</a>
+        
+        <header>
+            <h1>Математика</h1>
+            <p>Алгоритмы для работы с простыми числами, делителями, комбинаторикой и модулярной арифметикой</p>
+        </header>
+
+        <!-- Ссылка на OEIS -->
+        <div class="resources">
+            <div class="resources-text">
+                Если нужно продолжить последовательность чисел или найти закономерность
+            </div>
+            <a href="https://oeis.org/" target="_blank" class="resources-link">
+                <span class="paw-icon"></span> Энциклопедия числовых последовательностей (OEIS) →
+            </a>
+        </div>
+
+        <!-- Раздел: Комбинаторика -->
+        <div class="section-title">Комбинаторика</div>
+        <div class="categories">
+            <div class="category-card">
+                <h2>Комбинаторные формулы</h2>
+                <p>Формулы размещений, перестановок, сочетаний</p>
+                <a href="../algorithms/combinatorics.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+            <div class="category-card">
+                <h2>Генерация перестановок</h2>
+                <p>Все перестановки чисел от 1 до n</p>
+                <a href="../algorithms/generate_permutations.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Генерация двоичных векторов</h2>
+                <p>Все двоичные векторы длины n</p>
+                <a href="../algorithms/generate_binary_vectors.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+        </div>
+
+        <!-- Раздел: Теория чисел -->
+        <div class="section-title">Теория чисел</div>
+        <div class="categories">
+            <div class="category-card">
+                <h2>Проверка на простоту</h2>
+                <p>Алгоритм проверки числа на простоту за O(√n)</p>
+                <a href="../algorithms/is_prime.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>НОД (Алгоритм Евклида)</h2>
+                <p>Нахождение наибольшего общего делителя</p>
+                <a href="../algorithms/gcd.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Расширенный алгоритм Евклида</h2>
+                <p>Решение уравнения ax + by = gcd(a, b)</p>
+                <a href="../algorithms/extended_gcd.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Обратное по модулю (малая теорема Ферма)</h2>
+                <p>Для простого модуля за O(log mod)</p>
+                <a href="../algorithms/mod_inverse_fermat.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Обратное по модулю (расширенный Евклид)</h2>
+                <p>Для любых взаимно простых чисел</p>
+                <a href="../algorithms/mod_inverse_extended.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Решето Эратосфена</h2>
+                <p>Все простые числа до n за O(n log log n)</p>
+                <a href="../algorithms/sieve_eratosthenes.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Линейное решето</h2>
+                <p>Все простые числа до n за O(n)</p>
+                <a href="../algorithms/sieve_linear.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Решето на отрезке [l, r]</h2>
+                <p>Поиск простых на отрезке</p>
+                <a href="../algorithms/sieve_range.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Количество делителей</h2>
+                <p>Подсчёт количества делителей числа</p>
+                <a href="../algorithms/count_divisors.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Факторизация числа</h2>
+                <p>Разложение на простые множители</p>
+                <a href="../algorithms/factorization.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+
+            <div class="category-card">
+                <h2>Китайская теорема об остатках</h2>
+                <p>Решение системы сравнений</p>
+                <a href="../algorithms/chinese_remainder.html" class="btn"><span class="paw-icon"></span> Перейти →</a>
+            </div>
+        </div>
+    </div>
+    <script src="../script.js"></script>
+</body>
+</html>

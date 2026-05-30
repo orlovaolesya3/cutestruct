@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Генерация всех двоичных векторов</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .vector-output {
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Генерация всех двоичных векторов</h1>
+            <p>Рекурсивная генерация всех двоичных векторов длины n</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n = int(input())
+used = [0] * (n + 1)
+Alf = list(range(0, 2))
+
+def gen(p, n):
+    if len(p) == n:
+        print(*p)
+        return
+    for c in Alf:
+        p.append(c)
+        if not used[c]:
+            gen(p, n)
+            used[c] = 1
+        used[c] = 0
+        p.pop()
+
+p = []
+gen(p, n)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;int&gt; used;
+vector&lt;int&gt; Alf;
+vector&lt;int&gt; p;
+
+void gen(vector&lt;int&gt;&amp; p, int n) {
+    if (p.size() == n) {
+        for (int x : p) cout << x << " ";
+        cout << "\n";
+        return;
+    }
+    for (int c : Alf) {
+        p.push_back(c);
+        if (!used[c]) {
+            gen(p, n);
+            used[c] = 1;
+        }
+        used[c] = 0;
+        p.pop_back();
+    }
+}
+
+int main() {
+    int n;
+    cin >> n;
+    used.resize(n + 1);
+    for (int i = 0; i <= 1; i++) {
+        Alf.push_back(i);
+    }
+    gen(p, n);
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Генерация двоичных векторов</h3>
+            
+            <p><strong>Двоичный вектор</strong> — это последовательность из нулей и единиц длины n. Общее количество таких векторов равно 2ⁿ.</p>
+            
+            <h4>Алгоритм</h4>
+            <ul>
+                <li>Рекурсивно строим вектор, добавляя на каждую позицию 0 или 1</li>
+                <li>Когда длина вектора достигает n, выводим результат</li>
+            </ul>
+            
+            <h4>Применение</h4>
+            <p>Генерация всех подмножеств множества (каждый бит соответствует наличию элемента).</p>
+            
+            <p><strong>Временная сложность: O(2ⁿ)</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> n — длина вектора</p>
+            <p><strong>Вывод:</strong> все двоичные векторы длины n</p>
+            
+            <div class="input-example">
+                <h4>Пример для n=3:</h4>
+                <pre><code>3</code></pre>
+                <p><strong>Вывод:</strong><br>
+                0 0 0<br>
+                0 0 1<br>
+                0 1 0<br>
+                0 1 1<br>
+                1 0 0<br>
+                1 0 1<br>
+                1 1 0<br>
+                1 1 1</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>n (1-6):</label>
+            <input type="number" id="binary-n" value="3" min="1" max="6">
+            
+            <div class="try-it">
+                <button onclick="runBinaryVectors()"><span class="paw-icon"></span> Сгенерировать</button>
+                <button onclick="loadBinaryExample1()">n=3</button>
+                <button onclick="loadBinaryExample2()">n=4</button>
+            </div>
+            
+            <div class="output vector-output" id="binary-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function generateBinaryVectors(n) {
+            const results = [];
+            
+            function backtrack(current) {
+                if (current.length === n) {
+                    results.push([...current]);
+                    return;
+                }
+                for (let i = 0; i <= 1; i++) {
+                    current.push(i);
+                    backtrack(current);
+                    current.pop();
+                }
+            }
+            
+            backtrack([]);
+            return results;
+        }
+        
+        function runBinaryVectors() {
+            const n = parseInt(document.getElementById('binary-n').value);
+            
+            if (isNaN(n) || n < 1 || n > 6) {
+                document.getElementById('binary-output').innerHTML = 'Введите n от 1 до 6';
+                return;
+            }
+            
+            const vectors = generateBinaryVectors(n);
+            
+            const steps = [];
+            steps.push(`Генерация всех двоичных векторов длины ${n}`);
+            steps.push(`Всего векторов: ${vectors.length}\n`);
+            
+            let outputHtml = '';
+            for (let i = 0; i < vectors.length; i++) {
+                outputHtml += vectors[i].join(' ') + '<br>';
+                if (i < 10 || i >= vectors.length - 5) {
+                    steps.push(`${i+1}: ${vectors[i].join(' ')}`);
+                } else if (i === 10) {
+                    steps.push(`... (${vectors.length - 15} векторов пропущено) ...`);
+                }
+            }
+            
+            const outputDiv = document.getElementById('binary-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = outputHtml;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadBinaryExample1() {
+            document.getElementById('binary-n').value = '3';
+            runBinaryVectors();
+        }
+        
+        function loadBinaryExample2() {
+            document.getElementById('binary-n').value = '4';
+            runBinaryVectors();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBinaryExample1();
+        });
+    </script>
+</body>
+</html>

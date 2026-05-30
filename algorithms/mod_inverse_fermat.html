@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Обратное число по модулю (малая теорема Ферма)</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Обратное число по модулю</h1>
+            <p>Нахождение обратного элемента по простому модулю (малая теорема Ферма)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>a, mod = map(int, input().split())
+a %= mod
+
+def bin_pow(a, b):
+    if b == 0:
+        return 1 % mod
+    if b % 2 == 0:
+        x = bin_pow(a, b // 2)
+        return (x * x) % mod
+    else:
+        return (a * bin_pow(a, b - 1)) % mod
+
+def mod_inverse(x):
+    return bin_pow(x, mod - 2)
+
+if a == 0:
+    print(-1)
+else:
+    print(mod_inverse(a))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+long long bin_pow(long long a, long long b, long long mod) {
+    long long res = 1;
+    while (b > 0) {
+        if (b & 1) res = (res * a) % mod;
+        a = (a * a) % mod;
+        b >>= 1;
+    }
+    return res;
+}
+
+int main() {
+    long long a, mod;
+    cin >> a >> mod;
+    
+    a %= mod;
+    
+    if (a == 0) {
+        cout << -1 << endl;
+        return 0;
+    }
+    
+    cout << bin_pow(a, mod - 2, mod) << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Малая теорема Ферма</h3>
+            
+            <div class="formula">a^(p-1) ≡ 1 (mod p), где p — простое, a не кратно p</div>
+            
+            <p>Отсюда следует, что обратный элемент к a по модулю p равен:</p>
+            <div class="formula">a^(-1) ≡ a^(p-2) (mod p)</div>
+            
+            <h4>Бинарное возведение в степень</h4>
+            <p>Алгоритм возведения числа в степень за O(log n):</p>
+            <ul>
+                <li>Если степень чётная: a^b = (a^(b/2))²</li>
+                <li>Если степень нечётная: a^b = a·a^(b-1)</li>
+            </ul>
+            
+            <h4>Условия применимости</h4>
+            <ul>
+                <li>Модуль должен быть <strong>простым числом</strong></li>
+                <li>a не должно делиться на модуль</li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(log mod)</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> a mod — число и модуль (простое число)</p>
+            <p><strong>Вывод:</strong> обратный элемент или -1, если a кратно модулю</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>3 7</code></pre>
+                <p>Обратный элемент к 3 по модулю 7: 3·5 = 15 ≡ 1 (mod 7) → 5</p>
+                <p><strong>Вывод: 5</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>a и mod (простое):</label>
+            <input type="text" id="inverse-fermat-input" value="3 7">
+            
+            <div class="try-it">
+                <button onclick="runModInverseFermat()"><span class="paw-icon"></span> Найти обратный</button>
+                <button onclick="loadFermatExample1()">3 и 7</button>
+                <button onclick="loadFermatExample2()">2 и 13</button>
+                <button onclick="loadFermatExample3()">5 и 11</button>
+            </div>
+            
+            <div class="output" id="fermat-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function binPow(a, b, mod) {
+            let res = 1n;
+            let base = BigInt(a);
+            let exp = BigInt(b);
+            let modulus = BigInt(mod);
+            
+            while (exp > 0) {
+                if (exp & 1n) {
+                    res = (res * base) % modulus;
+                }
+                base = (base * base) % modulus;
+                exp >>= 1n;
+            }
+            return Number(res);
+        }
+        
+        function runModInverseFermat() {
+            const input = document.getElementById('inverse-fermat-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 2) {
+                document.getElementById('fermat-output').innerHTML = 'Введите a и mod';
+                return;
+            }
+            
+            let [a, mod] = input;
+            a %= mod;
+            
+            const steps = [];
+            steps.push(`Находим обратный элемент к ${a} по модулю ${mod}`);
+            steps.push(`Малая теорема Ферма: a⁻¹ ≡ a^(mod-2) (mod mod)`);
+            steps.push(`Степень: ${mod} - 2 = ${mod - 2}`);
+            
+            if (a === 0) {
+                steps.push(`\na = 0, обратного элемента не существует`);
+                document.getElementById('fermat-output').innerHTML = '-1';
+            } else {
+                const inv = binPow(a, mod - 2, mod);
+                steps.push(`\nВычисляем ${a}^${mod-2} mod ${mod} = ${inv}`);
+                steps.push(`Проверка: ${a} · ${inv} = ${(a * inv) % mod} ≡ 1 (mod ${mod})`);
+                
+                document.getElementById('fermat-output').innerHTML = `${inv}`;
+            }
+            
+            const outputDiv = document.getElementById('fermat-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadFermatExample1() {
+            document.getElementById('inverse-fermat-input').value = '3 7';
+            runModInverseFermat();
+        }
+        
+        function loadFermatExample2() {
+            document.getElementById('inverse-fermat-input').value = '2 13';
+            runModInverseFermat();
+        }
+        
+        function loadFermatExample3() {
+            document.getElementById('inverse-fermat-input').value = '5 11';
+            runModInverseFermat();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFermatExample1();
+        });
+    </script>
+</body>
+</html>

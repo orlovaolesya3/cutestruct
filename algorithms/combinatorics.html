@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Комбинаторика - размещения, перестановки, сочетания</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .combinatorics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .combo-card {
+            background: rgba(171, 205, 239, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        body.dark-theme .combo-card {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .combo-card h4 {
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Комбинаторика</h1>
+            <p>Основные формулы комбинаторики: размещения, перестановки, сочетания</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>from math import factorial
+
+# размещение с повторениями
+def arrangement_with_repetition(n, k):
+    return n ** k
+
+# размещение без повторений
+def arrangement_without_repetition(n, k):
+    return factorial(n) // factorial(n - k)
+
+# перестановки
+def permutation(n):
+    return factorial(n)
+
+# сочетания с повторениями
+def combination_with_repetition(n, k):
+    return factorial(n + k - 1) // (factorial(k) * factorial(n - 1))
+
+# сочетания без повторений
+def combination_without_repetition(n, k):
+    return factorial(n) // (factorial(k) * factorial(n - k))
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+// Функция для вычисления факториала
+long long factorial(int n) {
+    long long result = 1;
+    for (int i = 2; i <= n; ++i) {
+        result *= i;
+    }
+    return result;
+}
+
+// размещение с повторениями
+long long arrangement_with_repetition(int n, int k) {
+    return (long long)pow(n, k);
+}
+
+// размещение без повторений
+long long arrangement_without_repetition(int n, int k) {
+    return factorial(n) / factorial(n - k);
+}
+
+// перестановки
+long long permutation(int n) {
+    return factorial(n);
+}
+
+// сочетания с повторениями
+long long combination_with_repetition(int n, int k) {
+    return factorial(n + k - 1) / (factorial(k) * factorial(n - 1));
+}
+
+// сочетания без повторений
+long long combination_without_repetition(int n, int k) {
+    return factorial(n) / (factorial(k) * factorial(n - k));
+}
+</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Основные комбинаторные формулы</h3>
+            
+            <div class="combinatorics-grid">
+                <div class="combo-card">
+                    <h4>Размещение с повторениями</h4>
+                    <div class="formula">A̅(n, k) = nᵏ</div>
+                    <p>Количество способов выбрать k элементов из n с учётом порядка, элементы могут повторяться.</p>
+                </div>
+                
+                <div class="combo-card">
+                    <h4>Размещение без повторений</h4>
+                    <div class="formula">A(n, k) = n! / (n - k)!</div>
+                    <p>Количество способов выбрать k элементов из n с учётом порядка, элементы не повторяются.</p>
+                </div>
+                
+                <div class="combo-card">
+                    <h4>Перестановки</h4>
+                    <div class="formula">P(n) = n!</div>
+                    <p>Количество способов переставить n элементов местами.</p>
+                </div>
+                
+                <div class="combo-card">
+                    <h4>Сочетания с повторениями</h4>
+                    <div class="formula">C̅(n, k) = (n + k - 1)! / (k! · (n - 1)!)</div>
+                    <p>Количество способов выбрать k элементов из n без учёта порядка, элементы могут повторяться.</p>
+                </div>
+                
+                <div class="combo-card">
+                    <h4>Сочетания без повторений</h4>
+                    <div class="formula">C(n, k) = n! / (k! · (n - k)!)</div>
+                    <p>Количество способов выбрать k элементов из n без учёта порядка, элементы не повторяются.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>n и k:</label>
+            <input type="text" id="combo-input" value="5 3">
+            
+            <div class="try-it">
+                <button onclick="runCombinatorics()"><span class="paw-icon"></span> Вычислить</button>
+                <button onclick="loadComboExample1()">n=5, k=3</button>
+                <button onclick="loadComboExample2()">n=10, k=4</button>
+            </div>
+            
+            <div class="output" id="combo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function factorial(n) {
+            let result = 1n;
+            for (let i = 2; i <= n; i++) {
+                result *= BigInt(i);
+            }
+            return result;
+        }
+        
+        function runCombinatorics() {
+            const input = document.getElementById('combo-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 2) {
+                document.getElementById('combo-output').innerHTML = 'Введите n и k';
+                return;
+            }
+            
+            const [n, k] = input;
+            
+            if (k > n) {
+                document.getElementById('combo-output').innerHTML = 'k не может быть больше n';
+                return;
+            }
+            
+            const nFact = factorial(n);
+            const kFact = factorial(k);
+            const nkFact = factorial(n - k);
+            const nk1Fact = factorial(n + k - 1);
+            const n1Fact = factorial(n - 1);
+            
+            // Размещение с повторениями
+            const arrRep = Math.pow(n, k);
+            
+            // Размещение без повторений
+            const arr = Number(nFact / nkFact);
+            
+            // Перестановки
+            const perm = Number(nFact);
+            
+            // Сочетания с повторениями
+            const combRep = Number(nk1Fact / (kFact * n1Fact));
+            
+            // Сочетания без повторений
+            const comb = Number(nFact / (kFact * nkFact));
+            
+            const steps = [];
+            steps.push(`n = ${n}, k = ${k}\n`);
+            steps.push(`1. Размещение с повторениями: nᵏ = ${n}⁵? = ${arrRep}`);
+            steps.push(`2. Размещение без повторений: n!/(n-k)! = ${arr}`);
+            steps.push(`3. Перестановки: n! = ${perm}`);
+            steps.push(`4. Сочетания с повторениями: (n+k-1)!/(k!·(n-1)!) = ${combRep}`);
+            steps.push(`5. Сочетания без повторений: n!/(k!·(n-k)!) = ${comb}`);
+            
+            const outputDiv = document.getElementById('combo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `
+                1. Размещение с повторениями: ${arrRep}<br>
+                2. Размещение без повторений: ${arr}<br>
+                3. Перестановки: ${perm}<br>
+                4. Сочетания с повторениями: ${combRep}<br>
+                5. Сочетания без повторений: ${comb}
+            `;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadComboExample1() {
+            document.getElementById('combo-input').value = '5 3';
+            runCombinatorics();
+        }
+        
+        function loadComboExample2() {
+            document.getElementById('combo-input').value = '10 4';
+            runCombinatorics();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadComboExample1();
+        });
+    </script>
+</body>
+</html>

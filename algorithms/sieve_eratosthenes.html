@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Решето Эратосфена - все простые числа до n</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Решето Эратосфена</h1>
+            <p>Нахождение всех простых чисел до n за O(n log log n)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n = int(input())
+A = [1] * (n + 1)
+C = []
+
+for i in range(2, n + 1):
+    if A[i] == 1:
+        C.append(i)
+        for j in range(i + i, n + 1, i):
+            A[j] = 0
+
+print(*C)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;int&gt; A(n + 1, 1);
+    vector&lt;int&gt; C;
+    
+    for (int i = 2; i <= n; i++) {
+        if (A[i] == 1) {
+            C.push_back(i);
+            for (int j = i + i; j <= n; j += i) {
+                A[j] = 0;
+            }
+        }
+    }
+    
+    for (int x : C) {
+        cout << x << " ";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает решето Эратосфена?</h3>
+            
+            <p><strong>Решето Эратосфена</strong> — это древний алгоритм для нахождения всех простых чисел до заданного числа n.</p>
+            
+            <h4>Алгоритм</h4>
+            <ol>
+                <li>Создаём список чисел от 2 до n, считая все числа простыми</li>
+                <li>Начинаем с 2 — оно простое, вычёркиваем все его кратные (4, 6, 8, ...)</li>
+                <li>Переходим к следующему невычеркнутому числу (3) — оно простое, вычёркиваем его кратные</li>
+                <li>Повторяем, пока не дойдём до √n</li>
+            </ol>
+            
+            <h4>Пример для n = 30</h4>
+            <p>Начинаем с 2: вычёркиваем 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30</p>
+            <p>Следующее простое — 3: вычёркиваем 6, 9, 12, 15, 18, 21, 24, 27, 30</p>
+            <p>Следующее простое — 5: вычёркиваем 10, 15, 20, 25, 30</p>
+            <p>Оставшиеся невычеркнутые числа — простые: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29</p>
+            
+            <p><strong>Временная сложность: O(n log log n)</strong></p>
+            <p><strong>Пространственная сложность: O(n)</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> целое число n (n ≥ 2)</p>
+            <p><strong>Вывод:</strong> все простые числа до n в порядке возрастания</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>30</code></pre>
+                <p><strong>Вывод: 2 3 5 7 11 13 17 19 23 29</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>n:</label>
+            <input type="number" id="sieve-input" value="30" min="2" max="1000">
+            
+            <div class="try-it">
+                <button onclick="runSieve()"><span class="paw-icon"></span> Найти простые числа</button>
+                <button onclick="loadSieveExample1()">30</button>
+                <button onclick="loadSieveExample2()">50</button>
+                <button onclick="loadSieveExample3()">100</button>
+            </div>
+            
+            <div class="output" id="sieve-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runSieve() {
+            const n = parseInt(document.getElementById('sieve-input').value);
+            
+            if (isNaN(n) || n < 2) {
+                document.getElementById('sieve-output').innerHTML = 'Введите число ≥ 2';
+                return;
+            }
+            
+            const isPrime = new Array(n + 1).fill(true);
+            isPrime[0] = isPrime[1] = false;
+            const steps = [];
+            steps.push(`Решето Эратосфена для n = ${n}`);
+            steps.push(`Начальный список: [${Array.from({length: n-1}, (_, i) => i+2).join(', ')}]\n`);
+            
+            for (let i = 2; i * i <= n; i++) {
+                if (isPrime[i]) {
+                    steps.push(`i = ${i} (простое), вычёркиваем кратные:`);
+                    for (let j = i * i; j <= n; j += i) {
+                        if (isPrime[j]) {
+                            isPrime[j] = false;
+                            steps.push(`  ${j}`);
+                        }
+                    }
+                }
+            }
+            
+            const primes = [];
+            for (let i = 2; i <= n; i++) {
+                if (isPrime[i]) primes.push(i);
+            }
+            
+            steps.push(`\nОставшиеся невычеркнутые числа: [${primes.join(', ')}]`);
+            steps.push(`Всего простых чисел: ${primes.length}`);
+            
+            const outputDiv = document.getElementById('sieve-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = primes.join(' ');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadSieveExample1() {
+            document.getElementById('sieve-input').value = '30';
+            runSieve();
+        }
+        
+        function loadSieveExample2() {
+            document.getElementById('sieve-input').value = '50';
+            runSieve();
+        }
+        
+        function loadSieveExample3() {
+            document.getElementById('sieve-input').value = '100';
+            runSieve();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSieveExample1();
+        });
+    </script>
+</body>
+</html>

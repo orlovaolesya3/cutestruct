@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Проверка числа на простоту</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Проверка числа на простоту</h1>
+            <p>Алгоритм проверки, является ли число простым, за O(√n)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>x = int(input())
+i = 2
+while i * i <= x:
+    if x % i == 0:
+        print("composite")
+        exit()
+    i += 1
+print("prime")</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    long long x;
+    cin >> x;
+    
+    for (long long i = 2; i * i <= x; i++) {
+        if (x % i == 0) {
+            cout << "composite" << endl;
+            return 0;
+        }
+    }
+    
+    cout << "prime" << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как проверить число на простоту?</h3>
+            
+            <p><strong>Простое число</strong> — это натуральное число, которое имеет ровно два различных делителя: 1 и само себя.</p>
+            
+            <h4>Алгоритм проверки</h4>
+            <p>Достаточно проверить делители до √n, потому что если число n имеет делитель d > √n, то соответствующий ему делитель n/d будет меньше √n.</p>
+            
+            <div class="formula">Если n = a·b и a ≤ b, то a ≤ √n</div>
+            
+            <p><strong>Сложность: O(√n)</strong> — проверяем все числа от 2 до √n.</p>
+            
+            <h4>Особые случаи</h4>
+            <ul>
+                <li>Числа 0 и 1 не являются простыми</li>
+                <li>2 — единственное чётное простое число</li>
+                <li>Можно оптимизировать, проверяя сначала делимость на 2, а затем только нечётные числа</li>
+            </ul>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> одно целое число x (x ≥ 2)</p>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li><code>prime</code> — если число простое</li>
+                <li><code>composite</code> — если число составное</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример 1:</h4>
+                <pre><code>17</code></pre>
+                <p><strong>Вывод: prime</strong></p>
+            </div>
+            
+            <div class="input-example">
+                <h4>Пример 2:</h4>
+                <pre><code>12</code></pre>
+                <p><strong>Вывод: composite</strong> (12 = 2 × 6)</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>Число x:</label>
+            <input type="number" id="prime-input" value="17" min="2">
+            
+            <div class="try-it">
+                <button onclick="runIsPrime()"><span class="paw-icon"></span> Проверить</button>
+                <button onclick="loadPrimeExample1()">17 (простое)</button>
+                <button onclick="loadPrimeExample2()">12 (составное)</button>
+                <button onclick="loadPrimeExample3()">2 (простое)</button>
+            </div>
+            
+            <div class="output" id="prime-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runIsPrime() {
+            const x = parseInt(document.getElementById('prime-input').value);
+            
+            if (isNaN(x) || x < 2) {
+                document.getElementById('prime-output').innerHTML = 'Введите число ≥ 2';
+                return;
+            }
+            
+            const steps = [];
+            steps.push(`Проверяем число ${x} на простоту`);
+            steps.push(`Проверяем делители от 2 до √${x} ≈ ${Math.floor(Math.sqrt(x))}`);
+            
+            let isPrime = true;
+            for (let i = 2; i * i <= x; i++) {
+                if (x % i === 0) {
+                    steps.push(`  ${x} делится на ${i} → составное`);
+                    isPrime = false;
+                    break;
+                } else {
+                    steps.push(`  ${x} не делится на ${i}`);
+                }
+            }
+            
+            if (isPrime) {
+                steps.push(`\nНи один делитель не найден → ${x} — простое число`);
+            } else {
+                steps.push(`\nНайден делитель → ${x} — составное число`);
+            }
+            
+            const outputDiv = document.getElementById('prime-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = isPrime ? 'prime' : 'composite';
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadPrimeExample1() {
+            document.getElementById('prime-input').value = '17';
+            runIsPrime();
+        }
+        
+        function loadPrimeExample2() {
+            document.getElementById('prime-input').value = '12';
+            runIsPrime();
+        }
+        
+        function loadPrimeExample3() {
+            document.getElementById('prime-input').value = '2';
+            runIsPrime();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPrimeExample1();
+        });
+    </script>
+</body>
+</html>

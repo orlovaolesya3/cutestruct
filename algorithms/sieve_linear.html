@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Линейное решето Эратосфена (O(n))</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Линейное решето Эратосфена</h1>
+            <p>Нахождение всех простых чисел до n за линейное время O(n)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n = int(input())
+D = [i for i in range(n + 2)]
+P = []
+
+for i in range(2, n):
+    if D[i] == i:
+        P.append(i)
+    for j in P:
+        if i * j > n or D[i] < j:
+            break
+        D[i * j] = j
+
+print(*P)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;int&gt; D(n + 2);
+    for (int i = 0; i <= n + 1; i++) {
+        D[i] = i;
+    }
+    
+    vector&lt;int&gt; primes;
+    for (int i = 2; i < n; i++) {
+        if (D[i] == i) {
+            primes.push_back(i);
+        }
+        for (int j : primes) {
+            if (i * j > n || D[i] < j) break;
+            D[i * j] = j;
+        }
+    }
+    
+    for (int p : primes) {
+        cout << p << " ";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Линейное решето Эратосфена</h3>
+            
+            <p>Обычное решето Эратосфена имеет сложность O(n log log n). Линейное решето работает за O(n), так как каждое составное число вычёркивается ровно один раз.</p>
+            
+            <h4>Идея алгоритма</h4>
+            <ul>
+                <li>Массив D хранит минимальный простой делитель числа</li>
+                <li>Перебираем i от 2 до n</li>
+                <li>Если D[i] == i, то i — простое</li>
+                <li>Для каждого простого p, не превышающего минимальный делитель i, вычёркиваем i·p</li>
+            </ul>
+            
+            <h4>Преимущества</h4>
+            <ul>
+                <li>Линейное время работы</li>
+                <li>Позволяет находить не только простые числа, но и минимальные простые делители</li>
+                <li>Полезна для факторизации всех чисел до n</li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(n)</strong></p>
+            <p><strong>Пространственная сложность: O(n)</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> n — верхняя граница</p>
+            <p><strong>Вывод:</strong> все простые числа до n</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>30</code></pre>
+                <p><strong>Вывод: 2 3 5 7 11 13 17 19 23 29</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>n:</label>
+            <input type="number" id="linear-sieve-input" value="30" min="2" max="1000">
+            
+            <div class="try-it">
+                <button onclick="runLinearSieve()"><span class="paw-icon"></span> Найти простые</button>
+                <button onclick="loadLinearExample1()">30</button>
+                <button onclick="loadLinearExample2()">100</button>
+            </div>
+            
+            <div class="output" id="linear-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function linearSieve(n) {
+            const D = new Array(n + 1);
+            for (let i = 0; i <= n; i++) D[i] = i;
+            const primes = [];
+            
+            for (let i = 2; i < n; i++) {
+                if (D[i] === i) {
+                    primes.push(i);
+                }
+                for (const p of primes) {
+                    if (i * p > n || D[i] < p) break;
+                    D[i * p] = p;
+                }
+            }
+            return primes;
+        }
+        
+        function runLinearSieve() {
+            const n = parseInt(document.getElementById('linear-sieve-input').value);
+            
+            if (isNaN(n) || n < 2) {
+                document.getElementById('linear-output').innerHTML = 'Введите число ≥ 2';
+                return;
+            }
+            
+            const primes = linearSieve(n);
+            
+            const steps = [];
+            steps.push(`Линейное решето Эратосфена для n = ${n}`);
+            steps.push(`Всего простых чисел: ${primes.length}`);
+            steps.push(`\nПростые числа: ${primes.join(', ')}`);
+            
+            const outputDiv = document.getElementById('linear-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = primes.join(' ');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadLinearExample1() {
+            document.getElementById('linear-sieve-input').value = '30';
+            runLinearSieve();
+        }
+        
+        function loadLinearExample2() {
+            document.getElementById('linear-sieve-input').value = '100';
+            runLinearSieve();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLinearExample1();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Решето Эратосфена на отрезке [l, r]</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Решето Эратосфена на отрезке</h1>
+            <p>Поиск всех простых чисел на отрезке [l, r]</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>t, d = map(int, input().split())
+l, r = max(t - d, 1), t + d
+n = int(r ** 0.5) + 2
+
+F = [True] * (n + 1)
+F[0] = F[1] = False
+
+for i in range(2, n):
+    if F[i]:
+        for j in range(i * i, n, i):
+            F[j] = False
+
+P = [i for i, f in enumerate(F) if f]
+
+n = r - l + 1
+F = [True] * n
+
+for p in P:
+    if p * p > r:
+        break
+    s = max(p * p, ((l + p - 1) // p) * p)
+    for j in range(s, r + 1, p):
+        F[j - l] = False
+
+res = []
+for i in range(n):
+    if F[i] and (i + l) >= 2:
+        res.append(i + l)
+
+print(*res)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int t, d;
+    cin >> t >> d;
+    int l = max(t - d, 1), r = t + d;
+    
+    int n = sqrt(r) + 2;
+    vector&lt;bool&gt; F(n + 1, true);
+    F[0] = F[1] = false;
+    
+    for (int i = 2; i < n; i++) {
+        if (F[i]) {
+            for (int j = i * i; j < n; j += i) {
+                F[j] = false;
+            }
+        }
+    }
+    
+    vector&lt;int&gt; primes;
+    for (int i = 2; i < n; i++) {
+        if (F[i]) primes.push_back(i);
+    }
+    
+    int len = r - l + 1;
+    vector&lt;bool&gt; isPrime(len, true);
+    
+    for (int p : primes) {
+        if (p * p > r) break;
+        int start = max(p * p, ((l + p - 1) / p) * p);
+        for (int j = start; j <= r; j += p) {
+            isPrime[j - l] = false;
+        }
+    }
+    
+    for (int i = 0; i < len; i++) {
+        if (isPrime[i] && (i + l) >= 2) {
+            cout << i + l << " ";
+        }
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Решето Эратосфена на отрезке</h3>
+            
+            <p>Если нужно найти простые числа на отрезке [l, r], где r может быть большим (например, 10¹²), а разность (r-l) относительно невелика, используется алгоритм решета на отрезке.</p>
+            
+            <h4>Алгоритм</h4>
+            <ol>
+                <li>Находим все простые числа до √r обычным решетом Эратосфена</li>
+                <li>Создаём массив для отметки чисел на отрезке [l, r]</li>
+                <li>Для каждого простого p вычёркиваем его кратные на отрезке</li>
+                <li>Оставшиеся непомеченные числа — простые</li>
+            </ol>
+            
+            <h4>Сложность</h4>
+            <p>Временная сложность: O(√r + (r-l) log log r)</p>
+            <p>Пространственная сложность: O(r-l)</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> t d — центр отрезка и радиус (отрезок [t-d, t+d])</p>
+            <p><strong>Вывод:</strong> простые числа на отрезке</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>10 5</code></pre>
+                <p>Отрезок [5, 15]</p>
+                <p><strong>Вывод: 5 7 11 13</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>t и d:</label>
+            <input type="text" id="sieve-range-input" value="10 5">
+            
+            <div class="try-it">
+                <button onclick="runSieveRange()"><span class="paw-icon"></span> Найти простые</button>
+                <button onclick="loadRangeExample1()">10 5</button>
+                <button onclick="loadRangeExample2()">50 10</button>
+            </div>
+            
+            <div class="output" id="range-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runSieveRange() {
+            const input = document.getElementById('sieve-range-input').value.trim().split(/\s+/).map(Number);
+            
+            if (input.length < 2) {
+                document.getElementById('range-output').innerHTML = 'Введите t и d';
+                return;
+            }
+            
+            const [t, d] = input;
+            const l = Math.max(t - d, 1);
+            const r = t + d;
+            
+            const steps = [];
+            steps.push(`Отрезок [${l}, ${r}]`);
+            
+            // Шаг 1: решето до √r
+            const limit = Math.floor(Math.sqrt(r)) + 1;
+            const isPrimeSmall = new Array(limit + 1).fill(true);
+            isPrimeSmall[0] = isPrimeSmall[1] = false;
+            
+            for (let i = 2; i * i <= limit; i++) {
+                if (isPrimeSmall[i]) {
+                    for (let j = i * i; j <= limit; j += i) {
+                        isPrimeSmall[j] = false;
+                    }
+                }
+            }
+            
+            const primes = [];
+            for (let i = 2; i <= limit; i++) {
+                if (isPrimeSmall[i]) primes.push(i);
+            }
+            steps.push(`Простые до √${r} = ${limit}: [${primes.join(', ')}]`);
+            
+            // Шаг 2: решето на отрезке
+            const len = r - l + 1;
+            const isPrime = new Array(len).fill(true);
+            
+            for (const p of primes) {
+                if (p * p > r) break;
+                const start = Math.max(p * p, Math.ceil(l / p) * p);
+                steps.push(`\nВычёркиваем кратные ${p}, начиная с ${start}:`);
+                for (let j = start; j <= r; j += p) {
+                    if (isPrime[j - l]) {
+                        isPrime[j - l] = false;
+                        steps.push(`  ${j}`);
+                    }
+                }
+            }
+            
+            const result = [];
+            for (let i = 0; i < len; i++) {
+                if (isPrime[i] && (i + l) >= 2) {
+                    result.push(i + l);
+                }
+            }
+            
+            steps.push(`\nПростые числа на отрезке: [${result.join(', ')}]`);
+            
+            const outputDiv = document.getElementById('range-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = result.join(' ');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadRangeExample1() {
+            document.getElementById('sieve-range-input').value = '10 5';
+            runSieveRange();
+        }
+        
+        function loadRangeExample2() {
+            document.getElementById('sieve-range-input').value = '50 10';
+            runSieveRange();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRangeExample1();
+        });
+    </script>
+</body>
+</html>
