@@ -618,36 +618,40 @@
                 parabola: (p, x) => p.a * x * x + p.b * x + p.c,
                 hyperbola: (p, x) => p.k / x,
                 sine: (p, x) => p.a * Math.sin(p.b * x + p.c) + p.d,
-                cosine: (p, x) => p.a * Math.cos(p.b * x + p.c) + p.d,
+                cosine: (p, x) => p.a * Math.cos(p.b * x + c) + p.d,
                 exponential: (p, x) => p.a * Math.exp(p.k * x)
             };
-            
+
             const drawFormula = (type, params) => {
                 const fn = formulas[type];
                 if (!fn) return;
                 
-                // Определяем видимую область в мировых координатах
+                // Определяем видимую область в МИРОВЫХ КООРДИНАТАХ (пикселях)
                 const topLeft = screenToWorld(0, 0);
                 const bottomRight = screenToWorld(SIZE.w, SIZE.h);
-                let startX = Math.min(topLeft.x, bottomRight.x);
-                let endX = Math.max(topLeft.x, bottomRight.x);
+                let startX_px = Math.min(topLeft.x, bottomRight.x);
+                let endX_px = Math.max(topLeft.x, bottomRight.x);
                 
-                // Ограничиваем разумными пределами
-                startX = Math.max(-WORLD_W / 2, startX);
-                endX = Math.min(WORLD_W / 2, endX);
+                // Ограничиваем область построения
+                startX_px = Math.max(-WORLD_W / 2, startX_px);
+                endX_px = Math.min(WORLD_W / 2, endX_px);
                 
-                // Шаг зависит от масштаба (чем больше зум, тем мельче шаг)
-                const step = Math.max(GRID_SIZE / 20, GRID_SIZE / camera.zoom / 5);
+                // Переводим в КЛЕТКИ (математические координаты)
+                // В одной клетке = GRID_SIZE пикселей, центр координат в (0,0)
+                let startX_cell = startX_px / GRID_SIZE;
+                let endX_cell = endX_px / GRID_SIZE;
+                
+                // Шаг в клетках (зависит от масштаба, но не мельче 0.05)
+                const step = Math.max(0.05, 0.5 / camera.zoom);
                 
                 let lastPoint = null;
                 let lastValid = false;
                 
-                for (let x = startX; x <= endX; x += step) {
-                    let y;
+                for (let x_cell = startX_cell; x_cell <= endX_cell; x_cell += step) {
+                    let y_cell;
                     try {
-                        y = -fn(params, x);
-                        // Проверяем, что y — число и не слишком большое
-                        if (isNaN(y) || !isFinite(y) || Math.abs(y) > WORLD_H / 2) {
+                        y_cell = fn(params, x_cell);
+                        if (isNaN(y_cell) || !isFinite(y_cell) || Math.abs(y_cell) > 2000) {
                             lastValid = false;
                             lastPoint = null;
                             continue;
@@ -658,19 +662,22 @@
                         continue;
                     }
                     
+                    // Переводим обратно в пиксели для отрисовки
+                    const x_px = x_cell * GRID_SIZE;
+                    const y_px = -y_cell * GRID_SIZE;  // минус, потому что Y вверх
+                    
                     if (lastValid && lastPoint !== null) {
-                        // Добавляем отрезок между предыдущей и текущей точкой
                         addShape({
                             type: 'line',
                             x1: lastPoint.x,
                             y1: lastPoint.y,
-                            x2: x,
-                            y2: y,
+                            x2: x_px,
+                            y2: y_px,
                             color: state.color,
                             size: state.size
                         });
                     }
-                    lastPoint = { x, y };
+                    lastPoint = { x: x_px, y: y_px };
                     lastValid = true;
                 }
             };
@@ -923,12 +930,12 @@
                 const paramsDiv = document.getElementById('formulaParams');
                 const configs = {
                     line: () => `<input type="number" id="k" value="1" step="0.1"><input type="number" id="b" value="0" step="0.1">`,
-                    circle: () => `<input type="number" id="a" value="0" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="r" value="2" step="5">`,
+                    circle: () => `<input type="number" id="a" value="0" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="r" value="2" step="0.5">`,
                     parabola: () => `<input type="number" id="a" value="1" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="c" value="0" step="0.1">`,
-                    hyperbola: () => `<input type="number" id="k" value="50" step="10">`,
-                    sine: () => `<input type="number" id="a" value="50" step="10"><input type="number" id="b" value="0.1" step="0.01"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="10">`,
-                    cosine: () => `<input type="number" id="a" value="50" step="10"><input type="number" id="b" value="0.1" step="0.01"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="10">`,
-                    exponential: () => `<input type="number" id="a" value="10" step="5"><input type="number" id="k" value="0.05" step="0.01">`
+                    hyperbola: () => `<input type="number" id="k" value="1" step="1">`,
+                    sine: () => `<input type="number" id="a" value="1" step="1"><input type="number" id="b" value="1" step="0.1"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="1">`,
+                    cosine: () => `<input type="number" id="a" value="1" step="1"><input type="number" id="b" value="1" step="0.1"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="1">`,
+                    exponential: () => `<input type="number" id="a" value="1" step="1"><input type="number" id="k" value="0.5" step="0.1">`
                 };
                 const update = () => paramsDiv.innerHTML = configs[typeSel.value]?.() || '';
                 typeSel.addEventListener('change', update);
