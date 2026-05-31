@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Графический редактор</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        * { user-select: none; }
+        
+        .drawing-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            margin: 20px 0;
+            min-height: 800px;
+        }
+        
+        .tools-panel {
+            background: rgba(171, 205, 239, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        body.dark-theme .tools-panel {
+            background: rgba(30, 30, 50, 0.9);
+            border: 1px solid rgba(29, 30, 51, 0.5);
+        }
+        
+        .tools-section { margin-bottom: 20px; }
+        .tools-section h3 { margin-bottom: 10px; font-size: 0.9em; font-weight: 600; }
+        
+        .tool-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+        
+        .tool-btn {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: rgba(171, 205, 239, 0.2);
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        body.dark-theme .tool-btn { background: rgba(102, 126, 234, 0.2); }
+        .tool-btn:hover { transform: scale(1.05); background: rgba(171, 205, 239, 0.4); }
+        .tool-btn.active { background: #abcdef; box-shadow: 0 0 0 2px rgba(171, 205, 239, 0.5); }
+        body.dark-theme .tool-btn.active { background: #4a4aff; }
+        
+        .undo-redo { display: flex; gap: 8px; margin-bottom: 15px; }
+        .undo-redo .tool-btn { width: 48px; font-size: 18px; font-weight: 600; background: rgba(171, 205, 239, 0.25); }
+        
+        .color-picker { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+        
+        .color-option {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-option:hover { transform: scale(1.1); }
+        .color-option.active { border-color: #fff; box-shadow: 0 0 0 2px #abcdef; }
+        body.dark-theme .color-option.active { box-shadow: 0 0 0 2px #4a4aff; }
+        
+        .size-slider { width: 100%; margin: 10px 0; }
+        
+        .formula-input {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+        
+        .formula-input select, .formula-input input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(171, 205, 239, 0.3);
+            font-family: monospace;
+        }
+        
+        body.dark-theme .formula-input select,
+        body.dark-theme .formula-input input {
+            background: #2a2a3a;
+            color: #e0e0e0;
+            border-color: #4a4a5a;
+        }
+        
+        .canvas-area {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        body.dark-theme .canvas-area { background: #2a2a3a; }
+        
+        canvas {
+            width: 100%;
+            height: auto;
+            background: inherit;
+            border-radius: 15px;
+            cursor: crosshair;
+            display: block;
+            border: 1px solid rgba(171, 205, 239, 0.3);
+        }
+        
+        .canvas-controls { display: flex; justify-content: flex-end; gap: 12px; margin-top: 15px; }
+        .btn-small { padding: 6px 16px; font-size: 13px; }
+        .grid-checkbox { display: flex; align-items: center; gap: 8px; margin-right: auto; }
+        
+        .polygon-status {
+            background: rgba(171, 205, 239, 0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        body.dark-theme .polygon-status { background: rgba(102, 126, 234, 0.2); }
+        
+        .extra-functions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .extra-functions button { flex: 1; min-width: 70px; font-size: 12px; padding: 6px 10px; }
+        
+        @media (max-width: 768px) {
+            .drawing-container { grid-template-columns: 1fr; min-height: auto; }
+            .tools-panel { order: 2; }
+            .canvas-area { order: 1; }
+            .canvas-controls { flex-wrap: wrap; }
+            .grid-checkbox { order: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-btn">← На главную</a>
+        <header>
+            <h1>Графический редактор</h1>
+            <p>Рисование линий, точек, фигур, многоугольников и графиков функций</p>
+        </header>
+
+        <div class="drawing-container">
+            <div class="tools-panel">
+                <div class="undo-redo">
+                    <button class="tool-btn" id="undoBtn" title="Отменить">↩</button>
+                    <button class="tool-btn" id="redoBtn" title="Вернуть">↪</button>
+                </div>
+                
+                <div class="tools-section">
+                    <h3>Инструменты</h3>
+                    <div class="tool-buttons">
+                        <button class="tool-btn" data-tool="cursor" title="Выбрать/удалить">🖱️</button>
+                        <button class="tool-btn" data-tool="point" title="Точка">🔵</button>
+                        <button class="tool-btn" data-tool="line" title="Прямая линия">📏</button>
+                        <button class="tool-btn" data-tool="rect" title="Прямоугольник">⬛</button>
+                        <button class="tool-btn" data-tool="circle" title="Окружность">⚪</button>
+                        <button class="tool-btn" data-tool="polygon" title="Многоугольник (клики по точкам)">🔺</button>
+                        <button class="tool-btn" data-tool="freehand" title="Свободное рисование">✏️</button>
+                        <button class="tool-btn" data-tool="eraser" title="Ластик">🧽</button>
+                    </div>
+                    <div id="polygonStatus" class="polygon-status" style="display: none;">
+                        📍 Режим многоугольника: кликайте для добавления вершин.<br>
+                        <button id="finishPolygonBtn" class="btn-small" style="margin-top: 5px;">✅ Завершить многоугольник</button>
+                    </div>
+                </div>
+                
+                <div class="tools-section">
+                    <label class="grid-checkbox" style="margin: 0; justify-content: flex-start;">
+                        <input type="checkbox" id="showGrid" checked> Показать сетку
+                    </label>
+                </div>
+                
+                <div class="tools-section">
+                    <h3>Цвет</h3>
+                    <div class="color-picker">
+                        <div class="color-option" style="background: #000000;" data-color="#000000"></div>
+                        <div class="color-option" style="background: #ffffff; border: 1px solid #ccc;" data-color="#ffffff"></div>
+                        <div class="color-option" style="background: #ff0000;" data-color="#ff0000"></div>
+                        <div class="color-option" style="background: #ff6600;" data-color="#ff6600"></div>
+                        <div class="color-option" style="background: #ffcc00;" data-color="#ffcc00"></div>
+                        <div class="color-option" style="background: #00ff00;" data-color="#00ff00"></div>
+                        <div class="color-option" style="background: #00ccff;" data-color="#00ccff"></div>
+                        <div class="color-option" style="background: #0000ff;" data-color="#0000ff"></div>
+                        <div class="color-option" style="background: #9900ff;" data-color="#9900ff"></div>
+                        <div class="color-option" style="background: #ff00ff;" data-color="#ff00ff"></div>
+                        <div class="color-option" style="background: #ff69b4;" data-color="#ff69b4"></div>
+                        <div class="color-option" style="background: #00ffaa;" data-color="#00ffaa"></div>
+                    </div>
+                </div>
+                
+                <div class="tools-section">
+                    <h3>Размер</h3>
+                    <input type="range" id="brushSize" class="size-slider" min="1" max="20" value="3">
+                </div>
+                
+                <div class="tools-section">
+                    <h3>Построение по формуле</h3>
+                    <div class="formula-input">
+                        <select id="formulaType">
+                            <option value="line">Прямая: y = k·x + b</option>
+                            <option value="circle">Окружность: (x - a)² + (y - b)² = r²</option>
+                            <option value="parabola">Парабола: y = a·x² + b·x + c</option>
+                            <option value="hyperbola">Гипербола: y = k / x</option>
+                            <option value="sine">Синусоида: y = a·sin(b·x + c) + d</option>
+                            <option value="cosine">Косинусоида: y = a·cos(b·x + c) + d</option>
+                            <option value="exponential">Экспонента: y = a·e^(k·x)</option>
+                        </select>
+                        <div id="formulaParams"></div>
+                        <button id="drawFormulaBtn" class="btn-small" style="margin-top: 8px; width: 100%;">Построить</button>
+                    </div>
+                </div>
+                
+                <div class="tools-section">
+                    <h3>Рисунки (кликните на холст)</h3>
+                    <div class="extra-functions">
+                        <button id="drawStarBtn">⭐ Звезда</button>
+                        <button id="drawHeartBtn">❤️ Сердце</button>
+                        <button id="drawSmileBtn">😊 Смайлик</button>
+                        <button id="drawHouseBtn">🏠 Домик</button>
+                        <button id="drawCatBtn">🐱 Котик</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="canvas-area">
+                <canvas id="drawCanvas" width="1000" height="800"></canvas>
+                <div class="canvas-controls">
+                    <button class="btn-small" id="clearCanvasBtn">Очистить всё</button>
+                    <button class="btn-small" id="saveCanvasBtn">Сохранить как PNG</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h3>Как использовать графический редактор</h3>
+            <ul>
+                <li>Точка — клик для создания точки</li>
+                <li>Прямая линия — клик и перетаскивание</li>
+                <li>Прямоугольник — клик и перетаскивание от угла</li>
+                <li>Окружность — клик и перетаскивание от центра</li>
+                <li>Многоугольник — кликайте по точкам, нажмите "Завершить"</li>
+                <li>Свободное рисование — зажмите и рисуйте</li>
+                <li>Ластик — клик по элементу для удаления</li>
+                <li>Рисунки — выберите фигуру, затем кликните на холст</li>
+                <li>Формулы — выберите тип, введите параметры, нажмите "Построить"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        // ========== КОНФИГУРАЦИЯ ==========
+        const CONFIG = {
+            canvasWidth: 1000,
+            canvasHeight: 800,
+            gridSize: 35,
+            defaultColor: '#000000',
+            defaultBrushSize: 3,
+            maxBrushSize: 20,
+            minBrushSize: 1
+        };
+        
+        // ========== СОСТОЯНИЕ ==========
+        const state = {
+            shapes: [],
+            history: [],
+            historyIndex: -1,
+            drawing: false,
+            currentTool: 'cursor',
+            currentColor: CONFIG.defaultColor,
+            brushSize: CONFIG.defaultBrushSize,
+            startX: null, startY: null,
+            lastX: null, lastY: null,
+            polygonPoints: [],
+            selectedDrawing: null
+        };
+        
+        // ========== DOM ЭЛЕМЕНТЫ ==========
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = CONFIG.canvasWidth;
+        canvas.height = CONFIG.canvasHeight;
+        
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+        function saveToHistory() {
+            state.history = state.history.slice(0, state.historyIndex + 1);
+            state.history.push(JSON.parse(JSON.stringify(state.shapes)));
+            state.historyIndex++;
+        }
+        
+        function addShape(shape) {
+            state.shapes.push(shape);
+            saveToHistory();
+            drawGrid();
+        }
+        
+        function removeShape(index) {
+            if (index !== -1) {
+                state.shapes.splice(index, 1);
+                saveToHistory();
+                drawGrid();
+            }
+        }
+        
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: Math.min(Math.max((clientX - rect.left) * scaleX, 0), canvas.width),
+                y: Math.min(Math.max((clientY - rect.top) * scaleY, 0), canvas.height)
+            };
+        }
+        
+        function snapToGrid(x, y) {
+            if (document.getElementById('showGrid')?.checked) {
+                return {
+                    x: Math.round(x / CONFIG.gridSize) * CONFIG.gridSize,
+                    y: Math.round(y / CONFIG.gridSize) * CONFIG.gridSize
+                };
+            }
+            return { x, y };
+        }
+        
+        // ========== ОТРИСОВКА ==========
+        function drawGrid() {
+            const showGrid = document.getElementById('showGrid')?.checked;
+            const isDark = document.body.classList.contains('dark-theme');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = isDark ? '#2a2a3a' : '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (showGrid) {
+                ctx.beginPath();
+                ctx.strokeStyle = isDark ? '#4a4a5a' : '#e0e0e0';
+                ctx.lineWidth = 0.5;
+                
+                for (let x = CONFIG.gridSize; x < canvas.width; x += CONFIG.gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                
+                for (let y = CONFIG.gridSize; y < canvas.height; y += CONFIG.gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                ctx.beginPath();
+                ctx.strokeStyle = isDark ? '#888' : '#999';
+                ctx.lineWidth = 1.5;
+                
+                const centerY = canvas.height / 2;
+                ctx.moveTo(0, centerY);
+                ctx.lineTo(canvas.width, centerY);
+                ctx.stroke();
+                
+                const centerX = canvas.width / 2;
+                ctx.moveTo(centerX, 0);
+                ctx.lineTo(centerX, canvas.height);
+                ctx.stroke();
+            }
+            
+            redrawElements();
+        }
+        
+        function redrawElements() {
+            for (const shape of state.shapes) {
+                ctx.beginPath();
+                ctx.strokeStyle = shape.color;
+                ctx.fillStyle = shape.color;
+                ctx.lineWidth = shape.size;
+                
+                switch (shape.type) {
+                    case 'point':
+                        ctx.arc(shape.x, shape.y, shape.size, 0, 2 * Math.PI);
+                        ctx.fill();
+                        break;
+                    case 'line':
+                        ctx.moveTo(shape.x1, shape.y1);
+                        ctx.lineTo(shape.x2, shape.y2);
+                        ctx.stroke();
+                        break;
+                    case 'rect':
+                        ctx.strokeRect(shape.x, shape.y, shape.w, shape.h);
+                        break;
+                    case 'circle':
+                        ctx.arc(shape.x, shape.y, shape.r, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        break;
+                    case 'polygon':
+                        if (shape.points.length < 2) break;
+                        ctx.moveTo(shape.points[0].x, shape.points[0].y);
+                        for (let i = 1; i < shape.points.length; i++) {
+                            ctx.lineTo(shape.points[i].x, shape.points[i].y);
+                        }
+                        ctx.closePath();
+                        ctx.stroke();
+                        break;
+                    case 'freehand':
+                        for (let i = 1; i < shape.points.length; i++) {
+                            ctx.beginPath();
+                            ctx.moveTo(shape.points[i-1].x, shape.points[i-1].y);
+                            ctx.lineTo(shape.points[i].x, shape.points[i].y);
+                            ctx.stroke();
+                        }
+                        break;
+                }
+            }
+        }
+        
+        // ========== ФИГУРЫ ==========
+        function createStar(cx, cy) {
+            const outerR = 40, innerR = 18;
+            const points = 5;
+            let angle = Math.PI / 2;
+            const step = Math.PI / points;
+            const starPoints = [];
+            
+            for (let i = 0; i < points * 2; i++) {
+                const r = (i % 2 === 0) ? outerR : innerR;
+                starPoints.push({
+                    x: cx + r * Math.cos(angle),
+                    y: cy - r * Math.sin(angle)
+                });
+                angle += step;
+            }
+            
+            addShape({ type: 'polygon', points: starPoints, color: state.currentColor, size: state.brushSize });
+        }
+        
+        function createHeart(cx, cy) {
+            const scale = 1.5;
+            const points = [];
+            for (let t = 0; t <= 2 * Math.PI; t += 0.05) {
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+                points.push({ x: cx + x * scale, y: cy - y * scale });
+            }
+            addShape({ type: 'polygon', points, color: state.currentColor, size: state.brushSize });
+        }
+        
+        function createSmile(cx, cy) {
+            const r = 35;
+            addShape({ type: 'circle', x: cx, y: cy, r: r, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'point', x: cx - 14, y: cy - 10, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'point', x: cx + 14, y: cy - 10, color: state.currentColor, size: state.brushSize });
+            
+            const smilePoints = [];
+            for (let angle = 0.2; angle <= Math.PI - 0.2; angle += 0.05) {
+                smilePoints.push({ x: cx + 22 * Math.cos(angle), y: cy + 15 * Math.sin(angle) });
+            }
+            addShape({ type: 'polygon', points: smilePoints, color: state.currentColor, size: state.brushSize });
+        }
+        
+        function createHouse(cx, cy) {
+            const w = 60, h = 50;
+            addShape({ type: 'rect', x: cx - w/2, y: cy - h/2, w, h, color: state.currentColor, size: state.brushSize });
+            
+            const roofPoints = [
+                { x: cx - w/2 - 8, y: cy - h/2 },
+                { x: cx, y: cy - h/2 - 35 },
+                { x: cx + w/2 + 8, y: cy - h/2 }
+            ];
+            addShape({ type: 'polygon', points: roofPoints, color: state.currentColor, size: state.brushSize });
+        }
+        
+        function createCat(cx, cy) {
+            addShape({ type: 'circle', x: cx, y: cy, r: 30, color: state.currentColor, size: state.brushSize });
+            
+            const earLeft = [{ x: cx - 22, y: cy - 25 }, { x: cx - 35, y: cy - 48 }, { x: cx - 12, y: cy - 38 }];
+            const earRight = [{ x: cx + 22, y: cy - 25 }, { x: cx + 35, y: cy - 48 }, { x: cx + 12, y: cy - 38 }];
+            addShape({ type: 'polygon', points: earLeft, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'polygon', points: earRight, color: state.currentColor, size: state.brushSize });
+            
+            addShape({ type: 'point', x: cx - 11, y: cy - 6, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'point', x: cx + 11, y: cy - 6, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'point', x: cx, y: cy + 3, color: state.currentColor, size: state.brushSize });
+            
+            addShape({ type: 'line', x1: cx - 18, y1: cy + 3, x2: cx - 6, y2: cy + 3, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'line', x1: cx + 18, y1: cy + 3, x2: cx + 6, y2: cy + 3, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'line', x1: cx - 17, y1: cy + 9, x2: cx - 5, y2: cy + 6, color: state.currentColor, size: state.brushSize });
+            addShape({ type: 'line', x1: cx + 17, y1: cy + 9, x2: cx + 5, y2: cy + 6, color: state.currentColor, size: state.brushSize });
+        }
+        
+        // ========== ОБРАБОТЧИКИ МЫШИ ==========
+        function finishPolygon() {
+            if (state.polygonPoints.length >= 3) {
+                addShape({ type: 'polygon', points: [...state.polygonPoints], color: state.currentColor, size: state.brushSize });
+            }
+            state.polygonPoints = [];
+            document.getElementById('polygonStatus').style.display = 'none';
+            if (state.currentTool === 'polygon') {
+                state.currentTool = 'cursor';
+                document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-tool="cursor"]').classList.add('active');
+            }
+        }
+        
+        function onMouseDown(e) {
+            e.preventDefault();
+            const { x, y } = getCanvasCoords(e);
+            const snapped = snapToGrid(x, y);
+            
+            if (state.selectedDrawing) {
+                const drawings = { star: createStar, heart: createHeart, smile: createSmile, house: createHouse, cat: createCat };
+                drawings[state.selectedDrawing]?.(snapped.x, snapped.y);
+                state.selectedDrawing = null;
+                document.querySelectorAll('.extra-functions button').forEach(btn => btn.classList.remove('active'));
+                return;
+            }
+            
+            if (state.currentTool === 'polygon') {
+                state.polygonPoints.push(snapped);
+                document.getElementById('polygonStatus').style.display = 'block';
+                drawGrid();
+                for (let p of state.polygonPoints) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, state.brushSize, 0, 2 * Math.PI);
+                    ctx.fillStyle = state.currentColor;
+                    ctx.fill();
+                }
+                if (state.polygonPoints.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(state.polygonPoints[0].x, state.polygonPoints[0].y);
+                    for (let i = 1; i < state.polygonPoints.length; i++) {
+                        ctx.lineTo(state.polygonPoints[i].x, state.polygonPoints[i].y);
+                    }
+                    ctx.strokeStyle = state.currentColor;
+                    ctx.lineWidth = state.brushSize;
+                    ctx.stroke();
+                }
+                return;
+            }
+            
+            state.drawing = true;
+            state.startX = snapped.x;
+            state.startY = snapped.y;
+            state.lastX = snapped.x;
+            state.lastY = snapped.y;
+            
+            if (state.currentTool === 'point') {
+                addShape({ type: 'point', x: snapped.x, y: snapped.y, color: state.currentColor, size: state.brushSize });
+                state.drawing = false;
+            } else if (state.currentTool === 'eraser' || state.currentTool === 'cursor') {
+                const index = findShapeAt(snapped.x, snapped.y);
+                if (index !== -1) removeShape(index);
+                state.drawing = false;
+            }
+        }
+        
+        function onMouseMove(e) {
+            if (!state.drawing) return;
+            e.preventDefault();
+            const { x, y } = getCanvasCoords(e);
+            const snapped = snapToGrid(x, y);
+            
+            if (state.currentTool === 'freehand') {
+                addShape({ type: 'line', x1: state.lastX, y1: state.lastY, x2: snapped.x, y2: snapped.y, color: state.currentColor, size: state.brushSize });
+                state.lastX = snapped.x;
+                state.lastY = snapped.y;
+            } else if ((state.currentTool === 'line' || state.currentTool === 'rect' || state.currentTool === 'circle') && state.startX !== null) {
+                drawGrid();
+                ctx.beginPath();
+                if (state.currentTool === 'line') {
+                    ctx.moveTo(state.startX, state.startY);
+                    ctx.lineTo(snapped.x, snapped.y);
+                } else if (state.currentTool === 'rect') {
+                    ctx.strokeRect(state.startX, state.startY, snapped.x - state.startX, snapped.y - state.startY);
+                } else if (state.currentTool === 'circle') {
+                    const r = Math.hypot(snapped.x - state.startX, snapped.y - state.startY);
+                    ctx.arc(state.startX, state.startY, r, 0, 2 * Math.PI);
+                }
+                ctx.strokeStyle = state.currentColor;
+                ctx.lineWidth = state.brushSize;
+                ctx.stroke();
+            }
+        }
+        
+        function onMouseUp(e) {
+            if (!state.drawing) return;
+            e.preventDefault();
+            const { x, y } = getCanvasCoords(e);
+            const snapped = snapToGrid(x, y);
+            
+            if (state.currentTool === 'line' && state.startX !== null) {
+                addShape({ type: 'line', x1: state.startX, y1: state.startY, x2: snapped.x, y2: snapped.y, color: state.currentColor, size: state.brushSize });
+            } else if (state.currentTool === 'rect' && state.startX !== null) {
+                addShape({ type: 'rect', x: state.startX, y: state.startY, w: snapped.x - state.startX, h: snapped.y - state.startY, color: state.currentColor, size: state.brushSize });
+            } else if (state.currentTool === 'circle' && state.startX !== null) {
+                const r = Math.hypot(snapped.x - state.startX, snapped.y - state.startY);
+                addShape({ type: 'circle', x: state.startX, y: state.startY, r, color: state.currentColor, size: state.brushSize });
+            }
+            
+            state.startX = null;
+            state.startY = null;
+            state.drawing = false;
+            drawGrid();
+        }
+        
+        // ========== ПОИСК ФИГУР ==========
+        function findShapeAt(x, y) {
+            for (let i = state.shapes.length - 1; i >= 0; i--) {
+                const shape = state.shapes[i];
+                if (shape.type === 'point' && Math.hypot(x - shape.x, y - shape.y) < shape.size + 5) return i;
+                if (shape.type === 'line' && pointToLineDistance(x, y, shape.x1, shape.y1, shape.x2, shape.y2) < shape.size + 5) return i;
+                if (shape.type === 'rect' && x >= shape.x && x <= shape.x + shape.w && y >= shape.y && y <= shape.y + shape.h) return i;
+                if (shape.type === 'circle' && Math.abs(Math.hypot(x - shape.x, y - shape.y) - shape.r) < shape.size + 5) return i;
+                if (shape.type === 'polygon' && isPointInPolygon(x, y, shape.points)) return i;
+                if (shape.type === 'freehand' && shape.points.some(p => Math.hypot(x - p.x, y - p.y) < shape.size + 5)) return i;
+            }
+            return -1;
+        }
+        
+        function isPointInPolygon(px, py, points) {
+            let inside = false;
+            for (let i = 0, j = points.length-1; i < points.length; j = i++) {
+                const xi = points[i].x, yi = points[i].y;
+                const xj = points[j].x, yj = points[j].y;
+                const intersect = ((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+        
+        function pointToLineDistance(px, py, x1, y1, x2, y2) {
+            const A = px - x1, B = py - y1;
+            const C = x2 - x1, D = y2 - y1;
+            const dot = A * C + B * D;
+            const len2 = C * C + D * D;
+            let t = len2 !== 0 ? dot / len2 : -1;
+            
+            let xx, yy;
+            if (t < 0) { xx = x1; yy = y1; }
+            else if (t > 1) { xx = x2; yy = y2; }
+            else { xx = x1 + t * C; yy = y1 + t * D; }
+            
+            return Math.hypot(px - xx, py - yy);
+        }
+        
+        // ========== ФОРМУЛЫ ==========
+        function drawFormula(type, params) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const scale = CONFIG.gridSize;
+            
+            const formulas = {
+                line: (x) => params.k * x + params.b,
+                parabola: (x) => params.a * x * x + params.b * x + params.c,
+                hyperbola: (x) => params.k / x,
+                sine: (x) => params.a * Math.sin(params.b * x + params.c) + params.d,
+                cosine: (x) => params.a * Math.cos(params.b * x + params.c) + params.d,
+                exponential: (x) => params.a * Math.exp(params.k * x)
+            };
+            
+            const fn = formulas[type];
+            if (!fn) return;
+            
+            for (let screenX = 0; screenX < canvas.width; screenX++) {
+                const x = (screenX - centerX) / scale;
+                let y;
+                try {
+                    y = fn(x);
+                } catch { continue; }
+                const screenY = centerY - y * scale;
+                if (screenY >= 0 && screenY <= canvas.height && screenX > 0) {
+                    const prevX = screenX - 1;
+                    const prevXworld = (prevX - centerX) / scale;
+                    let prevY;
+                    try {
+                        prevY = fn(prevXworld);
+                    } catch { continue; }
+                    const prevScreenY = centerY - prevY * scale;
+                    addShape({ type: 'line', x1: prevX, y1: prevScreenY, x2: screenX, y2: screenY, color: state.currentColor, size: state.brushSize });
+                }
+            }
+        }
+        
+        // ========== НАСТРОЙКИ ИНТЕРФЕЙСА ==========
+        function setupTools() {
+            document.querySelectorAll('[data-tool]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (state.currentTool === 'polygon' && state.polygonPoints.length) finishPolygon();
+                    document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currentTool = btn.dataset.tool;
+                    state.selectedDrawing = null;
+                    document.querySelectorAll('.extra-functions button').forEach(b => b.classList.remove('active'));
+                    if (state.currentTool !== 'polygon') {
+                        state.polygonPoints = [];
+                        document.getElementById('polygonStatus').style.display = 'none';
+                        drawGrid();
+                    }
+                });
+            });
+        }
+        
+        function setupColors() {
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    state.currentColor = opt.dataset.color;
+                });
+            });
+        }
+        
+        function setupExtraFunctions() {
+            const drawings = { drawStarBtn: 'star', drawHeartBtn: 'heart', drawSmileBtn: 'smile', drawHouseBtn: 'house', drawCatBtn: 'cat' };
+            Object.entries(drawings).forEach(([id, name]) => {
+                document.getElementById(id).addEventListener('click', () => {
+                    state.selectedDrawing = name;
+                    document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+                    state.currentTool = null;
+                    document.querySelectorAll('.extra-functions button').forEach(b => b.classList.remove('active'));
+                    document.getElementById(id).classList.add('active');
+                });
+            });
+        }
+        
+        function setupFormulaInput() {
+            const typeSelect = document.getElementById('formulaType');
+            const paramsDiv = document.getElementById('formulaParams');
+            
+            const paramConfigs = {
+                line: () => `<input type="number" id="k" placeholder="k (наклон)" value="1" step="0.1">
+                             <input type="number" id="b" placeholder="b (смещение)" value="0" step="0.1">`,
+                circle: () => `<input type="number" id="a" placeholder="a (центр x)" value="0" step="0.1">
+                              <input type="number" id="b" placeholder="b (центр y)" value="0" step="0.1">
+                              <input type="number" id="r" placeholder="r (радиус)" value="1" step="5">`,
+                parabola: () => `<input type="number" id="a" placeholder="a" value="1" step="0.1">
+                                <input type="number" id="b" placeholder="b" value="0" step="0.1">
+                                <input type="number" id="c" placeholder="c" value="0" step="0.1">`,
+                hyperbola: () => `<input type="number" id="k" placeholder="k" value="1" step="10">`,
+                sine: () => `<input type="number" id="a" placeholder="Амплитуда a" value="1" step="10">
+                            <input type="number" id="b" placeholder="Частота b" value="1" step="0.01">
+                            <input type="number" id="c" placeholder="Сдвиг c" value="0" step="0.1">
+                            <input type="number" id="d" placeholder="Смещение d" value="0" step="10">`,
+                cosine: () => `<input type="number" id="a" placeholder="Амплитуда a" value="1" step="10">
+                              <input type="number" id="b" placeholder="Частота b" value="1" step="0.01">
+                              <input type="number" id="c" placeholder="Сдвиг c" value="0" step="0.1">
+                              <input type="number" id="d" placeholder="Смещение d" value="0" step="10">`,
+                exponential: () => `<input type="number" id="a" placeholder="Коэффициент a" value="1" step="5">
+                                   <input type="number" id="k" placeholder="Показатель k" value="1" step="0.01">`
+            };
+            
+            function updateParams() {
+                const type = typeSelect.value;
+                paramsDiv.innerHTML = paramConfigs[type]?.() || '';
+            }
+            
+            typeSelect.addEventListener('change', updateParams);
+            updateParams();
+            
+            document.getElementById('drawFormulaBtn').addEventListener('click', () => {
+                const type = typeSelect.value;
+                const getVal = (id) => parseFloat(document.getElementById(id)?.value);
+                
+                const paramsMap = {
+                    line: () => ({ k: getVal('k'), b: getVal('b') }),
+                    circle: () => ({ a: getVal('a'), b: getVal('b'), r: getVal('r') }),
+                    parabola: () => ({ a: getVal('a'), b: getVal('b'), c: getVal('c') }),
+                    hyperbola: () => ({ k: getVal('k') }),
+                    sine: () => ({ a: getVal('a'), b: getVal('b'), c: getVal('c'), d: getVal('d') }),
+                    cosine: () => ({ a: getVal('a'), b: getVal('b'), c: getVal('c'), d: getVal('d') }),
+                    exponential: () => ({ a: getVal('a'), k: getVal('k') })
+                };
+                
+                const params = paramsMap[type]?.();
+                if (params && Object.values(params).every(v => !isNaN(v))) {
+                    if (type === 'circle') {
+                        const centerX = canvas.width / 2 + params.a * CONFIG.gridSize;
+                        const centerY = canvas.height / 2 - params.b * CONFIG.gridSize;
+                        addShape({ type: 'circle', x: centerX, y: centerY, r: params.r * CONFIG.gridSize, color: state.currentColor, size: state.brushSize });
+                    } else {
+                        drawFormula(type, params);
+                    }
+                }
+            });
+        }
+        
+        // ========== ОБЩИЕ НАСТРОЙКИ ==========
+        function init() {
+            saveToHistory();
+            drawGrid();
+            
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mouseup', onMouseUp);
+            canvas.addEventListener('touchstart', e => { e.preventDefault(); onMouseDown(e); });
+            canvas.addEventListener('touchmove', e => { e.preventDefault(); onMouseMove(e); });
+            canvas.addEventListener('touchend', e => { e.preventDefault(); onMouseUp(e); });
+            
+            document.getElementById('showGrid').addEventListener('change', () => drawGrid());
+            document.getElementById('clearCanvasBtn').addEventListener('click', () => { state.shapes = []; saveToHistory(); drawGrid(); });
+            document.getElementById('saveCanvasBtn').addEventListener('click', () => {
+                const link = document.createElement('a');
+                link.download = 'drawing.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+            document.getElementById('undoBtn').addEventListener('click', () => { if (state.historyIndex > 0) { state.historyIndex--; state.shapes = JSON.parse(JSON.stringify(state.history[state.historyIndex])); drawGrid(); } });
+            document.getElementById('redoBtn').addEventListener('click', () => { if (state.historyIndex < state.history.length - 1) { state.historyIndex++; state.shapes = JSON.parse(JSON.stringify(state.history[state.historyIndex])); drawGrid(); } });
+            document.getElementById('finishPolygonBtn').addEventListener('click', () => finishPolygon());
+            document.getElementById('brushSize').addEventListener('input', (e) => { state.brushSize = parseInt(e.target.value); });
+            
+            setupTools();
+            setupColors();
+            setupExtraFunctions();
+            setupFormulaInput();
+            
+            const observer = new MutationObserver(() => drawGrid());
+            observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        }
+        
+        init();
+    </script>
+</body>
+</html>
