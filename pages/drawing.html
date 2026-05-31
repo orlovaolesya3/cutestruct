@@ -290,7 +290,7 @@
             </div>
             
             <div class="canvas-area">
-                <canvas id="drawCanvas" width="500" height="500"></canvas>
+                <canvas id="drawCanvas" width="900" height="900"></canvas>
                 <div class="zoom-info" id="zoomInfo">100%</div>
             </div>
         </div>
@@ -302,9 +302,9 @@
             // ========== КОНСТАНТЫ ==========
             const SIZE = { w: 900, h: 900 };
             const GRID_SIZE = 35;
-            const WORLD_W = 900 * GRID_SIZE;
-            const WORLD_H = 900 * GRID_SIZE;
-            const MIN_ZOOM = 0.3, MAX_ZOOM = 3;
+            const WORLD_W = 2000 * GRID_SIZE;
+            const WORLD_H = 2000 * GRID_SIZE;
+            const MIN_ZOOM = 0.3, MAX_ZOOM = 4;
             
             // ========== DOM ==========
             const canvas = document.getElementById('drawCanvas');
@@ -332,6 +332,12 @@
                 panStart: null,
                 camStart: null
             };
+            
+            // ========== ДЛЯ ЗУМА ПАЛЬЦАМИ ==========
+            let initialPinchDistance = 0;
+            let initialZoom = 1;
+            let pinchActive = false;
+            let pinchCenter = null;
             
             // ========== ФУНКЦИИ КАМЕРЫ ==========
             const worldToScreen = (x, y) => ({
@@ -619,15 +625,53 @@
             const drawFormula = (type, params) => {
                 const fn = formulas[type];
                 if (!fn) return;
-                const startX = -WORLD_W/2;
-                const endX = WORLD_W/2;
-                let last = { x: startX, y: fn(params, startX) };
-                if (isNaN(last.y) || !isFinite(last.y)) last.y = 0;
-                for (let x = startX + GRID_SIZE/4; x <= endX; x += GRID_SIZE/4) {
-                    let y = fn(params, x);
-                    if (isNaN(y) || !isFinite(y)) { last = { x, y: 0 }; continue; }
-                    addShape({ type: 'line', x1: last.x, y1: last.y, x2: x, y2: y, color: state.color, size: state.size });
-                    last = { x, y };
+                
+                // Определяем видимую область в мировых координатах
+                const topLeft = screenToWorld(0, 0);
+                const bottomRight = screenToWorld(SIZE.w, SIZE.h);
+                let startX = Math.min(topLeft.x, bottomRight.x);
+                let endX = Math.max(topLeft.x, bottomRight.x);
+                
+                // Ограничиваем разумными пределами
+                startX = Math.max(-WORLD_W / 2, startX);
+                endX = Math.min(WORLD_W / 2, endX);
+                
+                // Шаг зависит от масштаба (чем больше зум, тем мельче шаг)
+                const step = Math.max(GRID_SIZE / 20, GRID_SIZE / camera.zoom / 5);
+                
+                let lastPoint = null;
+                let lastValid = false;
+                
+                for (let x = startX; x <= endX; x += step) {
+                    let y;
+                    try {
+                        y = -fn(params, x);
+                        // Проверяем, что y — число и не слишком большое
+                        if (isNaN(y) || !isFinite(y) || Math.abs(y) > WORLD_H / 2) {
+                            lastValid = false;
+                            lastPoint = null;
+                            continue;
+                        }
+                    } catch(e) {
+                        lastValid = false;
+                        lastPoint = null;
+                        continue;
+                    }
+                    
+                    if (lastValid && lastPoint !== null) {
+                        // Добавляем отрезок между предыдущей и текущей точкой
+                        addShape({
+                            type: 'line',
+                            x1: lastPoint.x,
+                            y1: lastPoint.y,
+                            x2: x,
+                            y2: y,
+                            color: state.color,
+                            size: state.size
+                        });
+                    }
+                    lastPoint = { x, y };
+                    lastValid = true;
                 }
             };
             
@@ -769,6 +813,73 @@
                 draw();
             };
             
+            // ========== ОБРАБОТКА МУЛЬТИТАЧА ДЛЯ ЗУМА ==========
+            const getTouchDistance = (touches) => {
+                const dx = touches[0].clientX - touches[1].clientX;
+                const dy = touches[0].clientY - touches[1].clientY;
+                return Math.hypot(dx, dy);
+            };
+            
+            const getTouchCenter = (touches) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = (touches[0].clientX + touches[1].clientX) / 2;
+                const y = (touches[0].clientY + touches[1].clientY) / 2;
+                const sx = (x - rect.left) * (SIZE.w / rect.width);
+                const sy = (y - rect.top) * (SIZE.h / rect.height);
+                return { x: sx, y: sy };
+            };
+            
+            const onTouchStart = (e) => {
+                e.preventDefault();
+                if (e.touches.length === 2) {
+                    pinchActive = true;
+                    initialPinchDistance = getTouchDistance(e.touches);
+                    initialZoom = camera.zoom;
+                    const center = getTouchCenter(e.touches);
+                    pinchCenter = center;
+                } else if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => {} };
+                    onPointerDown(fakeEvent);
+                }
+            };
+            
+            const onTouchMove = (e) => {
+                e.preventDefault();
+                if (e.touches.length === 2 && pinchActive) {
+                    const newDistance = getTouchDistance(e.touches);
+                    const delta = newDistance / initialPinchDistance;
+                    if (delta > 0.01) {
+                        const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, initialZoom * delta));
+                        if (newZoom !== camera.zoom && pinchCenter) {
+                            const before = screenToWorld(pinchCenter.x, pinchCenter.y);
+                            camera.zoom = newZoom;
+                            const after = screenToWorld(pinchCenter.x, pinchCenter.y);
+                            camera.x += before.x - after.x;
+                            camera.y += before.y - after.y;
+                            clampCamera();
+                            updateZoomInfo();
+                            draw();
+                        }
+                    }
+                } else if (e.touches.length === 1 && !state.panning) {
+                    const touch = e.touches[0];
+                    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => {} };
+                    onPointerMove(fakeEvent);
+                }
+            };
+            
+            const onTouchEnd = (e) => {
+                e.preventDefault();
+                pinchActive = false;
+                if (state.drawing || state.panning) {
+                    onPointerUp({ clientX: 0, clientY: 0 });
+                }
+                state.panning = false;
+                state.drawing = false;
+                canvas.style.cursor = 'crosshair';
+            };
+            
             // ========== НАСТРОЙКИ ИНТЕРФЕЙСА ==========
             const setupTools = () => {
                 document.querySelectorAll('[data-tool]').forEach(btn => {
@@ -812,16 +923,17 @@
                 const paramsDiv = document.getElementById('formulaParams');
                 const configs = {
                     line: () => `<input type="number" id="k" value="1" step="0.1"><input type="number" id="b" value="0" step="0.1">`,
-                    circle: () => `<input type="number" id="a" value="0" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="r" value="1" step="5">`,
+                    circle: () => `<input type="number" id="a" value="0" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="r" value="2" step="5">`,
                     parabola: () => `<input type="number" id="a" value="1" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="c" value="0" step="0.1">`,
-                    hyperbola: () => `<input type="number" id="k" value="1" step="10">`,
-                    sine: () => `<input type="number" id="a" value="1" step="10"><input type="number" id="b" value="1" step="0.01"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="10">`,
-                    cosine: () => `<input type="number" id="a" value="1" step="10"><input type="number" id="b" value="1" step="0.01"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="10">`,
-                    exponential: () => `<input type="number" id="a" value="1" step="5"><input type="number" id="k" value="1" step="0.01">`
+                    hyperbola: () => `<input type="number" id="k" value="50" step="10">`,
+                    sine: () => `<input type="number" id="a" value="50" step="10"><input type="number" id="b" value="0.1" step="0.01"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="10">`,
+                    cosine: () => `<input type="number" id="a" value="50" step="10"><input type="number" id="b" value="0.1" step="0.01"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="10">`,
+                    exponential: () => `<input type="number" id="a" value="10" step="5"><input type="number" id="k" value="0.05" step="0.01">`
                 };
                 const update = () => paramsDiv.innerHTML = configs[typeSel.value]?.() || '';
                 typeSel.addEventListener('change', update);
                 update();
+                
                 document.getElementById('drawFormulaBtn').addEventListener('click', () => {
                     const type = typeSel.value;
                     const get = (id) => parseFloat(document.getElementById(id)?.value);
@@ -837,8 +949,21 @@
                     const p = maps[type]?.();
                     if (p && Object.values(p).every(v => !isNaN(v))) {
                         if (type === 'circle') {
-                            addShape({ type: 'circle', x: p.a * GRID_SIZE, y: -p.b * GRID_SIZE, r: p.r * GRID_SIZE, color: state.color, size: state.size });
-                        } else drawFormula(type, p);
+                            // Окружность в мировых координатах
+                            const centerX = p.a * GRID_SIZE;
+                            const centerY = -p.b * GRID_SIZE;
+                            const radius = p.r * GRID_SIZE;
+                            addShape({
+                                type: 'circle',
+                                x: centerX,
+                                y: centerY,
+                                r: radius,
+                                color: state.color,
+                                size: state.size
+                            });
+                        } else {
+                            drawFormula(type, p);
+                        }
                     }
                 });
             };
@@ -858,22 +983,10 @@
                 canvas.addEventListener('pointerup', onPointerUp);
                 canvas.addEventListener('contextmenu', e => e.preventDefault());
                 
-                canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => {} };
-                    onPointerDown(fakeEvent);
-                });
-                canvas.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => {} };
-                    onPointerMove(fakeEvent);
-                });
-                canvas.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    onPointerUp({ clientX: 0, clientY: 0 });
-                });
+                canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+                canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+                canvas.addEventListener('touchend', onTouchEnd);
+                canvas.addEventListener('touchcancel', onTouchEnd);
             };
             
             // ========== ИНИЦИАЛИЗАЦИЯ ==========
