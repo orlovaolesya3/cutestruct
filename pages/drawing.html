@@ -619,7 +619,7 @@
                 parabola: (p, x) => p.a * x * x + p.b * x + p.c,
                 hyperbola: (p, x) => p.k / x,
                 sine: (p, x) => p.a * Math.sin(p.b * x + p.c) + p.d,
-                cosine: (p, x) => p.a * Math.cos(p.b * x + c) + p.d,
+                cosine: (p, x) => p.a * Math.cos(p.b * x + p.c) + p.d,
                 exponential: (p, x) => p.a * Math.exp(p.k * x)
             };
 
@@ -627,23 +627,24 @@
                 const fn = formulas[type];
                 if (!fn) return;
                 
-                // Определяем видимую область в МИРОВЫХ КООРДИНАТАХ (пикселях)
+                // Определяем видимую область в ПИКСЕЛЯХ
                 const topLeft = screenToWorld(0, 0);
                 const bottomRight = screenToWorld(SIZE.w, SIZE.h);
                 let startX_px = Math.min(topLeft.x, bottomRight.x);
                 let endX_px = Math.max(topLeft.x, bottomRight.x);
                 
-                // Ограничиваем область построения
                 startX_px = Math.max(-WORLD_W / 2, startX_px);
                 endX_px = Math.min(WORLD_W / 2, endX_px);
                 
                 // Переводим в КЛЕТКИ (математические координаты)
-                // В одной клетке = GRID_SIZE пикселей, центр координат в (0,0)
                 let startX_cell = startX_px / GRID_SIZE;
                 let endX_cell = endX_px / GRID_SIZE;
                 
-                // Шаг в клетках (зависит от масштаба, но не мельче 0.05)
+                // Шаг в клетках
                 const step = Math.max(0.05, 0.5 / camera.zoom);
+                
+                // Для гиперболы строим отдельно левую и правую ветви
+                const isHyperbola = (type === 'hyperbola');
                 
                 let lastPoint = null;
                 let lastValid = false;
@@ -652,6 +653,14 @@
                     let y_cell;
                     try {
                         y_cell = fn(params, x_cell);
+                        
+                        // Для гиперболы: пропускаем x = 0 и точки рядом с разрывом
+                        if (isHyperbola && Math.abs(x_cell) < 0.05) {
+                            lastValid = false;
+                            lastPoint = null;
+                            continue;
+                        }
+                        
                         if (isNaN(y_cell) || !isFinite(y_cell) || Math.abs(y_cell) > 2000) {
                             lastValid = false;
                             lastPoint = null;
@@ -663,9 +672,20 @@
                         continue;
                     }
                     
-                    // Переводим обратно в пиксели для отрисовки
+                    // Переводим обратно в пиксели
                     const x_px = x_cell * GRID_SIZE;
-                    const y_px = -y_cell * GRID_SIZE;  // минус, потому что Y вверх
+                    const y_px = -y_cell * GRID_SIZE;
+                    
+                    // Для гиперболы: если предыдущая точка была и знак x изменился, не соединяем
+                    if (isHyperbola && lastPoint) {
+                        const prevX_cell = lastPoint.x / GRID_SIZE;
+                        if ((prevX_cell < 0 && x_cell > 0) || (prevX_cell > 0 && x_cell < 0)) {
+                            // Переход через разрыв — не соединяем
+                            lastPoint = { x: x_px, y: y_px };
+                            lastValid = true;
+                            continue;
+                        }
+                    }
                     
                     if (lastValid && lastPoint !== null) {
                         addShape({
@@ -933,7 +953,7 @@
                     line: () => `<input type="number" id="k" value="1" step="0.1"><input type="number" id="b" value="0" step="0.1">`,
                     circle: () => `<input type="number" id="a" value="0" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="r" value="2" step="0.5">`,
                     parabola: () => `<input type="number" id="a" value="1" step="0.1"><input type="number" id="b" value="0" step="0.1"><input type="number" id="c" value="0" step="0.1">`,
-                    hyperbola: () => `<input type="number" id="k" value="1" step="1">`,
+                    hyperbola: () => `<input type="number" id="k" value="2" step="0.5">`,
                     sine: () => `<input type="number" id="a" value="1" step="1"><input type="number" id="b" value="1" step="0.1"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="1">`,
                     cosine: () => `<input type="number" id="a" value="1" step="1"><input type="number" id="b" value="1" step="0.1"><input type="number" id="c" value="0" step="0.1"><input type="number" id="d" value="0" step="1">`,
                     exponential: () => `<input type="number" id="a" value="1" step="1"><input type="number" id="k" value="0.5" step="0.1">`
