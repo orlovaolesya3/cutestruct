@@ -7,7 +7,10 @@
     <title>Графический редактор</title>
     <link rel="stylesheet" href="../style.css">
     <style>
-        * { user-select: none; }
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
         
         .drawing-container {
             display: grid;
@@ -100,13 +103,14 @@
             padding: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             position: relative;
+            overflow: hidden;
         }
         
         body.dark-theme .canvas-area { background: #2a2a3a; }
         
         canvas {
             width: 100%;
-            height: auto;
+            height: 100%;
             background: inherit;
             border-radius: 15px;
             cursor: crosshair;
@@ -131,6 +135,20 @@
         
         .extra-functions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .extra-functions button { flex: 1; min-width: 70px; font-size: 12px; padding: 6px 10px; }
+        
+        .zoom-info {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 10;
+        }
         
         @media (max-width: 768px) {
             .drawing-container { grid-template-columns: 1fr; min-height: auto; }
@@ -159,14 +177,14 @@
                 <div class="tools-section">
                     <h3>Инструменты</h3>
                     <div class="tool-buttons">
-                        <button class="tool-btn" data-tool="cursor" title="Выбрать/удалить">🖱️</button>
+                        <button class="tool-btn" data-tool="cursor" title="Перемещение (зажать для панорамирования)">🖱️</button>
                         <button class="tool-btn" data-tool="point" title="Точка">🔵</button>
                         <button class="tool-btn" data-tool="line" title="Прямая линия">📏</button>
                         <button class="tool-btn" data-tool="rect" title="Прямоугольник">⬛</button>
                         <button class="tool-btn" data-tool="circle" title="Окружность">⚪</button>
                         <button class="tool-btn" data-tool="polygon" title="Многоугольник (клики по точкам)">🔺</button>
                         <button class="tool-btn" data-tool="freehand" title="Свободное рисование">✏️</button>
-                        <button class="tool-btn" data-tool="eraser" title="Ластик">🧽</button>
+                        <button class="tool-btn" data-tool="eraser" title="Ластик (кисть)">🧽</button>
                     </div>
                     <div id="polygonStatus" class="polygon-status" style="display: none;">
                         📍 Режим многоугольника: кликайте для добавления вершин.<br>
@@ -233,8 +251,10 @@
             </div>
             
             <div class="canvas-area">
-                <canvas id="drawCanvas" width="1000" height="800"></canvas>
+                <canvas id="drawCanvas"></canvas>
+                <div class="zoom-info" id="zoomInfo">100%</div>
                 <div class="canvas-controls">
+                    <button class="btn-small" id="resetViewBtn">🎯 Сбросить вид</button>
                     <button class="btn-small" id="clearCanvasBtn">Очистить всё</button>
                     <button class="btn-small" id="saveCanvasBtn">Сохранить как PNG</button>
                 </div>
@@ -244,13 +264,15 @@
         <div class="explanation">
             <h3>Как использовать графический редактор</h3>
             <ul>
+                <li><strong>Панорамирование</strong> — зажмите 🖱️ и перетаскивайте (или два пальца)</li>
+                <li><strong>Масштабирование</strong> — колесико мыши</li>
                 <li>Точка — клик для создания точки</li>
                 <li>Прямая линия — клик и перетаскивание</li>
                 <li>Прямоугольник — клик и перетаскивание от угла</li>
                 <li>Окружность — клик и перетаскивание от центра</li>
                 <li>Многоугольник — кликайте по точкам, нажмите "Завершить"</li>
                 <li>Свободное рисование — зажмите и рисуйте</li>
-                <li>Ластик — клик по элементу для удаления</li>
+                <li>Ластик — зажмите и водите по тому, что хотите стереть</li>
                 <li>Рисунки — выберите фигуру, затем кликните на холст</li>
                 <li>Формулы — выберите тип, введите параметры, нажмите "Построить"</li>
             </ul>
@@ -261,17 +283,26 @@
     <script>
         // ========== КОНФИГУРАЦИЯ ==========
         const CONFIG = {
-            canvasWidth: 1000,
-            canvasHeight: 800,
+            worldWidth: 1000,
+            worldHeight: 800,
             gridSize: 35,
+            minZoom: 0.3,
+            maxZoom: 3,
             defaultColor: '#000000',
             defaultBrushSize: 3,
-            maxBrushSize: 20,
-            minBrushSize: 1
+            canvasWidth: 1000,
+            canvasHeight: 800
+        };
+        
+        // ========== КАМЕРА ==========
+        let camera = {
+            x: 0, y: 0, zoom: 1.0,
+            width: CONFIG.canvasWidth,
+            height: CONFIG.canvasHeight
         };
         
         // ========== СОСТОЯНИЕ ==========
-        const state = {
+        let state = {
             shapes: [],
             history: [],
             historyIndex: -1,
@@ -280,9 +311,13 @@
             currentColor: CONFIG.defaultColor,
             brushSize: CONFIG.defaultBrushSize,
             startX: null, startY: null,
-            lastX: null, lastY: null,
+            startWorldX: null, startWorldY: null,
+            lastWorldX: null, lastWorldY: null,
             polygonPoints: [],
-            selectedDrawing: null
+            selectedDrawing: null,
+            panning: false,
+            panStartX: 0, panStartY: 0,
+            cameraStartX: 0, cameraStartY: 0
         };
         
         // ========== DOM ЭЛЕМЕНТЫ ==========
@@ -291,11 +326,100 @@
         canvas.width = CONFIG.canvasWidth;
         canvas.height = CONFIG.canvasHeight;
         
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+        // ========== ПРЕОБРАЗОВАНИЕ КООРДИНАТ ==========
+        function worldToScreen(worldX, worldY) {
+            return {
+                x: (worldX - camera.x) * camera.zoom + canvas.width / 2,
+                y: (worldY - camera.y) * camera.zoom + canvas.height / 2
+            };
+        }
+        
+        function screenToWorld(screenX, screenY) {
+            return {
+                x: (screenX - canvas.width / 2) / camera.zoom + camera.x,
+                y: (screenY - canvas.height / 2) / camera.zoom + camera.y
+            };
+        }
+        
+        function snapToGridWorld(x, y) {
+            const size = CONFIG.gridSize;
+            return {
+                x: Math.round(x / size) * size,
+                y: Math.round(y / size) * size
+            };
+        }
+        
+        // ========== УПРАВЛЕНИЕ КАМЕРОЙ ==========
+        function clampCamera() {
+            const halfWorldW = CONFIG.worldWidth * CONFIG.gridSize / 2;
+            const halfWorldH = CONFIG.worldHeight * CONFIG.gridSize / 2;
+            const viewW = canvas.width / camera.zoom;
+            const viewH = canvas.height / camera.zoom;
+            
+            camera.x = Math.max(-halfWorldW + viewW / 2, Math.min(halfWorldW - viewW / 2, camera.x));
+            camera.y = Math.max(-halfWorldH + viewH / 2, Math.min(halfWorldH - viewH / 2, camera.y));
+        }
+        
+        function zoomAtPoint(delta, screenX, screenY) {
+            const oldZoom = camera.zoom;
+            let newZoom = oldZoom * (1 + delta * 0.1);
+            newZoom = Math.min(CONFIG.maxZoom, Math.max(CONFIG.minZoom, newZoom));
+            if (newZoom === oldZoom) return;
+            
+            const worldBefore = screenToWorld(screenX, screenY);
+            camera.zoom = newZoom;
+            const worldAfter = screenToWorld(screenX, screenY);
+            
+            camera.x += worldBefore.x - worldAfter.x;
+            camera.y += worldBefore.y - worldAfter.y;
+            
+            clampCamera();
+            updateZoomInfo();
+            drawGrid();
+        }
+        
+        function panCamera(dx, dy) {
+            camera.x -= dx / camera.zoom;
+            camera.y -= dy / camera.zoom;
+            clampCamera();
+            drawGrid();
+        }
+        
+        function resetView() {
+            camera.zoom = 1.0;
+            camera.x = 0;
+            camera.y = 0;
+            clampCamera();
+            updateZoomInfo();
+            drawGrid();
+        }
+        
+        function updateZoomInfo() {
+            const percent = Math.round(camera.zoom * 100);
+            document.getElementById('zoomInfo').innerText = `${percent}%`;
+        }
+        
+        // ========== ИСТОРИЯ ==========
         function saveToHistory() {
             state.history = state.history.slice(0, state.historyIndex + 1);
             state.history.push(JSON.parse(JSON.stringify(state.shapes)));
             state.historyIndex++;
+        }
+        
+        function undo() {
+            if (state.historyIndex > 0) {
+                state.historyIndex--;
+                state.shapes = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+                drawGrid();
+            }
+        }
+        
+        function redo() {
+            if (state.historyIndex < state.history.length - 1) {
+                state.historyIndex++;
+                state.shapes = JSON.parse(JSON.stringify(state.history[state.historyIndex]));
+                drawGrid();
+            }
         }
         
         function addShape(shape) {
@@ -304,84 +428,156 @@
             drawGrid();
         }
         
-        function removeShape(index) {
-            if (index !== -1) {
-                state.shapes.splice(index, 1);
+        // ========== ЛАСТИК (ИСПРАВЛЕННЫЙ) ==========
+        function pointToLineDistance(px, py, x1, y1, x2, y2) {
+            const A = px - x1, B = py - y1;
+            const C = x2 - x1, D = y2 - y1;
+            const dot = A * C + B * D;
+            const len2 = C * C + D * D;
+            let t = len2 !== 0 ? dot / len2 : -1;
+            let xx, yy;
+            if (t < 0) { xx = x1; yy = y1; }
+            else if (t > 1) { xx = x2; yy = y2; }
+            else { xx = x1 + t * C; yy = y1 + t * D; }
+            return Math.hypot(px - xx, py - yy);
+        }
+        
+        function isPointInPolygon(px, py, points) {
+            let inside = false;
+            for (let i = 0, j = points.length-1; i < points.length; j = i++) {
+                const xi = points[i].x, yi = points[i].y;
+                const xj = points[j].x, yj = points[j].y;
+                const intersect = ((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+        
+        function eraseAtWorld(x, y, radius) {
+            let changed = false;
+            const toRemove = [];
+            
+            for (let i = 0; i < state.shapes.length; i++) {
+                const shape = state.shapes[i];
+                
+                if (shape.type === 'point') {
+                    if (Math.hypot(shape.x - x, shape.y - y) < radius) {
+                        toRemove.push(i);
+                        changed = true;
+                    }
+                } 
+                else if (shape.type === 'line') {
+                    const dist = pointToLineDistance(x, y, shape.x1, shape.y1, shape.x2, shape.y2);
+                    if (dist < radius) {
+                        toRemove.push(i);
+                        changed = true;
+                    }
+                } 
+                else if (shape.type === 'rect') {
+                    const closestX = Math.max(shape.x, Math.min(x, shape.x + shape.w));
+                    const closestY = Math.max(shape.y, Math.min(y, shape.y + shape.h));
+                    const dist = Math.hypot(x - closestX, y - closestY);
+                    if (dist < radius) {
+                        toRemove.push(i);
+                        changed = true;
+                    }
+                } 
+                else if (shape.type === 'circle') {
+                    const distToCenter = Math.hypot(x - shape.x, y - shape.y);
+                    if (Math.abs(distToCenter - shape.r) < radius) {
+                        toRemove.push(i);
+                        changed = true;
+                    }
+                } 
+                else if (shape.type === 'polygon') {
+                    let hit = false;
+                    for (let p of shape.points) {
+                        if (Math.hypot(x - p.x, y - p.y) < radius) {
+                            hit = true;
+                            break;
+                        }
+                    }
+                    if (!hit && isPointInPolygon(x, y, shape.points)) hit = true;
+                    if (hit) {
+                        toRemove.push(i);
+                        changed = true;
+                    }
+                } 
+                else if (shape.type === 'freehand') {
+                    for (let p of shape.points) {
+                        if (Math.hypot(x - p.x, y - p.y) < radius) {
+                            toRemove.push(i);
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            for (let i = toRemove.length - 1; i >= 0; i--) {
+                state.shapes.splice(toRemove[i], 1);
+            }
+            
+            if (changed) {
                 saveToHistory();
                 drawGrid();
             }
         }
         
-        function getCanvasCoords(e) {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            let clientX, clientY;
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            
-            return {
-                x: Math.min(Math.max((clientX - rect.left) * scaleX, 0), canvas.width),
-                y: Math.min(Math.max((clientY - rect.top) * scaleY, 0), canvas.height)
-            };
-        }
-        
-        function snapToGrid(x, y) {
-            if (document.getElementById('showGrid')?.checked) {
-                return {
-                    x: Math.round(x / CONFIG.gridSize) * CONFIG.gridSize,
-                    y: Math.round(y / CONFIG.gridSize) * CONFIG.gridSize
-                };
-            }
-            return { x, y };
-        }
-        
         // ========== ОТРИСОВКА ==========
         function drawGrid() {
-            const showGrid = document.getElementById('showGrid')?.checked;
-            const isDark = document.body.classList.contains('dark-theme');
-            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = isDark ? '#2a2a3a' : '#ffffff';
+            
+            const isDark = document.body.classList.contains('dark-theme');
+            const bgColor = isDark ? '#2a2a3a' : '#ffffff';
+            ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            const showGrid = document.getElementById('showGrid')?.checked;
+            const step = CONFIG.gridSize;
+            
             if (showGrid) {
+                const topLeft = screenToWorld(0, 0);
+                const bottomRight = screenToWorld(canvas.width, canvas.height);
+                
+                const startX = Math.floor(topLeft.x / step) * step;
+                const endX = Math.ceil(bottomRight.x / step) * step;
+                const startY = Math.floor(topLeft.y / step) * step;
+                const endY = Math.ceil(bottomRight.y / step) * step;
+                
                 ctx.beginPath();
                 ctx.strokeStyle = isDark ? '#4a4a5a' : '#e0e0e0';
                 ctx.lineWidth = 0.5;
                 
-                for (let x = CONFIG.gridSize; x < canvas.width; x += CONFIG.gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, canvas.height);
-                    ctx.stroke();
+                for (let x = startX; x <= endX; x += step) {
+                    const sx = worldToScreen(x, 0).x;
+                    if (sx >= 0 && sx <= canvas.width) {
+                        ctx.beginPath();
+                        ctx.moveTo(sx, 0);
+                        ctx.lineTo(sx, canvas.height);
+                        ctx.stroke();
+                    }
                 }
                 
-                for (let y = CONFIG.gridSize; y < canvas.height; y += CONFIG.gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(canvas.width, y);
-                    ctx.stroke();
+                for (let y = startY; y <= endY; y += step) {
+                    const sy = worldToScreen(0, y).y;
+                    if (sy >= 0 && sy <= canvas.height) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, sy);
+                        ctx.lineTo(canvas.width, sy);
+                        ctx.stroke();
+                    }
                 }
                 
+                const originX = worldToScreen(0, 0).x;
+                const originY = worldToScreen(0, 0).y;
                 ctx.beginPath();
                 ctx.strokeStyle = isDark ? '#888' : '#999';
                 ctx.lineWidth = 1.5;
-                
-                const centerY = canvas.height / 2;
-                ctx.moveTo(0, centerY);
-                ctx.lineTo(canvas.width, centerY);
-                ctx.stroke();
-                
-                const centerX = canvas.width / 2;
-                ctx.moveTo(centerX, 0);
-                ctx.lineTo(centerX, canvas.height);
+                ctx.moveTo(0, originY);
+                ctx.lineTo(canvas.width, originY);
+                ctx.moveTo(originX, 0);
+                ctx.lineTo(originX, canvas.height);
                 ctx.stroke();
             }
             
@@ -395,61 +591,59 @@
                 ctx.fillStyle = shape.color;
                 ctx.lineWidth = shape.size;
                 
-                switch (shape.type) {
-                    case 'point':
-                        ctx.arc(shape.x, shape.y, shape.size, 0, 2 * Math.PI);
-                        ctx.fill();
-                        break;
-                    case 'line':
-                        ctx.moveTo(shape.x1, shape.y1);
-                        ctx.lineTo(shape.x2, shape.y2);
+                if (shape.type === 'point') {
+                    const p = worldToScreen(shape.x, shape.y);
+                    ctx.arc(p.x, p.y, shape.size, 0, 2 * Math.PI);
+                    ctx.fill();
+                } else if (shape.type === 'line') {
+                    const p1 = worldToScreen(shape.x1, shape.y1);
+                    const p2 = worldToScreen(shape.x2, shape.y2);
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                } else if (shape.type === 'rect') {
+                    const p = worldToScreen(shape.x, shape.y);
+                    const p2 = worldToScreen(shape.x + shape.w, shape.y + shape.h);
+                    ctx.strokeRect(p.x, p.y, p2.x - p.x, p2.y - p.y);
+                } else if (shape.type === 'circle') {
+                    const center = worldToScreen(shape.x, shape.y);
+                    const radiusX = shape.r * camera.zoom;
+                    ctx.arc(center.x, center.y, radiusX, 0, 2 * Math.PI);
+                    ctx.stroke();
+                } else if (shape.type === 'polygon') {
+                    if (shape.points.length < 2) break;
+                    const points = shape.points.map(p => worldToScreen(p.x, p.y));
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i].x, points[i].y);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                } else if (shape.type === 'freehand') {
+                    for (let i = 1; i < shape.points.length; i++) {
+                        const p1 = worldToScreen(shape.points[i-1].x, shape.points[i-1].y);
+                        const p2 = worldToScreen(shape.points[i].x, shape.points[i].y);
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
                         ctx.stroke();
-                        break;
-                    case 'rect':
-                        ctx.strokeRect(shape.x, shape.y, shape.w, shape.h);
-                        break;
-                    case 'circle':
-                        ctx.arc(shape.x, shape.y, shape.r, 0, 2 * Math.PI);
-                        ctx.stroke();
-                        break;
-                    case 'polygon':
-                        if (shape.points.length < 2) break;
-                        ctx.moveTo(shape.points[0].x, shape.points[0].y);
-                        for (let i = 1; i < shape.points.length; i++) {
-                            ctx.lineTo(shape.points[i].x, shape.points[i].y);
-                        }
-                        ctx.closePath();
-                        ctx.stroke();
-                        break;
-                    case 'freehand':
-                        for (let i = 1; i < shape.points.length; i++) {
-                            ctx.beginPath();
-                            ctx.moveTo(shape.points[i-1].x, shape.points[i-1].y);
-                            ctx.lineTo(shape.points[i].x, shape.points[i].y);
-                            ctx.stroke();
-                        }
-                        break;
+                    }
                 }
             }
         }
         
-        // ========== ФИГУРЫ ==========
+        // ========== РИСУНКИ ==========
         function createStar(cx, cy) {
             const outerR = 40, innerR = 18;
             const points = 5;
             let angle = Math.PI / 2;
             const step = Math.PI / points;
             const starPoints = [];
-            
             for (let i = 0; i < points * 2; i++) {
                 const r = (i % 2 === 0) ? outerR : innerR;
-                starPoints.push({
-                    x: cx + r * Math.cos(angle),
-                    y: cy - r * Math.sin(angle)
-                });
+                starPoints.push({ x: cx + r * Math.cos(angle), y: cy - r * Math.sin(angle) });
                 angle += step;
             }
-            
             addShape({ type: 'polygon', points: starPoints, color: state.currentColor, size: state.brushSize });
         }
         
@@ -469,7 +663,6 @@
             addShape({ type: 'circle', x: cx, y: cy, r: r, color: state.currentColor, size: state.brushSize });
             addShape({ type: 'point', x: cx - 14, y: cy - 10, color: state.currentColor, size: state.brushSize });
             addShape({ type: 'point', x: cx + 14, y: cy - 10, color: state.currentColor, size: state.brushSize });
-            
             const smilePoints = [];
             for (let angle = 0.2; angle <= Math.PI - 0.2; angle += 0.05) {
                 smilePoints.push({ x: cx + 22 * Math.cos(angle), y: cy + 15 * Math.sin(angle) });
@@ -480,7 +673,6 @@
         function createHouse(cx, cy) {
             const w = 60, h = 50;
             addShape({ type: 'rect', x: cx - w/2, y: cy - h/2, w, h, color: state.currentColor, size: state.brushSize });
-            
             const roofPoints = [
                 { x: cx - w/2 - 8, y: cy - h/2 },
                 { x: cx, y: cy - h/2 - 35 },
@@ -491,16 +683,13 @@
         
         function createCat(cx, cy) {
             addShape({ type: 'circle', x: cx, y: cy, r: 30, color: state.currentColor, size: state.brushSize });
-            
             const earLeft = [{ x: cx - 22, y: cy - 25 }, { x: cx - 35, y: cy - 48 }, { x: cx - 12, y: cy - 38 }];
             const earRight = [{ x: cx + 22, y: cy - 25 }, { x: cx + 35, y: cy - 48 }, { x: cx + 12, y: cy - 38 }];
             addShape({ type: 'polygon', points: earLeft, color: state.currentColor, size: state.brushSize });
             addShape({ type: 'polygon', points: earRight, color: state.currentColor, size: state.brushSize });
-            
             addShape({ type: 'point', x: cx - 11, y: cy - 6, color: state.currentColor, size: state.brushSize });
             addShape({ type: 'point', x: cx + 11, y: cy - 6, color: state.currentColor, size: state.brushSize });
             addShape({ type: 'point', x: cx, y: cy + 3, color: state.currentColor, size: state.brushSize });
-            
             addShape({ type: 'line', x1: cx - 18, y1: cy + 3, x2: cx - 6, y2: cy + 3, color: state.currentColor, size: state.brushSize });
             addShape({ type: 'line', x1: cx + 18, y1: cy + 3, x2: cx + 6, y2: cy + 3, color: state.currentColor, size: state.brushSize });
             addShape({ type: 'line', x1: cx - 17, y1: cy + 9, x2: cx - 5, y2: cy + 6, color: state.currentColor, size: state.brushSize });
@@ -523,8 +712,21 @@
         
         function onMouseDown(e) {
             e.preventDefault();
-            const { x, y } = getCanvasCoords(e);
-            const snapped = snapToGrid(x, y);
+            const rect = canvas.getBoundingClientRect();
+            const mouseScreenX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const mouseScreenY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            const world = screenToWorld(mouseScreenX, mouseScreenY);
+            const snapped = snapToGridWorld(world.x, world.y);
+            
+            if (state.currentTool === 'cursor' && (e.button === 0 || e.button === 2)) {
+                state.panning = true;
+                state.panStartX = e.clientX;
+                state.panStartY = e.clientY;
+                state.cameraStartX = camera.x;
+                state.cameraStartY = camera.y;
+                canvas.style.cursor = 'grabbing';
+                return;
+            }
             
             if (state.selectedDrawing) {
                 const drawings = { star: createStar, heart: createHeart, smile: createSmile, house: createHouse, cat: createCat };
@@ -539,16 +741,19 @@
                 document.getElementById('polygonStatus').style.display = 'block';
                 drawGrid();
                 for (let p of state.polygonPoints) {
+                    const sp = worldToScreen(p.x, p.y);
                     ctx.beginPath();
-                    ctx.arc(p.x, p.y, state.brushSize, 0, 2 * Math.PI);
+                    ctx.arc(sp.x, sp.y, state.brushSize, 0, 2 * Math.PI);
                     ctx.fillStyle = state.currentColor;
                     ctx.fill();
                 }
                 if (state.polygonPoints.length > 1) {
+                    const first = worldToScreen(state.polygonPoints[0].x, state.polygonPoints[0].y);
                     ctx.beginPath();
-                    ctx.moveTo(state.polygonPoints[0].x, state.polygonPoints[0].y);
+                    ctx.moveTo(first.x, first.y);
                     for (let i = 1; i < state.polygonPoints.length; i++) {
-                        ctx.lineTo(state.polygonPoints[i].x, state.polygonPoints[i].y);
+                        const p = worldToScreen(state.polygonPoints[i].x, state.polygonPoints[i].y);
+                        ctx.lineTo(p.x, p.y);
                     }
                     ctx.strokeStyle = state.currentColor;
                     ctx.lineWidth = state.brushSize;
@@ -558,42 +763,66 @@
             }
             
             state.drawing = true;
-            state.startX = snapped.x;
-            state.startY = snapped.y;
-            state.lastX = snapped.x;
-            state.lastY = snapped.y;
+            state.startWorldX = snapped.x;
+            state.startWorldY = snapped.y;
+            state.lastWorldX = snapped.x;
+            state.lastWorldY = snapped.y;
             
             if (state.currentTool === 'point') {
                 addShape({ type: 'point', x: snapped.x, y: snapped.y, color: state.currentColor, size: state.brushSize });
                 state.drawing = false;
-            } else if (state.currentTool === 'eraser' || state.currentTool === 'cursor') {
-                const index = findShapeAt(snapped.x, snapped.y);
-                if (index !== -1) removeShape(index);
+            } else if (state.currentTool === 'eraser') {
+                eraseAtWorld(snapped.x, snapped.y, state.brushSize * 2);
                 state.drawing = false;
             }
         }
         
         function onMouseMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseScreenX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const mouseScreenY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            const world = screenToWorld(mouseScreenX, mouseScreenY);
+            const snapped = snapToGridWorld(world.x, world.y);
+            
+            if (state.panning) {
+                const dx = e.clientX - state.panStartX;
+                const dy = e.clientY - state.panStartY;
+                camera.x = state.cameraStartX - dx / camera.zoom;
+                camera.y = state.cameraStartY - dy / camera.zoom;
+                clampCamera();
+                drawGrid();
+                return;
+            }
+            
             if (!state.drawing) return;
-            e.preventDefault();
-            const { x, y } = getCanvasCoords(e);
-            const snapped = snapToGrid(x, y);
+            
+            if (state.currentTool === 'eraser') {
+                eraseAtWorld(snapped.x, snapped.y, state.brushSize * 2);
+                return;
+            }
             
             if (state.currentTool === 'freehand') {
-                addShape({ type: 'line', x1: state.lastX, y1: state.lastY, x2: snapped.x, y2: snapped.y, color: state.currentColor, size: state.brushSize });
-                state.lastX = snapped.x;
-                state.lastY = snapped.y;
-            } else if ((state.currentTool === 'line' || state.currentTool === 'rect' || state.currentTool === 'circle') && state.startX !== null) {
+                if (state.lastWorldX !== null) {
+                    addShape({ type: 'line', x1: state.lastWorldX, y1: state.lastWorldY, x2: snapped.x, y2: snapped.y, color: state.currentColor, size: state.brushSize });
+                }
+                state.lastWorldX = snapped.x;
+                state.lastWorldY = snapped.y;
+                return;
+            }
+            
+            if ((state.currentTool === 'line' || state.currentTool === 'rect' || state.currentTool === 'circle') && state.startWorldX !== null) {
                 drawGrid();
+                const start = worldToScreen(state.startWorldX, state.startWorldY);
+                const end = worldToScreen(snapped.x, snapped.y);
                 ctx.beginPath();
                 if (state.currentTool === 'line') {
-                    ctx.moveTo(state.startX, state.startY);
-                    ctx.lineTo(snapped.x, snapped.y);
+                    ctx.moveTo(start.x, start.y);
+                    ctx.lineTo(end.x, end.y);
                 } else if (state.currentTool === 'rect') {
-                    ctx.strokeRect(state.startX, state.startY, snapped.x - state.startX, snapped.y - state.startY);
+                    ctx.strokeRect(start.x, start.y, end.x - start.x, end.y - start.y);
                 } else if (state.currentTool === 'circle') {
-                    const r = Math.hypot(snapped.x - state.startX, snapped.y - state.startY);
-                    ctx.arc(state.startX, state.startY, r, 0, 2 * Math.PI);
+                    const r = Math.hypot(end.x - start.x, end.y - start.y);
+                    ctx.arc(start.x, start.y, r, 0, 2 * Math.PI);
                 }
                 ctx.strokeStyle = state.currentColor;
                 ctx.lineWidth = state.brushSize;
@@ -602,72 +831,40 @@
         }
         
         function onMouseUp(e) {
-            if (!state.drawing) return;
-            e.preventDefault();
-            const { x, y } = getCanvasCoords(e);
-            const snapped = snapToGrid(x, y);
-            
-            if (state.currentTool === 'line' && state.startX !== null) {
-                addShape({ type: 'line', x1: state.startX, y1: state.startY, x2: snapped.x, y2: snapped.y, color: state.currentColor, size: state.brushSize });
-            } else if (state.currentTool === 'rect' && state.startX !== null) {
-                addShape({ type: 'rect', x: state.startX, y: state.startY, w: snapped.x - state.startX, h: snapped.y - state.startY, color: state.currentColor, size: state.brushSize });
-            } else if (state.currentTool === 'circle' && state.startX !== null) {
-                const r = Math.hypot(snapped.x - state.startX, snapped.y - state.startY);
-                addShape({ type: 'circle', x: state.startX, y: state.startY, r, color: state.currentColor, size: state.brushSize });
+            if (state.panning) {
+                state.panning = false;
+                canvas.style.cursor = 'crosshair';
+                return;
             }
             
-            state.startX = null;
-            state.startY = null;
+            if (!state.drawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseScreenX = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const mouseScreenY = (e.clientY - rect.top) * (canvas.height / rect.height);
+            const world = screenToWorld(mouseScreenX, mouseScreenY);
+            const snapped = snapToGridWorld(world.x, world.y);
+            
+            if (state.currentTool === 'line' && state.startWorldX !== null) {
+                addShape({ type: 'line', x1: state.startWorldX, y1: state.startWorldY, x2: snapped.x, y2: snapped.y, color: state.currentColor, size: state.brushSize });
+            } else if (state.currentTool === 'rect' && state.startWorldX !== null) {
+                addShape({ type: 'rect', x: state.startWorldX, y: state.startWorldY, w: snapped.x - state.startWorldX, h: snapped.y - state.startWorldY, color: state.currentColor, size: state.brushSize });
+            } else if (state.currentTool === 'circle' && state.startWorldX !== null) {
+                const r = Math.hypot(snapped.x - state.startWorldX, snapped.y - state.startWorldY);
+                addShape({ type: 'circle', x: state.startWorldX, y: state.startWorldY, r, color: state.currentColor, size: state.brushSize });
+            }
+            
+            state.startWorldX = null;
+            state.startWorldY = null;
+            state.lastWorldX = null;
+            state.lastWorldY = null;
             state.drawing = false;
             drawGrid();
         }
         
-        // ========== ПОИСК ФИГУР ==========
-        function findShapeAt(x, y) {
-            for (let i = state.shapes.length - 1; i >= 0; i--) {
-                const shape = state.shapes[i];
-                if (shape.type === 'point' && Math.hypot(x - shape.x, y - shape.y) < shape.size + 5) return i;
-                if (shape.type === 'line' && pointToLineDistance(x, y, shape.x1, shape.y1, shape.x2, shape.y2) < shape.size + 5) return i;
-                if (shape.type === 'rect' && x >= shape.x && x <= shape.x + shape.w && y >= shape.y && y <= shape.y + shape.h) return i;
-                if (shape.type === 'circle' && Math.abs(Math.hypot(x - shape.x, y - shape.y) - shape.r) < shape.size + 5) return i;
-                if (shape.type === 'polygon' && isPointInPolygon(x, y, shape.points)) return i;
-                if (shape.type === 'freehand' && shape.points.some(p => Math.hypot(x - p.x, y - p.y) < shape.size + 5)) return i;
-            }
-            return -1;
-        }
-        
-        function isPointInPolygon(px, py, points) {
-            let inside = false;
-            for (let i = 0, j = points.length-1; i < points.length; j = i++) {
-                const xi = points[i].x, yi = points[i].y;
-                const xj = points[j].x, yj = points[j].y;
-                const intersect = ((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
-                if (intersect) inside = !inside;
-            }
-            return inside;
-        }
-        
-        function pointToLineDistance(px, py, x1, y1, x2, y2) {
-            const A = px - x1, B = py - y1;
-            const C = x2 - x1, D = y2 - y1;
-            const dot = A * C + B * D;
-            const len2 = C * C + D * D;
-            let t = len2 !== 0 ? dot / len2 : -1;
-            
-            let xx, yy;
-            if (t < 0) { xx = x1; yy = y1; }
-            else if (t > 1) { xx = x2; yy = y2; }
-            else { xx = x1 + t * C; yy = y1 + t * D; }
-            
-            return Math.hypot(px - xx, py - yy);
-        }
-        
         // ========== ФОРМУЛЫ ==========
         function drawFormula(type, params) {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const scale = CONFIG.gridSize;
-            
+            const step = CONFIG.gridSize;
             const formulas = {
                 line: (x) => params.k * x + params.b,
                 parabola: (x) => params.a * x * x + params.b * x + params.c,
@@ -676,27 +873,25 @@
                 cosine: (x) => params.a * Math.cos(params.b * x + params.c) + params.d,
                 exponential: (x) => params.a * Math.exp(params.k * x)
             };
-            
             const fn = formulas[type];
             if (!fn) return;
             
-            for (let screenX = 0; screenX < canvas.width; screenX++) {
-                const x = (screenX - centerX) / scale;
-                let y;
-                try {
-                    y = fn(x);
-                } catch { continue; }
-                const screenY = centerY - y * scale;
-                if (screenY >= 0 && screenY <= canvas.height && screenX > 0) {
-                    const prevX = screenX - 1;
-                    const prevXworld = (prevX - centerX) / scale;
-                    let prevY;
-                    try {
-                        prevY = fn(prevXworld);
-                    } catch { continue; }
-                    const prevScreenY = centerY - prevY * scale;
-                    addShape({ type: 'line', x1: prevX, y1: prevScreenY, x2: screenX, y2: screenY, color: state.currentColor, size: state.brushSize });
+            const worldStartX = -CONFIG.worldWidth * step / 2;
+            const worldEndX = CONFIG.worldWidth * step / 2;
+            
+            let lastX = worldStartX;
+            let lastY = fn(lastX);
+            if (isNaN(lastY) || !isFinite(lastY)) lastY = 0;
+            
+            for (let x = worldStartX + step/4; x <= worldEndX; x += step/4) {
+                let y = fn(x);
+                if (isNaN(y) || !isFinite(y)) {
+                    lastX = x;
+                    continue;
                 }
+                addShape({ type: 'line', x1: lastX, y1: lastY, x2: x, y2: y, color: state.currentColor, size: state.brushSize });
+                lastX = x;
+                lastY = y;
             }
         }
         
@@ -793,8 +988,8 @@
                 const params = paramsMap[type]?.();
                 if (params && Object.values(params).every(v => !isNaN(v))) {
                     if (type === 'circle') {
-                        const centerX = canvas.width / 2 + params.a * CONFIG.gridSize;
-                        const centerY = canvas.height / 2 - params.b * CONFIG.gridSize;
+                        const centerX = params.a * CONFIG.gridSize;
+                        const centerY = -params.b * CONFIG.gridSize;
                         addShape({ type: 'circle', x: centerX, y: centerY, r: params.r * CONFIG.gridSize, color: state.currentColor, size: state.brushSize });
                     } else {
                         drawFormula(type, params);
@@ -803,17 +998,64 @@
             });
         }
         
-        // ========== ОБЩИЕ НАСТРОЙКИ ==========
-        function init() {
-            saveToHistory();
-            drawGrid();
+        // ========== СОБЫТИЯ CANVAS ==========
+        function setupCanvasEvents() {
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const delta = e.deltaY > 0 ? -1 : 1;
+                zoomAtPoint(delta, mouseX, mouseY);
+            }, { passive: false });
             
             canvas.addEventListener('mousedown', onMouseDown);
             canvas.addEventListener('mousemove', onMouseMove);
             canvas.addEventListener('mouseup', onMouseUp);
-            canvas.addEventListener('touchstart', e => { e.preventDefault(); onMouseDown(e); });
-            canvas.addEventListener('touchmove', e => { e.preventDefault(); onMouseMove(e); });
-            canvas.addEventListener('touchend', e => { e.preventDefault(); onMouseUp(e); });
+            canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+            
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (e.touches.length === 2) {
+                    state.panning = true;
+                    state.panStartX = e.touches[0].clientX;
+                    state.panStartY = e.touches[0].clientY;
+                    state.cameraStartX = camera.x;
+                    state.cameraStartY = camera.y;
+                } else {
+                    const touch = e.touches[0];
+                    onMouseDown({ clientX: touch.clientX, clientY: touch.clientY, button: 0, preventDefault: () => {} });
+                }
+            });
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (state.panning && e.touches.length === 2) {
+                    const dx = e.touches[0].clientX - state.panStartX;
+                    const dy = e.touches[0].clientY - state.panStartY;
+                    camera.x = state.cameraStartX - dx / camera.zoom;
+                    camera.y = state.cameraStartY - dy / camera.zoom;
+                    clampCamera();
+                    drawGrid();
+                } else if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    onMouseMove({ clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => {} });
+                }
+            });
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                state.panning = false;
+                onMouseUp({});
+            });
+        }
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        function init() {
+            clampCamera();
+            updateZoomInfo();
+            saveToHistory();
+            drawGrid();
+            
+            setupCanvasEvents();
             
             document.getElementById('showGrid').addEventListener('change', () => drawGrid());
             document.getElementById('clearCanvasBtn').addEventListener('click', () => { state.shapes = []; saveToHistory(); drawGrid(); });
@@ -823,8 +1065,9 @@
                 link.href = canvas.toDataURL();
                 link.click();
             });
-            document.getElementById('undoBtn').addEventListener('click', () => { if (state.historyIndex > 0) { state.historyIndex--; state.shapes = JSON.parse(JSON.stringify(state.history[state.historyIndex])); drawGrid(); } });
-            document.getElementById('redoBtn').addEventListener('click', () => { if (state.historyIndex < state.history.length - 1) { state.historyIndex++; state.shapes = JSON.parse(JSON.stringify(state.history[state.historyIndex])); drawGrid(); } });
+            document.getElementById('resetViewBtn').addEventListener('click', () => resetView());
+            document.getElementById('undoBtn').addEventListener('click', () => undo());
+            document.getElementById('redoBtn').addEventListener('click', () => redo());
             document.getElementById('finishPolygonBtn').addEventListener('click', () => finishPolygon());
             document.getElementById('brushSize').addEventListener('input', (e) => { state.brushSize = parseInt(e.target.value); });
             
