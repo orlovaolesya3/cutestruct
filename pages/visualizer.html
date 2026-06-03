@@ -359,7 +359,7 @@
                         <label> Финиш: <input type="text" id="endNode" placeholder="наибольшая"></label>
                     </div>
                     <div style="font-size: 12px; margin-top: 8px; opacity: 0.7;">
-                        Старт = начальная вершина, финиш = конечная
+                        По умолчанию: старт = наименьшая вершина, финиш = наибольшая
                     </div>
                 </div>
                 
@@ -370,6 +370,21 @@
                         <button onclick="loadExample('bamboo')"> Бамбук (линия)</button>
                         <button onclick="loadExample('cycle')"> Цикл</button>
                         <button onclick="loadExample('weighted')"> Взвешенный</button>
+                    </div>
+                </div>
+                
+                <!-- НОВЫЙ БЛОК: Случайный граф -->
+                <div class="control-group">
+                    <h3> Случайный граф</h3>
+                    <div class="button-group">
+                        <label>Вершины: <input type="number" id="randomNodes" value="5" min="1" max="15" style="width: 65px;"></label>
+                        <label>Рёбра: <input type="number" id="randomEdges" value="6" min="0" max="50" style="width: 65px;"></label>
+                    </div>
+                    <div class="button-group">
+                        <button onclick="generateRandomGraph()"> Генерировать</button>
+                    </div>
+                    <div style="font-size: 11px; margin-top: 5px; opacity: 0.6;">
+                        Макс. рёбер для n вершин: n·(n-1)/2
                     </div>
                 </div>
                 
@@ -388,7 +403,8 @@
                 <li> <strong>Любые имена вершин</strong>: числа, отрицательные числа, буквы (A, B, C...)</li>
                 <li> Включите "Взвешенный граф" для отображения чисел на рёбрах</li>
                 <li> Включите "Ориентированный граф" для стрелок посередине рёбер</li>
-                <li> Введите начальную и конечную вершины для использования алгоритмов</li>
+                <li> Старт и финиш автоматически определяются как мин/макс, но можно изменить</li>
+                <li> Используйте "Случайный граф" для быстрой генерации графов с заданным числом вершин и рёбер</li>
             </ul>
         </div>
     </div>
@@ -806,6 +822,67 @@
             document.getElementById('graphInput').value = text;
             parseAndUpdateGraph();
             document.getElementById('algoStatus').innerHTML = ` Загружен пример: ${type === 'tree' ? 'Дерево' : type === 'bamboo' ? 'Бамбук' : type === 'cycle' ? 'Цикл' : 'Взвешенный'}`;
+        }
+        
+        // НОВАЯ ФУНКЦИЯ: Генерация случайного графа
+        function generateRandomGraph() {
+            const n = parseInt(document.getElementById('randomNodes').value);
+            let m = parseInt(document.getElementById('randomEdges').value);
+            
+            if (isNaN(n) || n < 1 || n > 15) {
+                alert('Количество вершин должно быть от 1 до 15');
+                return;
+            }
+            
+            const maxEdges = n * (n - 1) / 2;
+            if (isNaN(m) || m < 0) {
+                m = Math.floor(maxEdges * 0.5);
+            }
+            if (m > maxEdges) {
+                alert(`Максимальное количество рёбер для ${n} вершин: ${maxEdges}`);
+                return;
+            }
+            
+            const vertices = Array.from({ length: n }, (_, i) => i + 1);
+            const edgesSet = new Set();
+            const edges = [];
+            
+            if (m > maxEdges / 2) {
+                const allEdges = [];
+                for (let i = 0; i < n; i++) {
+                    for (let j = i + 1; j < n; j++) {
+                        allEdges.push([vertices[i], vertices[j]]);
+                    }
+                }
+                for (let i = allEdges.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allEdges[i], allEdges[j]] = [allEdges[j], allEdges[i]];
+                }
+                for (let i = 0; i < m; i++) {
+                    const [a, b] = allEdges[i];
+                    edges.push(`${a} ${b}`);
+                }
+            } else {
+                while (edges.length < m) {
+                    const a = vertices[Math.floor(Math.random() * n)];
+                    let b = vertices[Math.floor(Math.random() * n)];
+                    while (a === b) {
+                        b = vertices[Math.floor(Math.random() * n)];
+                    }
+                    const key = `${Math.min(a, b)}-${Math.max(a, b)}`;
+                    if (!edgesSet.has(key)) {
+                        edgesSet.add(key);
+                        edges.push(`${a} ${b}`);
+                    }
+                }
+            }
+            
+            document.getElementById('graphInput').value = edges.join('\n');
+            parseAndUpdateGraph();
+            
+            setTimeout(() => resetNodePositions(), 100);
+            
+            document.getElementById('algoStatus').innerHTML = ` Случайный граф: ${n} вершин, ${edges.length} рёбер`;
         }
         
         function findNodeUnderCursor(clientX, clientY) {
