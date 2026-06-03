@@ -1,4 +1,3 @@
-```markdown
 #  CuteStruct
 
 ссылочка ->  https://orlovaolesya3.github.io/cutestruct/   
@@ -41,4 +40,3 @@
 ---
 
  **Успехов!!** <3
-```
