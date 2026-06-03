@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="../paw.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Матричное умножение Фибоначчи</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .paw-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-image: url('../images/paw.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .matrix {
+            display: inline-block;
+            font-family: monospace;
+            text-align: center;
+            margin: 10px;
+        }
+        
+        .matrix-row {
+            display: flex;
+        }
+        
+        .matrix-cell {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(171, 205, 239, 0.3);
+            margin: -1px 0 0 -1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/math.html" class="back-btn">← Назад к математике</a>
+        
+        <header>
+            <h1>Матричное умножение Фибоначчи</h1>
+            <p>Вычисление чисел Фибоначчи за O(log n) через возведение матрицы в степень</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>def mat_mult(A, B):
+    return [
+        [A[0][0]*B[0][0] + A[0][1]*B[1][0], A[0][0]*B[0][1] + A[0][1]*B[1][1]],
+        [A[1][0]*B[0][0] + A[1][1]*B[1][0], A[1][0]*B[0][1] + A[1][1]*B[1][1]]
+    ]
+
+def mat_pow(M, n):
+    result = [[1, 0], [0, 1]]
+    while n > 0:
+        if n & 1:
+            result = mat_mult(result, M)
+        M = mat_mult(M, M)
+        n >>= 1
+    return result
+
+def fib(n):
+    if n <= 1:
+        return n
+    M = [[1, 1], [1, 0]]
+    return mat_pow(M, n-1)[0][0]
+
+n = int(input())
+print(fib(n))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+struct Matrix {
+    long long a, b, c, d;
+    Matrix(long long a=1, long long b=0, long long c=0, long long d=1) 
+        : a(a), b(b), c(c), d(d) {}
+};
+
+Matrix multiply(const Matrix& A, const Matrix& B) {
+    return Matrix(
+        A.a*B.a + A.b*B.c,
+        A.a*B.b + A.b*B.d,
+        A.c*B.a + A.d*B.c,
+        A.c*B.b + A.d*B.d
+    );
+}
+
+Matrix power(Matrix M, long long n) {
+    Matrix result;
+    while (n > 0) {
+        if (n & 1) result = multiply(result, M);
+        M = multiply(M, M);
+        n >>= 1;
+    }
+    return result;
+}
+
+long long fib(long long n) {
+    if (n <= 1) return n;
+    Matrix M(1, 1, 1, 0);
+    return power(M, n-1).a;
+}
+
+int main() {
+    long long n;
+    cin >> n;
+    cout << fib(n) << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает матричное умножение Фибоначчи?</h3>
+            
+            <p>Числа Фибоначчи можно вычислить с помощью возведения матрицы в степень:</p>
+            
+            <div class="formula">
+                [F(n+1)  F(n)  ]   =   [1  1]<sup>n</sup><br>
+                [F(n)    F(n-1)]       [1  0]
+            </div>
+            
+            <p>Таким образом, <strong>F(n)</strong> равно элементу в левом верхнем углу матрицы, возведённой в степень n-1.</p>
+            
+            <h4>Почему это работает?</h4>
+            <p>Матрица M = [[1, 1], [1, 0]] обладает свойством:</p>
+            <div class="formula">M · [F(n), F(n-1)]<sup>T</sup> = [F(n+1), F(n)]<sup>T</sup></div>
+            <p>Возведение в степень n даёт Mⁿ, которая умножает начальный вектор [F(1), F(0)] = [1, 0].</p>
+            
+            <h4>Преимущество</h4>
+            <p>Бинарное возведение в степень выполняется за O(log n) умножений матриц 2×2, что значительно быстрее O(n) итеративного метода для больших n.</p>
+            
+            <p><strong>Временная сложность: O(log n)</strong></p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong> n — номер числа Фибоначчи (0-индексация)</p>
+            <p><strong>Вывод:</strong> F(n)</p>
+            
+            <div class="input-example">
+                <h4>Пример:</h4>
+                <pre><code>10</code></pre>
+                <p><strong>Вывод: 55</strong></p>
+                <p>Ряд Фибоначчи: F(0)=0, F(1)=1, F(2)=1, F(3)=2, F(4)=3, F(5)=5, F(6)=8, F(7)=13, F(8)=21, F(9)=34, F(10)=55</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <label>n:</label>
+            <input type="number" id="mat-fib-input" value="10" min="0" max="90">
+            
+            <div class="try-it">
+                <button onclick="runMatrixFibonacci()"><span class="paw-icon"></span> Вычислить</button>
+                <button onclick="loadMatFibExample1()">n = 10</button>
+                <button onclick="loadMatFibExample2()">n = 20</button>
+                <button onclick="loadMatFibExample3()">n = 50</button>
+            </div>
+            
+            <div class="output" id="mat-fib-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function matMultiply(A, B) {
+            return {
+                a: A.a * B.a + A.b * B.c,
+                b: A.a * B.b + A.b * B.d,
+                c: A.c * B.a + A.d * B.c,
+                d: A.c * B.b + A.d * B.d
+            };
+        }
+        
+        function matPower(M, n) {
+            let result = { a: 1, b: 0, c: 0, d: 1 };
+            let steps = [];
+            let power = n;
+            
+            while (n > 0) {
+                if (n & 1) {
+                    result = matMultiply(result, M);
+                }
+                M = matMultiply(M, M);
+                n >>= 1;
+            }
+            return result;
+        }
+        
+        function matrixFibonacci(n) {
+            if (n <= 1) return n;
+            const M = { a: 1, b: 1, c: 1, d: 0 };
+            const result = matPower(M, n - 1);
+            return result.a;
+        }
+        
+        function runMatrixFibonacci() {
+            const n = parseInt(document.getElementById('mat-fib-input').value);
+            
+            if (isNaN(n) || n < 0) {
+                document.getElementById('mat-fib-output').innerHTML = 'Введите неотрицательное число n';
+                return;
+            }
+            
+            const steps = [];
+            steps.push(`Вычисляем F(${n}) матричным методом`);
+            steps.push(`Матрица M = [[1, 1], [1, 0]]`);
+            
+            if (n <= 1) {
+                steps.push(`\nF(${n}) = ${n}`);
+                document.getElementById('mat-fib-output').innerHTML = `${n}`;
+            } else {
+                steps.push(`\nВозводим M в степень ${n-1} (так как F(n) = M^(n-1)[0][0])`);
+                
+                // Демонстрация бинарного возведения
+                let exp = n - 1;
+                steps.push(`\nБинарное представление ${exp}: ${exp.toString(2)}`);
+                
+                const result = matrixFibonacci(n);
+                steps.push(`\nРезультат: F(${n}) = ${result}`);
+                
+                document.getElementById('mat-fib-output').innerHTML = `${result}`;
+            }
+            
+            const outputDiv = document.getElementById('mat-fib-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadMatFibExample1() {
+            document.getElementById('mat-fib-input').value = '10';
+            runMatrixFibonacci();
+        }
+        
+        function loadMatFibExample2() {
+            document.getElementById('mat-fib-input').value = '20';
+            runMatrixFibonacci();
+        }
+        
+        function loadMatFibExample3() {
+            document.getElementById('mat-fib-input').value = '50';
+            runMatrixFibonacci();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadMatFibExample1();
+        });
+    </script>
+</body>
+</html>
